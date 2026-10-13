@@ -32,6 +32,11 @@ abstract class Widget extends Widget_Base {
 	private static ?array $page_options = null;
 
 	/**
+	 * Indica si algún widget ya ha pintado el h1 de la página.
+	 */
+	private static bool $h1_rendered = false;
+
+	/**
 	 * Identificador corto: nombre del widget (pbc-<slug>), del bloque BEM y de la hoja de estilo.
 	 */
 	abstract protected function slug(): string;
@@ -194,14 +199,15 @@ abstract class Widget extends Widget_Base {
 		$this->add_control(
 			'title_tag',
 			[
-				'label'   => esc_html__( 'Nivel del título', 'parkinson-bahia-core' ),
-				'type'    => Controls_Manager::SELECT,
-				'options' => [
+				'label'       => esc_html__( 'Nivel del título', 'parkinson-bahia-core' ),
+				'description' => esc_html__( 'Cada página lleva un único H1: el título principal. Si ya hay uno, este se mostrará como H2.', 'parkinson-bahia-core' ),
+				'type'        => Controls_Manager::SELECT,
+				'options'     => [
 					'h1' => 'H1',
 					'h2' => 'H2',
 					'h3' => 'H3',
 				],
-				'default' => $default,
+				'default'     => $default,
 			]
 		);
 	}
@@ -211,12 +217,23 @@ abstract class Widget extends Widget_Base {
 	/**
 	 * Etiqueta de encabezado validada.
 	 *
+	 * Solo puede haber un h1 por página: si ya se ha pintado uno en esta
+	 * petición, los siguientes widgets que lo pidan bajan a h2.
+	 *
 	 * @param array<string, mixed> $settings Ajustes del widget.
 	 */
 	protected function heading_tag( array $settings, string $fallback = 'h2' ): string {
 		$tag = Utils::validate_html_tag( (string) ( $settings['title_tag'] ?? $fallback ) );
+		$tag = in_array( $tag, [ 'h1', 'h2', 'h3' ], true ) ? $tag : $fallback;
 
-		return in_array( $tag, [ 'h1', 'h2', 'h3' ], true ) ? $tag : $fallback;
+		if ( 'h1' === $tag ) {
+			if ( self::$h1_rendered ) {
+				return 'h2';
+			}
+			self::$h1_rendered = true;
+		}
+
+		return $tag;
 	}
 
 	/**

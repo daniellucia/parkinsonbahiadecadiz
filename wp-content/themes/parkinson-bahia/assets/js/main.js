@@ -19,7 +19,7 @@
 
 	/* ---------- Menú ---------- */
 	var toggle = document.querySelector( '[data-pbc-menu-toggle]' );
-	var nav = document.getElementById( 'menu-principal' );
+	var nav = document.getElementById( 'pbc-menu' );
 
 	function setMenu( open ) {
 		if ( ! toggle || ! nav ) {

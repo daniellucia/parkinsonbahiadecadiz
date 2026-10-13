@@ -21,14 +21,13 @@
 	display: flex;
 	align-items: center;
 	min-height: 48px;
-	padding: 0 20px;
+	padding: 8px 20px;
 	border: 2px solid var(--pbc-sea);
 	border-radius: var(--pbc-radius-pill);
 	background: var(--pbc-card);
 	color: var(--pbc-ink);
 	font-weight: 700;
 	text-decoration: none;
-	white-space: nowrap;
 }
 
 .pbc-chips__link:hover {

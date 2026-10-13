@@ -52,6 +52,7 @@ if ( apply_filters( 'parkinson_bahia/show_contact_band', ! is_404() ) ) {
 			<?php if ( '' !== $pbc_legal_name ) : ?>
 				<span class="pbc-footer__legal"><?php echo esc_html( $pbc_legal_name ); ?></span>
 			<?php endif; ?>
+			<?php get_search_form(); ?>
 		</div>
 
 		<?php if ( has_nav_menu( 'footer-asociacion' ) ) : ?>

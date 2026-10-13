@@ -18,7 +18,7 @@ Current state: WordPress 7.1.3 with Elementor (free) and both custom packages ac
 
 **Language:** the site is Spanish-only. All front-end strings in Spanish (including "Saltar al contenido", pagination, form labels, comment/a11y text) and wrapped in i18n functions with the theme's text domain. Brand spelling: "Párkinson" with accent.
 
-**Accessibility is the top priority.** Audience: elderly people with tremor, rigidity, low vision and cognitive decline. Target WCAG 2.2 AA (AAA-leaning typography):
+**Accessibility is the top priority.** Audience: elderly people with tremor, rigidity, low vision and cognitive decline. Conformance with WCAG 2.2 level AA is mandatory (see "Accessibility: WCAG 2.2 level AA is mandatory"), with AAA-leaning typography:
 - Base font 18–20 px, generous line-height, high contrast, visible focus, touch targets ≥ 44–48 px.
 - No auto-playing carousels/sliders; no hover-only interactions; no time limits.
 - Phone number always visible and clickable (`tel:`) in the mobile header.
@@ -48,6 +48,32 @@ The site is built on WordPress with Elementor, and **every section of every page
 - Do not depend on Elementor Pro (Theme Builder, Form widget, dynamic tags) unless the client confirms a licence.
 - **Links in widgets:** every widget link is a select listing the published WordPress pages, with "Enlace personalizado" as the last option; choosing it reveals a URL field. Never add a bare URL control. Use the base class helpers `link_controls( $target, $id, $label )` (works for the widget and for repeaters) and `link_value( $settings, $id )`, then output with `add_link_attributes()`. The page choice is stored as `page-<ID>`, so links survive slug changes; an unpublished or deleted page renders no link.
 - Widget settings are untrusted input: escape everything in `render()`, validate tag controls with `\Elementor\Utils::validate_html_tag()`, and output URL controls with `add_link_attributes()`.
+
+## Accessibility: WCAG 2.2 level AA is mandatory
+
+Everything we build — theme templates, widgets, forms, content seeded by us, and any third-party plugin output we choose to ship — **must conform to WCAG 2.2 level AA**. It is an acceptance criterion of every task, not a later audit: work that fails an A or AA success criterion is not finished. Where this project asks for more than AA (18–20 px base text, 44–48 px targets, no autoplay), the stricter project rule applies.
+
+What that means in practice:
+
+- **Perceivable:** text contrast ≥ 4.5:1 (≥ 3:1 only for text ≥ 24 px, or ≥ 18.66 px bold), UI component and focus-indicator contrast ≥ 3:1, including hover/pressed states and the high-contrast mode; use only the token pairs already checked (table below) or measure new ones. Meaningful `alt` on images (empty `alt` only when decorative); no information by colour alone; content reflows at 320 CSS px and at 200–400 % zoom without horizontal scrolling or clipped text (no fixed heights, no `white-space: nowrap` on text that can grow); text spacing can be increased without loss.
+- **Operable:** everything works with the keyboard in a logical order, with a visible focus ring that is never hidden behind sticky elements; skip link first; targets ≥ 24 × 24 px at the very least (project rule 44–48 px); no keyboard traps, no time limits, no motion that starts by itself, nothing that needs dragging or hover; descriptive page titles and link texts; at least two ways to find a page (menu and the search form in the footer).
+- **Understandable:** `lang` set, consistent navigation and naming across pages, phone/help in the same place everywhere; forms with visible labels, programmatic names, clear Spanish error messages next to the field, error prevention on anything that sends money or personal data, no cognitive captcha and no re-typing of data already given.
+- **Robust:** semantic HTML first (landmarks with a label when repeated, one `h1` per page and no skipped heading levels, lists, `button` vs `a`), ARIA only where HTML has no equivalent, state exposed (`aria-expanded`, `aria-pressed`, `aria-current`), status messages announced (`role="status"`), and the accessible name of a control must contain its visible text.
+- Widgets must make it hard for the editor to break conformance: heading level is a choice between valid levels, colours come from checked pairs, images take their `alt` from the media library.
+
+**How to check before calling something done:** run axe-core (tags `wcag2a, wcag2aa, wcag21a, wcag21aa, wcag22aa`) on every affected template in normal and high-contrast mode and fix every violation; then check by hand what tools cannot: keyboard pass, 320 px and 200 % zoom, headings/landmarks outline, focus order, meaningful alt texts and link texts. Record in the task summary what was and was not checked.
+
+Checked colour pairs (ratio): ink on paper 14.7 · ink-2 on paper 7.5 / sand 7.0 / card 7.9 / mist 6.7 · sea on paper 6.6 / sand 6.1 / card 7.0 / mist 5.9 · clay-text on paper 5.7 / sand 5.3 / card 6.1 · white on sea 7.0 / clay 4.7 / sea-dark 12.6 / ink 15.6 · on-dark-muted on sea-dark 9.5 · footer-muted on ink 10.2 · focus ring `#C96F00` on paper 3.4 / sand 3.2 / mist 3.1 / sea-dark 3.5 / ink 4.3 (on the clay background the ring is white). Do **not** use `--pbc-clay` for text on light backgrounds (4.1–4.5) — use `--pbc-clay-text`.
+
+## One `h1` per page
+
+Every page has **exactly one `h1`**: the page's main title. Never zero, never two.
+
+- Theme templates (`index.php`, `single-post.php`, `single.php`, `page.php` for non-Elementor pages, `404.php`) print the `h1` themselves. The site name/logo in the header is never a heading.
+- Pages built with Elementor get no `h1` from the theme: the first widget of the page (the hero or page-header widget) provides it, with its "Nivel del título" set to H1. Every other widget on the page uses `h2` (sections) or `h3` (items inside a section), without skipping levels.
+- New widgets default to `h2`; only hero/page-header widgets default to `h1`. The base class enforces the rule at render time (`Widget::heading_tag()` downgrades any second `h1` in the same request to `h2`), but pages must still be authored correctly.
+- Titles of cards, list items and repeated blocks are `h2`/`h3` or plain text, never `h1`. Do not pick a heading level for its size — size comes from CSS.
+- When creating or changing a page or template, count the `h1` elements in the rendered HTML (must be 1) and check the heading outline.
 
 ## Micro-interactions
 
@@ -140,7 +166,7 @@ It replaces three generic third-party skills that were installed in `.agents/ski
 Namespace `DanielLucia\ParkinsonBahia\Theme` (PSR-4 → `src/`), text domain `parkinson-bahia`, CSS/JS prefix `pbc-`. After cloning run `ddev exec -d /var/www/html/wp-content/themes/parkinson-bahia composer install` (`vendor/` is not tracked).
 
 - `src/`: `Theme` (bootstrap), `Setup` (supports, menus, image sizes `pbc-card` / `pbc-feature` / `pbc-wide`), `Menus` (BEM classes for `wp_nav_menu`), `Assets`, `Customizer`, `TemplateTags` (static helpers).
-- Templates: `header.php`, `footer.php`, `index.php` (Actualidad, archives, search), `single.php`, `page.php` (full width when built with Elementor, prose layout otherwise), `404.php`, `searchform.php`, `template-parts/` (`breadcrumb`, `card`, `contact-band`).
+- Templates: `header.php`, `footer.php`, `index.php` (Actualidad, archives, search), `single-post.php` (news), `single.php` (CPT singles such as a therapy), `page.php` (full width when built with Elementor, prose layout otherwise), `404.php`, `searchform.php`, `template-parts/` (`breadcrumb`, `card`, `contact-band`).
 - `assets/css/main.css`: design tokens (`--pbc-*` on `:root`, high-contrast overrides on `html[data-contrast="high"]`), base, `.pbc-button`, `.pbc-container`, header, footer. `assets/css/blog.css` loads only on news views. Widgets must reuse these tokens and blocks instead of redefining colours or buttons.
 - Design tokens come from the design: paper `#FBF8F3`, ink `#1C252B`, sea `#1D5A9E`, sea-dark `#0F3360`, clay `#C2500F`, sand `#F7EFE7`, mist `#E4EDF7`; fonts Atkinson Hyperlegible Next (body) and Young Serif (headings), self-hosted in `assets/fonts/`. Two deliberate deviations for contrast: small accent text uses `--pbc-clay-text` (`#A8430A`) and the focus ring is `#C96F00`.
 - `assets/js/main.js` (deferred, no dependencies): mobile menu, text size (3 steps) and high contrast saved in `localStorage` (`pbc_fs`, `pbc_contrast`), copy link. Everything works without JS except those toggles.
