@@ -1,0 +1,79 @@
+/* Widget «Accesos por situación». */
+.pbc-paths {
+	background: var(--pbc-sand);
+}
+
+.pbc-paths__inner {
+	max-width: var(--pbc-width);
+	margin-inline: auto;
+	padding: clamp(48px, 7vw, 88px) var(--pbc-gutter);
+}
+
+.pbc-paths__title {
+	margin: 0 0 8px;
+	font-family: var(--pbc-font-display);
+	font-size: clamp(1.8rem, 3.4vw, 2.5rem);
+	font-weight: 400;
+	line-height: 1.15;
+}
+
+.pbc-paths__intro {
+	margin: 0;
+	color: var(--pbc-ink-2);
+	font-size: 1.1rem;
+}
+
+.pbc-paths__list {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+	gap: 16px;
+	margin: 36px 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.pbc-paths__item {
+	display: flex;
+}
+
+.pbc-paths__card {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	gap: 12px;
+	min-height: 200px;
+	padding: 28px 26px 24px;
+	border: 2px solid transparent;
+	border-radius: 20px;
+	background: var(--pbc-card);
+	color: var(--pbc-ink);
+	text-decoration: none;
+}
+
+html[data-contrast="high"] .pbc-paths__card {
+	border-color: var(--pbc-line);
+}
+
+.pbc-paths__card:hover {
+	border-color: var(--pbc-sea);
+	color: var(--pbc-ink);
+}
+
+.pbc-paths__card-title {
+	font-family: var(--pbc-font-display);
+	font-size: 1.35rem;
+	line-height: 1.2;
+}
+
+.pbc-paths__card-text {
+	flex: 1;
+	color: var(--pbc-ink-2);
+}
+
+.pbc-paths__card-cta {
+	color: var(--pbc-sea);
+	font-weight: 700;
+	text-decoration: underline;
+	text-decoration-thickness: 2px;
+	text-underline-offset: 3px;
+}

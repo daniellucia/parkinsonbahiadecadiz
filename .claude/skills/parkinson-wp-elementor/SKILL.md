@@ -92,6 +92,8 @@ Rules:
 - Front-end JS goes in a handler extending `elementorModules.frontend.handlers.Base`, attached on `elementor/frontend/init`, so it also works inside the editor preview. No inline `<script>` in `render()`.
 - One BEM block per widget, block name equal to the widget name (`.pbc-hero`, `.pbc-hero__title`, `.pbc-hero--inverted`). Style controls write CSS custom properties through `selectors` (`'{{WRAPPER}}' => '--pbc-hero-bg: {{VALUE}};'`) and the CSS file consumes them; do not generate deep Elementor selectors.
 - Customisable does not mean unlimited. Offer the choices the client really needs (texts, image, link, heading level, variant, a palette of pre-approved colour pairs) and leave out the ones that break accessibility: no free font-size below the base, no arbitrary text/background colour pairs, no autoplay, no entrance animations, no carousel controls.
+- Links are never a bare URL control: use the base class `link_controls()` / `link_value()` (select of published pages, with "Enlace personalizado" last, which reveals the URL field).
+- Extend the plugin's abstract `Widget` base class and follow `CLAUDE.md` ("Plugin", "Data model: CPTs first"); update `README.md` when a widget or feature is added.
 - Every image control needs an alt path: use `wp_get_attachment_image()` so the media library alt is used, plus a "decorativa" switch that outputs `alt=""`.
 - Give every control a Spanish label and a sensible default so a freshly dropped widget already looks right. Use placeholder text that is obviously a placeholder for unconfirmed facts.
 - Keep `content_template()` only when it stays in sync with `render()`; otherwise omit it and let Elementor render through PHP.

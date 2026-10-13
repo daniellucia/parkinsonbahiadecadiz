@@ -1,0 +1,106 @@
+/* Widget «Portada». Usa los tokens y botones del tema. */
+.pbc-hero__inner {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+	align-items: center;
+	gap: clamp(32px, 5vw, 64px);
+	max-width: var(--pbc-width);
+	margin-inline: auto;
+	padding: clamp(32px, 6vw, 80px) var(--pbc-gutter) clamp(40px, 6vw, 72px);
+}
+
+.pbc-hero__body {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+}
+
+.pbc-hero__eyebrow {
+	margin: 0;
+	color: var(--pbc-clay-text);
+	font-size: 0.95rem;
+	font-weight: 700;
+	letter-spacing: 0.02em;
+}
+
+.pbc-hero__title {
+	margin: 0;
+	color: var(--pbc-ink);
+	font-family: var(--pbc-font-display);
+	font-size: clamp(2.3rem, 5.2vw, 3.9rem);
+	font-weight: 400;
+	line-height: 1.08;
+	letter-spacing: -0.01em;
+}
+
+.pbc-hero__text {
+	max-width: 34em;
+	margin: 0;
+	color: var(--pbc-ink-2);
+	font-size: 1.2rem;
+	line-height: 1.6;
+}
+
+.pbc-hero__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	margin-top: 4px;
+}
+
+.pbc-hero__actions:empty {
+	display: none;
+}
+
+.pbc-hero__button {
+	min-height: 56px;
+	padding: 0 28px;
+	font-size: 1.05rem;
+}
+
+.pbc-hero__figure {
+	position: relative;
+	margin: 0;
+}
+
+/* Doble clase: Elementor aplica «.elementor img { border-radius: 0 }» y hay que superarlo. */
+.pbc-hero .pbc-hero__image {
+	display: block;
+	width: 100%;
+	height: auto;
+	aspect-ratio: 4 / 3.2;
+	border-radius: 200px 24px 24px 24px;
+	background: var(--pbc-sand);
+	object-fit: cover;
+}
+
+.pbc-hero__note {
+	display: block;
+	max-width: 260px;
+	margin-top: 12px;
+	padding: 14px 18px;
+	border: 1px solid var(--pbc-line);
+	border-radius: 16px;
+	background: var(--pbc-card);
+}
+
+.pbc-hero__note-title {
+	display: block;
+	color: var(--pbc-ink);
+	font-size: 1rem;
+}
+
+.pbc-hero__note-text {
+	color: var(--pbc-ink-2);
+	font-size: 0.9rem;
+}
+
+@media (min-width: 700px) {
+	.pbc-hero__note {
+		position: absolute;
+		bottom: 24px;
+		left: clamp(-24px, -2vw, -12px);
+		margin-top: 0;
+		box-shadow: 0 10px 30px -12px rgb(28 37 43 / 0.25);
+	}
+}

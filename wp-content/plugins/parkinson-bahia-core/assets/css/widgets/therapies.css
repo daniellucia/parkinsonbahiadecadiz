@@ -1,0 +1,78 @@
+/* Widget «Lista de terapias». */
+.pbc-therapies {
+	background: var(--pbc-sea-dark);
+	color: var(--pbc-on-dark);
+}
+
+.pbc-therapies__inner {
+	max-width: var(--pbc-width);
+	margin-inline: auto;
+	padding: clamp(56px, 8vw, 96px) var(--pbc-gutter);
+}
+
+.pbc-therapies__header {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: end;
+	justify-content: space-between;
+	gap: 16px 40px;
+	margin-bottom: 40px;
+}
+
+.pbc-therapies__title {
+	max-width: 16em;
+	margin: 0;
+	font-family: var(--pbc-font-display);
+	font-size: clamp(1.9rem, 3.6vw, 2.7rem);
+	font-weight: 400;
+	line-height: 1.12;
+}
+
+.pbc-therapies__intro {
+	max-width: 28em;
+	margin: 0;
+	color: var(--pbc-on-dark-muted);
+	font-size: 1.05rem;
+}
+
+.pbc-therapies__list {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+	margin: 0;
+	padding: 0;
+	border-top: 1px solid rgb(255 255 255 / 0.2);
+	list-style: none;
+}
+
+.pbc-therapies__item {
+	border-bottom: 1px solid rgb(255 255 255 / 0.2);
+}
+
+.pbc-therapies__link {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	min-height: 44px;
+	padding: 24px 20px 24px 0;
+	color: var(--pbc-on-dark);
+	text-decoration: none;
+}
+
+.pbc-therapies__link:hover {
+	color: var(--pbc-on-dark);
+}
+
+.pbc-therapies__link:hover .pbc-therapies__name {
+	text-decoration: underline;
+	text-decoration-thickness: 2px;
+	text-underline-offset: 4px;
+}
+
+.pbc-therapies__name {
+	font-family: var(--pbc-font-display);
+	font-size: 1.3rem;
+}
+
+.pbc-therapies__text {
+	color: var(--pbc-on-dark-muted);
+}

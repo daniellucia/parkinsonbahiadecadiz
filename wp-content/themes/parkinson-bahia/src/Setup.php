@@ -51,6 +51,7 @@ final class Setup {
 		add_image_size( 'pbc-card', 720, 480, true );
 		add_image_size( 'pbc-feature', 1200, 750, true );
 		add_image_size( 'pbc-wide', 1600, 800, true );
+		add_image_size( 'pbc-square', 640, 640, true );
 	}
 
 	public function disable_emojis(): void {

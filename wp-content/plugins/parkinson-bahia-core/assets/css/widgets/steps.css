@@ -1,0 +1,70 @@
+/* Widget «Pasos». */
+.pbc-steps__inner {
+	max-width: var(--pbc-width);
+	margin-inline: auto;
+	padding: clamp(56px, 8vw, 104px) var(--pbc-gutter);
+}
+
+.pbc-steps__title {
+	margin: 0 0 12px;
+	font-family: var(--pbc-font-display);
+	font-size: clamp(1.9rem, 3.6vw, 2.7rem);
+	font-weight: 400;
+	line-height: 1.12;
+}
+
+.pbc-steps__intro {
+	max-width: 38em;
+	margin: 0;
+	color: var(--pbc-ink-2);
+	font-size: 1.1rem;
+}
+
+.pbc-steps__list {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+	gap: 16px;
+	margin: 40px 0 0;
+	padding: 0;
+	list-style: none;
+	counter-reset: pbc-step;
+}
+
+.pbc-steps__item {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding: 28px 24px;
+	border: 1px solid var(--pbc-line);
+	border-radius: 20px;
+	background: var(--pbc-card);
+	counter-increment: pbc-step;
+}
+
+.pbc-steps__item::before {
+	content: counter(pbc-step);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 44px;
+	height: 44px;
+	border: 1px solid transparent;
+	border-radius: 50%;
+	background: var(--pbc-mist);
+	color: var(--pbc-sea);
+	font-family: var(--pbc-font-display);
+	font-size: 1.2rem;
+}
+
+html[data-contrast="high"] .pbc-steps__item::before {
+	border-color: var(--pbc-line);
+}
+
+.pbc-steps__item-title {
+	font-size: 1.15rem;
+	font-weight: 700;
+}
+
+.pbc-steps__item-text {
+	color: var(--pbc-ink-2);
+}

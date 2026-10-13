@@ -1,0 +1,83 @@
+/* Widget «Últimas noticias». */
+.pbc-latest-news {
+	border-top: 1px solid var(--pbc-line);
+}
+
+.pbc-latest-news__inner {
+	max-width: var(--pbc-width);
+	margin-inline: auto;
+	padding: clamp(56px, 8vw, 96px) var(--pbc-gutter);
+}
+
+.pbc-latest-news__header {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 32px;
+}
+
+.pbc-latest-news__title {
+	margin: 0;
+	font-family: var(--pbc-font-display);
+	font-size: clamp(1.8rem, 3.2vw, 2.4rem);
+	font-weight: 400;
+}
+
+.pbc-latest-news__more {
+	display: flex;
+	align-items: center;
+	min-height: 44px;
+	font-weight: 700;
+}
+
+.pbc-latest-news__grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+	gap: 28px;
+}
+
+.pbc-latest-news__item {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+/* Doble clase: Elementor aplica «.elementor img { border-radius: 0 }» y hay que superarlo. */
+.pbc-latest-news .pbc-latest-news__image {
+	display: block;
+	width: 100%;
+	height: auto;
+	aspect-ratio: 3 / 2;
+	border-radius: 16px;
+	background: var(--pbc-sand);
+	object-fit: cover;
+}
+
+.pbc-latest-news__meta {
+	margin: 0;
+	color: var(--pbc-ink-2);
+	font-size: 0.9rem;
+}
+
+.pbc-latest-news__category::before {
+	content: " · ";
+}
+
+.pbc-latest-news__item-title {
+	margin: 0;
+	font-size: 1.2rem;
+	font-weight: 700;
+	line-height: 1.35;
+}
+
+.pbc-latest-news__link {
+	color: var(--pbc-ink);
+	text-decoration: none;
+}
+
+.pbc-latest-news__link:hover {
+	color: var(--pbc-sea);
+	text-decoration: underline;
+}

@@ -890,3 +890,13 @@ img {
 	display: block;
 	margin-top: 8px;
 }
+
+.pbc-article__thumbnail {
+	margin: 0 0 clamp(24px, 4vw, 40px);
+}
+
+.pbc-article__thumbnail img {
+	display: block;
+	width: 100%;
+	border-radius: var(--pbc-radius);
+}

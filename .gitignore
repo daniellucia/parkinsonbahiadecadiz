@@ -6,6 +6,7 @@
 # --- Ficheros y carpetas propios en la raíz ---
 !/.gitignore
 !/CLAUDE.md
+!/README.md
 !/docs/
 !/.claude/
 !/.ddev/

@@ -1,0 +1,82 @@
+/* Widget «Llamada a colaborar». */
+.pbc-support {
+	background: var(--pbc-clay);
+	color: var(--pbc-on-dark);
+}
+
+.pbc-support__inner {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
+	align-items: center;
+	gap: 40px;
+	max-width: var(--pbc-width);
+	margin-inline: auto;
+	padding: clamp(56px, 8vw, 96px) var(--pbc-gutter);
+}
+
+.pbc-support__body {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.pbc-support__title {
+	margin: 0;
+	font-family: var(--pbc-font-display);
+	font-size: clamp(1.9rem, 3.6vw, 2.7rem);
+	font-weight: 400;
+	line-height: 1.12;
+}
+
+.pbc-support__text {
+	margin: 0;
+	font-size: 1.1rem;
+}
+
+.pbc-support__list {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.pbc-support__link {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	min-height: 64px;
+	padding: 0 24px;
+	border: 2px solid var(--pbc-on-dark);
+	border-radius: 16px;
+	color: var(--pbc-on-dark);
+	font-size: 1.1rem;
+	font-weight: 700;
+	text-decoration: none;
+}
+
+.pbc-support__link::after {
+	content: "→";
+	margin-left: 16px;
+}
+
+.pbc-support__link:hover {
+	background: rgb(255 255 255 / 0.14);
+	color: var(--pbc-on-dark);
+}
+
+.pbc-support__link--main {
+	background: var(--pbc-card);
+	color: var(--pbc-ink);
+}
+
+.pbc-support__link--main:hover {
+	background: var(--pbc-sand);
+	color: var(--pbc-ink);
+}
+
+/* El anillo de foco naranja no se distingue sobre el fondo arcilla. */
+.pbc-support :focus-visible {
+	outline-color: var(--pbc-on-dark);
+}

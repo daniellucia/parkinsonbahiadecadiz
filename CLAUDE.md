@@ -10,7 +10,7 @@ Redesign of the website for **Párkinson Bahía de Cádiz** (Asociación de Fami
 
 Full research (association data, current-site audit, proposed sitemap, open questions for the client): `docs/investigacion.md`. Read it before writing content, page structure or CPTs.
 
-Current state: WordPress 7.1.3 with Elementor installed and the custom theme `wp-content/themes/parkinson-bahia/` active. The site plugin (CPTs, Elementor widgets, forms) does not exist yet. Custom work belongs in `wp-content/themes/` or `wp-content/plugins/` (folder names must start with `parkinson-` to be tracked by git); never edit WordPress core (`wp-admin/`, `wp-includes/`, root `wp-*.php`).
+Current state: WordPress 7.1.3 with Elementor (free) and both custom packages active: the theme `wp-content/themes/parkinson-bahia/` and the plugin `wp-content/plugins/parkinson-bahia-core/`. The home page is built and set as the front page; the other pages exist as stubs. `README.md` lists what is done and what is pending. Custom work belongs in `wp-content/themes/` or `wp-content/plugins/` (folder names must start with `parkinson-` to be tracked by git); never edit WordPress core (`wp-admin/`, `wp-includes/`, root `wp-*.php`).
 
 **Design source:** the claude.ai/design project "Rediseño Asociación Párkinson Cádiz", file `Parkinson Bahia de Cadiz.dc.html` (project id `9e4553ba-ae3a-407a-9f35-cda41cdbc775`, readable with the DesignSync tool after `/design-login`). It is the visual reference for the theme and for every widget. Where the design's sample copy contradicts confirmed facts (e.g. it says "abierto todo el año, también en agosto"), the canonical data in this file wins until the client confirms otherwise.
 
@@ -46,6 +46,7 @@ The site is built on WordPress with Elementor, and **every section of every page
 - Widgets expose only the options the client needs and none that can break accessibility (no free font sizes below the base, no arbitrary colour pairs, no autoplay, entrance animations or carousels).
 - Structured data stays in CPTs and widgets query it; page-specific text and images live in widget controls.
 - Do not depend on Elementor Pro (Theme Builder, Form widget, dynamic tags) unless the client confirms a licence.
+- **Links in widgets:** every widget link is a select listing the published WordPress pages, with "Enlace personalizado" as the last option; choosing it reveals a URL field. Never add a bare URL control. Use the base class helpers `link_controls( $target, $id, $label )` (works for the widget and for repeaters) and `link_value( $settings, $id )`, then output with `add_link_attributes()`. The page choice is stored as `page-<ID>`, so links survive slug changes; an unpublished or deleted page renders no link.
 - Widget settings are untrusted input: escape everything in `render()`, validate tag controls with `\Elementor\Utils::validate_html_tag()`, and output URL controls with `add_link_attributes()`.
 
 ## Data model: CPTs first
@@ -135,6 +136,18 @@ Namespace `DanielLucia\ParkinsonBahia\Theme` (PSR-4 → `src/`), text domain `pa
 - Menu locations: `primary`, `footer-asociacion`, `footer-legal`. Contact data, header button, social links and footer texts are edited in Apariencia → Personalizar → "Párkinson Bahía de Cádiz" (defaults = canonical contact data).
 - Hooks for the plugin: action `parkinson_bahia/footer_funders` (funders' logo band in the footer, hidden until something hooks in), action `parkinson_bahia/contact_map` (replaces the decorative map panel), filter `parkinson_bahia/show_contact_band` (hide the common contact block on a given page).
 
+## Plugin: `wp-content/plugins/parkinson-bahia-core/`
+
+Namespace `DanielLucia\ParkinsonBahia\Core` (PSR-4 → `src/`), text domain `parkinson-bahia-core`. After cloning run `ddev exec -d /var/www/html/wp-content/plugins/parkinson-bahia-core composer install`.
+
+- `src/PostTypes/`: one class per CPT. Exists: `Terapia` (`pbc_terapia`, URLs under `/terapias/`; title = name, excerpt = short summary for lists, content = full description, `menu_order` = order).
+- `src/Elementor/Integration.php`: widget category `parkinson-bahia`, the `WIDGETS` map (slug => class) and one registered stylesheet per widget (`pbc-widget-<slug>` → `assets/css/widgets/<slug>.css`). It also stops Elementor from printing Google Fonts.
+- `src/Elementor/Widgets/Widget.php`: abstract base every widget extends. A new widget implements `slug()`, `get_title()`, `get_icon()`, `register_controls()` and `render()`, is added to `WIDGETS`, and gets its CSS file. Helpers: `text_control`, `image_control`, `heading_tag_control` / `heading_tag`, `link_controls` / `link_value`, `render_heading`, `render_text`, `image_html`, `title_id`. Widgets that query content override `is_dynamic_content()` to return `true`.
+- Widgets so far (all used on the home page): `Hero`, `Paths`, `Feature`, `Therapies` (queries the CPT), `Steps`, `LatestNews` (queries posts), `Support`.
+- `src/Cli/SeedCommand.php`: `ddev wp pbc seed-home [--force] [--skip-images]` creates the base pages, the therapies, three news posts, the main menu and the home page (Elementor data saved through the document API), sets the front page and the posts page. Idempotent; take a `ddev snapshot` before using `--force`.
+- Elementor's stylesheet has `.elementor img { border-radius: 0 }`; image rules in widget CSS need two classes (`.pbc-hero .pbc-hero__image`) to win.
+- Local quirk: WordPress generates `http://` URLs here, so over `https://` the browser blocks images that have `srcset` (mixed content). Check pages over `http://parkinsonbahiadecadiz.ddev.site`.
+
 ## Development conventions (custom themes and plugins)
 
 **Authorship:** every theme and plugin we create is authored by Daniel Lucia (https://daniellucia.es). Set `Author: Daniel Lucia` and `Author URI: https://daniellucia.es` in the theme `style.css` header and in each plugin's main file header, and use the same data in the `authors` field of `composer.json`.
@@ -147,6 +160,10 @@ Namespace `DanielLucia\ParkinsonBahia\Theme` (PSR-4 → `src/`), text domain `pa
 **Class autoloading:** use Composer with PSR-4 — no manual `require` chains for classes. Each theme/plugin has its own `composer.json` with an `autoload.psr-4` mapping (vendor namespace → `src/`), one class per file with the file name matching the class name, and the bootstrap file loads `vendor/autoload.php`. Run it through DDEV (`ddev composer install`, `ddev composer dump-autoload`) from the theme/plugin directory.
 
 **CSS:** all CSS files use BEM naming (`.block`, `.block__element`, `.block--modifier`). Keep specificity flat — no IDs or tag-qualified selectors for styling, no deep nesting.
+
+## Keeping README.md up to date
+
+`README.md` (Spanish, for people) is the project's running record. Every time a feature is added, changed or removed, or something relevant about the project changes (a new CPT, widget, page, template, command, integration, setup step, decision or pending item), update `README.md` in the same piece of work and the same commit: its "Funcionalidades", "Páginas" and "Pendiente" sections and the setup steps if they changed. Rules and conventions for working on the code go in this file (`CLAUDE.md`) instead.
 
 ## Git workflow
 
