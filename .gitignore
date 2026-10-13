@@ -1,0 +1,52 @@
+# Lista blanca: se ignora todo y solo se versiona el trabajo propio.
+# WordPress core, plugins y themes de terceros, uploads y wp-config quedan fuera.
+
+/*
+
+# --- Ficheros y carpetas propios en la raíz ---
+!/.gitignore
+!/CLAUDE.md
+!/docs/
+!/.claude/
+!/.ddev/
+
+# --- wp-content: solo themes y plugins propios (prefijo parkinson-) ---
+!/wp-content/
+/wp-content/*
+
+!/wp-content/themes/
+/wp-content/themes/*
+!/wp-content/themes/parkinson-*/
+
+!/wp-content/plugins/
+/wp-content/plugins/*
+!/wp-content/plugins/parkinson-*/
+
+!/wp-content/mu-plugins/
+/wp-content/mu-plugins/*
+!/wp-content/mu-plugins/parkinson-*
+
+# --- Dentro de lo propio: dependencias y artefactos generados ---
+vendor/
+node_modules/
+*.map
+.phpunit.result.cache
+.phpcs-cache
+
+# --- Claude Code: ajustes locales de cada máquina ---
+/.claude/settings.local.json
+
+# --- Secretos, volcados y copias ---
+.env
+.env.*
+!.env.example
+*.sql
+*.sql.gz
+*.log
+
+# --- Sistema e IDE ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
