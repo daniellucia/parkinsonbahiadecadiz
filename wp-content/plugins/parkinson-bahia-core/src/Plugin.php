@@ -42,6 +42,12 @@ final class Plugin {
 		}
 
 		( new Integration() )->register();
+		( new Forms\Submissions() )->register();
+		( new Forms\Handler() )->register();
+
+		if ( is_admin() ) {
+			( new Forms\Settings() )->register();
+		}
 
 		if ( is_admin() ) {
 			( new Menu() )->register();
@@ -52,6 +58,7 @@ final class Plugin {
 			\WP_CLI::add_command( 'pbc seed-home', [ $seed, 'home' ] );
 			\WP_CLI::add_command( 'pbc seed-asociacion', [ $seed, 'asociacion' ] );
 			\WP_CLI::add_command( 'pbc seed-centro', [ $seed, 'centro' ] );
+			\WP_CLI::add_command( 'pbc seed-colabora', [ $seed, 'colabora' ] );
 		}
 	}
 }

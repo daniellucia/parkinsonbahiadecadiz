@@ -51,6 +51,7 @@ final class PageHeader extends Widget {
 				'options' => [
 					''     => esc_html__( 'Claro', 'parkinson-bahia-core' ),
 					'sand' => esc_html__( 'Arena', 'parkinson-bahia-core' ),
+					'clay' => esc_html__( 'Naranja', 'parkinson-bahia-core' ),
 				],
 				'default' => '',
 			]
@@ -87,6 +88,30 @@ final class PageHeader extends Widget {
 			]
 		);
 		$this->end_controls_section();
+
+		$this->start_controls_section( 'jumps_section', [ 'label' => esc_html__( 'Accesos (opcional)', 'parkinson-bahia-core' ) ] );
+		$jumps = new Repeater();
+		$jumps->add_control(
+			'label',
+			[
+				'label'       => esc_html__( 'Texto', 'parkinson-bahia-core' ),
+				'type'        => Controls_Manager::TEXT,
+				'label_block' => true,
+			]
+		);
+		$this->link_controls( $jumps, 'link', esc_html__( 'Enlace', 'parkinson-bahia-core' ) );
+		$this->add_control(
+			'jumps',
+			[
+				'label'       => esc_html__( 'Accesos', 'parkinson-bahia-core' ),
+				'description' => esc_html__( 'Botones grandes bajo el título. Para saltar a una sección de esta página elige «Enlace personalizado» y escribe su ancla, por ejemplo #socio. El primero va destacado.', 'parkinson-bahia-core' ),
+				'type'        => Controls_Manager::REPEATER,
+				'fields'      => $jumps->get_controls(),
+				'title_field' => '{{ label }}',
+				'default'     => [],
+			]
+		);
+		$this->end_controls_section();
 	}
 
 	protected function render(): void {
@@ -108,8 +133,20 @@ final class PageHeader extends Widget {
 			static fn ( $fact ): bool => '' !== trim( (string) ( $fact['label'] ?? '' ) ) && '' !== trim( (string) ( $fact['value'] ?? '' ) )
 		);
 		$has_side = '' !== $image || $facts;
+		$variant = (string) ( $settings['variant'] ?? '' );
+		$jumps   = [];
+
+		foreach ( is_array( $settings['jumps'] ?? null ) ? $settings['jumps'] : [] as $index => $jump ) {
+			$link = $this->link_value( $jump, 'link' );
+			if ( '' !== trim( (string) ( $jump['label'] ?? '' ) ) && $link ) {
+				$key = 'jump-' . $index;
+				$this->add_link_attributes( $key, $link );
+				$this->add_render_attribute( $key, 'class', $jumps ? 'pbc-page-hero__jump' : 'pbc-page-hero__jump pbc-page-hero__jump--main' );
+				$jumps[ $key ] = (string) $jump['label'];
+			}
+		}
 		?>
-		<section class="pbc-page-hero<?php echo 'sand' === ( $settings['variant'] ?? '' ) ? ' pbc-page-hero--sand' : ''; ?>">
+		<section class="pbc-page-hero<?php echo in_array( $variant, [ 'sand', 'clay' ], true ) ? ' pbc-page-hero--' . esc_attr( $variant ) : ''; ?>">
 			<div class="pbc-page-hero__inner">
 				<?php if ( $page_id > 0 && ! is_front_page() ) : ?>
 					<nav class="pbc-breadcrumb" aria-label="<?php esc_attr_e( 'Estás en', 'parkinson-bahia-core' ); ?>">
@@ -144,6 +181,13 @@ final class PageHeader extends Widget {
 						</dl>
 					<?php endif; ?>
 				</div>
+				<?php if ( $jumps ) : ?>
+					<ul class="pbc-page-hero__jumps">
+						<?php foreach ( $jumps as $key => $label ) : ?>
+							<li class="pbc-page-hero__jumps-item"><a <?php $this->print_render_attribute_string( $key ); ?>><?php echo esc_html( $label ); ?></a></li>
+						<?php endforeach; ?>
+					</ul>
+				<?php endif; ?>
 			</div>
 		</section>
 		<?php

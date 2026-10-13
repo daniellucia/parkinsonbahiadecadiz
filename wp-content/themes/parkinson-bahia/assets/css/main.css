@@ -57,6 +57,8 @@
 	--pbc-footer-muted: #C9D3D7;
 	--pbc-footer-line: rgb(255 255 255 / 0.13);
 	--pbc-ok: #7FD1A8;
+	/* Rojo de error: 6,5:1 sobre blanco y 5,7:1 sobre arena. */
+	--pbc-error: #B3261E;
 
 	--pbc-font-body: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, sans-serif;
 	--pbc-font-display: "Young Serif", Georgia, serif;
@@ -86,6 +88,7 @@ html[data-contrast="high"] {
 	--pbc-line: #000000;
 	--pbc-card: #FFFFFF;
 	--pbc-focus: #C96F00;
+	--pbc-error: #8C1D18;
 	--pbc-on-dark-muted: #FFFFFF;
 	--pbc-footer-muted: #FFFFFF;
 	--pbc-footer-line: #FFFFFF;

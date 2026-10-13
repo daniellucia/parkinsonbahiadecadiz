@@ -923,6 +923,149 @@ final class SeedCommand {
 	}
 
 	/**
+	 * Crea la página «Colabora» con sus widgets.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--force]
+	 * : Reescribe el contenido de la página aunque ya tenga widgets.
+	 *
+	 * @param string[]             $args       Argumentos posicionales.
+	 * @param array<string, mixed> $assoc_args Opciones.
+	 */
+	public function colabora( array $args, array $assoc_args ): void {
+		if ( ! did_action( 'elementor/loaded' ) ) {
+			WP_CLI::error( 'Elementor no está activo.' );
+		}
+
+		$admins = get_users(
+			[
+				'role'   => 'administrator',
+				'number' => 1,
+				'fields' => 'ID',
+			]
+		);
+		if ( ! $admins ) {
+			WP_CLI::error( 'No hay ningún usuario administrador.' );
+		}
+		wp_set_current_user( (int) $admins[0] );
+
+		$pages   = $this->seed_pages();
+		$page_id = $pages['colabora'];
+		$has     = '' !== (string) get_post_meta( $page_id, '_elementor_data', true );
+
+		if ( $has && empty( $assoc_args['force'] ) ) {
+			WP_CLI::log( 'La página ya tiene contenido; no se toca (usa --force para reescribirla).' );
+			WP_CLI::success( 'Colabora lista: ' . get_permalink( $page_id ) );
+			return;
+		}
+
+		$rows   = static function ( array $items ): array {
+			foreach ( $items as $index => $item ) {
+				$items[ $index ]['_id'] = substr( md5( wp_json_encode( $item ) . $index ), 0, 7 );
+			}
+			return $items;
+		};
+		$custom = static fn ( string $url ): array => [
+			'url'         => $url,
+			'is_external' => '',
+			'nofollow'    => '',
+		];
+
+		$this->save_page(
+			$page_id,
+			[
+				'pbc-page-header' => [
+					'title'     => 'Con tu ayuda, más familias tienen a quién acudir',
+					'title_tag' => 'h1',
+					'text'      => 'Hay muchas maneras de colaborar. Elige la que mejor encaje contigo.',
+					'variant'   => 'clay',
+					'jumps'     => $rows(
+						[
+							[
+								'label'     => 'Hazte socio',
+								'link_page' => 'custom',
+								'link'      => $custom( '#socio' ),
+							],
+							[
+								'label'     => 'Haz un donativo',
+								'link_page' => 'custom',
+								'link'      => $custom( '#dona' ),
+							],
+							[
+								'label'     => 'Hazte voluntario',
+								'link_page' => 'custom',
+								'link'      => $custom( '#voluntariado' ),
+							],
+						]
+					),
+				],
+				// Dos formularios: cada uno necesita su propia clave en la lista.
+				'pbc-form'        => [
+					'form'          => 'socio',
+					'title'         => 'Hazte socio o socia',
+					'title_tag'     => 'h2',
+					'text'          => "Tu cuota ayuda a mantener las terapias, el transporte y el apoyo a las familias. Ser socio también te da acceso a todos nuestros servicios y actividades.\n\nRellena el formulario en unos minutos. Si prefieres hacerlo por teléfono, llámanos al 956 59 19 28 y lo hacemos contigo.",
+					'anchor'        => 'socio',
+					// Cuotas del boceto: pendientes de confirmar con la asociación.
+					'amounts'       => '5, 10, 20',
+					'submit_label'  => 'Quiero hacerme socio',
+					'success_title' => '¡Gracias por unirte!',
+					'success_text'  => 'Hemos recibido tus datos. Te llamaremos para darte la bienvenida y confirmar la domiciliación.',
+				],
+				'pbc-donation'    => [
+					'title'     => 'Haz un donativo',
+					'title_tag' => 'h2',
+					'text'      => 'Un donativo puntual también ayuda. Lo destinamos a lo que más falta haga en cada momento: terapias, transporte o equipamiento del centro.',
+					'anchor'    => 'dona',
+					// Bizum y tarjeta se añadirán cuando la asociación decida la pasarela de pago.
+					'methods'   => $rows(
+						[
+							[
+								'title'        => 'Por transferencia',
+								'text'         => 'Escríbenos a unidad@parkinsonbahiadecadiz.org y te enviamos los datos de la cuenta.',
+								'button_label' => 'Pedir los datos por correo',
+								'link_page'    => 'custom',
+								'link'         => $custom( 'mailto:unidad@parkinsonbahiadecadiz.org?subject=Quiero%20hacer%20un%20donativo' ),
+							],
+							[
+								'title'        => 'Por teléfono',
+								'text'         => 'Llámanos de lunes a viernes, de 9:00 a 17:00, y te explicamos cómo hacerlo.',
+								'button_label' => 'Llamar al 956 59 19 28',
+								'link_page'    => 'custom',
+								'link'         => $custom( 'tel:+34956591928' ),
+							],
+						]
+					),
+				],
+				'pbc-form#2'      => [
+					'form'          => 'voluntariado',
+					'title'         => 'Hazte voluntario',
+					'title_tag'     => 'h2',
+					'text'          => 'Unas horas al mes pueden cambiarle el día a alguien. No hace falta experiencia: te formamos y te acompañamos desde el primer día.',
+					'anchor'        => 'voluntariado',
+					'areas'         => "Acompañamiento y ocio\nEventos y sensibilización\nComunicación y redes sociales\nJunta directiva",
+					'submit_label'  => 'Quiero ser voluntario',
+					'success_title' => '¡Gracias por ofrecerte!',
+					'success_text'  => 'Te llamaremos para conocerte y contarte cómo empezar.',
+				],
+				'pbc-cta'         => [
+					'title'            => 'Empresas y entidades',
+					'title_tag'        => 'h2',
+					'text'             => 'Hidralia, la Fundación "la Caixa" o la Fundación Bidafarma ya nos ayudan. Si tu empresa quiere colaborar con un proyecto, equipamiento o voluntariado corporativo, hablemos.',
+					'button_label'     => 'Escríbenos',
+					'button_link_page' => 'custom',
+					'button_link'      => $custom( 'mailto:unidad@parkinsonbahiadecadiz.org' ),
+				],
+			],
+			'colabora'
+		);
+
+		WP_CLI::log( 'Página «Colabora» montada con sus widgets.' );
+		WP_CLI::success( 'Colabora lista: ' . get_permalink( $page_id ) );
+	}
+
+	/**
 	 * Crea elementos de un tipo de contenido si todavía no existen (por título).
 	 *
 	 * @param array<int, array{0:string, 1:string, 2:array<string, mixed>}> $items Título, extracto y campos.
@@ -972,7 +1115,8 @@ final class SeedCommand {
 			$elements[] = [
 				'id'         => substr( md5( $prefix . '-' . $type ), 0, 7 ),
 				'elType'     => 'widget',
-				'widgetType' => $type,
+				// «tipo#2» permite repetir un widget en la misma página.
+				'widgetType' => explode( '#', $type )[0],
 				'settings'   => $settings,
 				'elements'   => [],
 			];

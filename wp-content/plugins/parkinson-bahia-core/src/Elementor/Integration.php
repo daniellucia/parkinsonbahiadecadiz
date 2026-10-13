@@ -40,7 +40,15 @@ final class Integration {
 		'media-text'  => Widgets\MediaText::class,
 		'spaces'      => Widgets\Spaces::class,
 		'faq'         => Widgets\Faq::class,
+		'form'        => Widgets\Form::class,
+		'donation'    => Widgets\Donation::class,
+		'cta'         => Widgets\Cta::class,
 	];
+
+	/**
+	 * Widgets que tienen JavaScript propio (assets/js/widgets/<slug>.js).
+	 */
+	public const SCRIPTS = [ 'form' ];
 
 	public function register(): void {
 		add_action( 'init', [ $this, 'register_styles' ] );
@@ -65,6 +73,22 @@ final class Integration {
 				PBC_CORE_URL . $file,
 				[],
 				is_readable( $path ) ? (string) filemtime( $path ) : PBC_CORE_VERSION
+			);
+		}
+
+		foreach ( self::SCRIPTS as $slug ) {
+			$file = 'assets/js/widgets/' . $slug . '.js';
+			$path = PBC_CORE_DIR . $file;
+
+			wp_register_script(
+				'pbc-widget-' . $slug,
+				PBC_CORE_URL . $file,
+				[],
+				is_readable( $path ) ? (string) filemtime( $path ) : PBC_CORE_VERSION,
+				[
+					'strategy'  => 'defer',
+					'in_footer' => true,
+				]
 			);
 		}
 	}

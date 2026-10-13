@@ -99,3 +99,94 @@ html[data-contrast="high"] .pbc-page-hero__fact {
 	font-size: 1.1rem;
 	font-weight: 700;
 }
+
+/* ---------- Variante naranja y accesos ---------- */
+.pbc-page-hero--clay {
+	background: var(--pbc-clay);
+	color: var(--pbc-on-dark);
+}
+
+.pbc-page-hero--clay .pbc-page-hero__text,
+.pbc-page-hero--clay .pbc-page-hero__eyebrow,
+.pbc-page-hero--clay .pbc-breadcrumb__list,
+.pbc-page-hero--clay .pbc-breadcrumb__link {
+	color: var(--pbc-on-dark);
+}
+
+/* El anillo de foco naranja no se distingue sobre este fondo. */
+.pbc-page-hero--clay :focus-visible {
+	outline-color: var(--pbc-on-dark);
+}
+
+.pbc-page-hero__jumps {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+	gap: 12px;
+	margin: clamp(32px, 5vw, 56px) 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.pbc-page-hero__jump {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	min-height: 64px;
+	padding: 8px 22px;
+	border: 2px solid var(--pbc-sea);
+	border-radius: 16px;
+	color: var(--pbc-sea);
+	font-size: 1.1rem;
+	font-weight: 700;
+	text-decoration: none;
+	transition:
+		background-color var(--pbc-speed) var(--pbc-ease),
+		color var(--pbc-speed) var(--pbc-ease);
+}
+
+.pbc-page-hero__jump::after {
+	content: "↓";
+	margin-left: 16px;
+	transition: transform var(--pbc-speed) var(--pbc-ease);
+}
+
+.pbc-page-hero__jump:hover {
+	background: var(--pbc-mist);
+	color: var(--pbc-sea);
+}
+
+.pbc-page-hero__jump--main {
+	background: var(--pbc-sea);
+	color: var(--pbc-on-dark);
+}
+
+.pbc-page-hero__jump--main:hover {
+	background: var(--pbc-ink);
+	color: var(--pbc-on-dark);
+}
+
+.pbc-page-hero--clay .pbc-page-hero__jump {
+	border-color: var(--pbc-on-dark);
+	color: var(--pbc-on-dark);
+}
+
+.pbc-page-hero--clay .pbc-page-hero__jump:hover {
+	background: rgb(0 0 0 / 0.16);
+	color: var(--pbc-on-dark);
+}
+
+.pbc-page-hero--clay .pbc-page-hero__jump--main {
+	background: var(--pbc-card);
+	color: var(--pbc-ink);
+}
+
+.pbc-page-hero--clay .pbc-page-hero__jump--main:hover {
+	background: var(--pbc-sand);
+	color: var(--pbc-ink);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.pbc-page-hero__jump:hover::after {
+		transform: translateY(4px);
+	}
+}

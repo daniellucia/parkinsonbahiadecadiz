@@ -1,0 +1,66 @@
+/* Widget «Formas de donar». */
+.pbc-donation {
+	background: var(--pbc-sea-dark);
+	color: var(--pbc-on-dark);
+}
+
+.pbc-donation__inner {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
+	align-items: start;
+	gap: clamp(32px, 5vw, 72px);
+	max-width: var(--pbc-width);
+	margin-inline: auto;
+	padding: clamp(56px, 8vw, 96px) var(--pbc-gutter);
+}
+
+.pbc-donation__body {
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+}
+
+.pbc-donation__title {
+	margin: 0;
+	font-family: var(--pbc-font-display);
+	font-size: clamp(1.9rem, 3.6vw, 2.6rem);
+	font-weight: 400;
+	line-height: 1.12;
+}
+
+.pbc-donation__text {
+	margin: 0;
+	color: var(--pbc-on-dark-muted);
+	font-size: 1.1rem;
+}
+
+.pbc-donation__list {
+	display: grid;
+	gap: 16px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.pbc-donation__method {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 10px;
+	padding: 26px 28px;
+	border-radius: 20px;
+	background: var(--pbc-card);
+	color: var(--pbc-ink);
+}
+
+.pbc-donation__method-title {
+	margin: 0;
+	font-size: 1.25rem;
+}
+
+.pbc-donation__method-text {
+	margin: 0;
+	color: var(--pbc-ink-2);
+	font-size: 1.05rem;
+	overflow-wrap: anywhere;
+}

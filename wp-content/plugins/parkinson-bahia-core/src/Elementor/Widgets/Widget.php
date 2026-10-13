@@ -60,6 +60,13 @@ abstract class Widget extends Widget_Base {
 		return [ 'pbc-widget-' . $this->slug() ];
 	}
 
+	/**
+	 * Los widgets con JavaScript propio lo declaran en Integration::SCRIPTS.
+	 */
+	public function get_script_depends(): array {
+		return in_array( $this->slug(), \DanielLucia\ParkinsonBahia\Core\Elementor\Integration::SCRIPTS, true ) ? [ 'pbc-widget-' . $this->slug() ] : [];
+	}
+
 	public function has_widget_inner_wrapper(): bool {
 		return false;
 	}
@@ -197,6 +204,42 @@ abstract class Widget extends Widget_Base {
 				'media_types' => [ 'image' ],
 			]
 		);
+	}
+
+	/**
+	 * Ancla de la sección, para enlazarla desde otra parte con «#ancla».
+	 */
+	protected function anchor_control(): void {
+		$this->add_control(
+			'anchor',
+			[
+				'label'       => esc_html__( 'Ancla (opcional)', 'parkinson-bahia-core' ),
+				'description' => esc_html__( 'Una palabra sin espacios, por ejemplo «socio». Permite enlazar a esta sección con #socio.', 'parkinson-bahia-core' ),
+				'type'        => Controls_Manager::TEXT,
+			]
+		);
+	}
+
+	/**
+	 * Atributo id de la sección a partir del ancla, ya escapado (o cadena vacía).
+	 *
+	 * @param array<string, mixed> $settings Ajustes del widget.
+	 */
+	protected function anchor_attr( array $settings ): string {
+		$anchor = sanitize_title( (string) ( $settings['anchor'] ?? '' ) );
+
+		return '' !== $anchor ? ' id="' . esc_attr( $anchor ) . '"' : '';
+	}
+
+	/**
+	 * Parte un texto en párrafos: una línea en blanco separa cada uno.
+	 *
+	 * @return string[]
+	 */
+	protected function paragraphs( string $text ): array {
+		$parts = preg_split( '/\R{2,}/', $text );
+
+		return array_values( array_filter( array_map( 'trim', is_array( $parts ) ? $parts : [] ) ) );
 	}
 
 	/**

@@ -1,0 +1,262 @@
+/* Widget «Formulario». */
+.pbc-form-block__inner {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
+	align-items: start;
+	gap: clamp(32px, 5vw, 72px);
+	max-width: var(--pbc-width);
+	margin-inline: auto;
+	padding: clamp(56px, 8vw, 96px) var(--pbc-gutter);
+}
+
+.pbc-form-block__body {
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+}
+
+.pbc-form-block__title {
+	margin: 0;
+	font-family: var(--pbc-font-display);
+	font-size: clamp(1.9rem, 3.6vw, 2.6rem);
+	font-weight: 400;
+	line-height: 1.12;
+}
+
+.pbc-form-block__text {
+	margin: 0;
+	color: var(--pbc-ink-2);
+	font-size: 1.1rem;
+}
+
+/* Doble clase: Elementor aplica «.elementor img { border-radius: 0 }» y hay que superarlo. */
+.pbc-form-block .pbc-form-block__image {
+	display: block;
+	width: 100%;
+	height: auto;
+	aspect-ratio: 4 / 3;
+	border-radius: 24px 24px 24px 160px;
+	background: var(--pbc-sand);
+	object-fit: cover;
+}
+
+.pbc-form {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: 22px;
+	padding: clamp(24px, 4vw, 36px);
+	border: 1px solid transparent;
+	border-radius: 24px;
+	background: var(--pbc-sand);
+}
+
+html[data-contrast="high"] .pbc-form {
+	border-color: var(--pbc-line);
+}
+
+.pbc-form__trap {
+	position: absolute;
+	left: -9999px;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+}
+
+.pbc-form__grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+	gap: 22px 18px;
+}
+
+.pbc-form__field--wide {
+	grid-column: 1 / -1;
+}
+
+.pbc-form__group {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	min-width: 0;
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+.pbc-form__label {
+	display: block;
+	margin-bottom: 8px;
+	padding: 0;
+	font-size: 1.05rem;
+	font-weight: 700;
+}
+
+.pbc-form__label--small {
+	font-size: 1rem;
+}
+
+.pbc-form__optional {
+	color: var(--pbc-ink-2);
+	font-weight: 400;
+}
+
+.pbc-form__input {
+	width: 100%;
+	min-height: 54px;
+	padding: 12px 16px;
+	border: 2px solid var(--pbc-ink-2);
+	border-radius: 12px;
+	background: var(--pbc-card);
+	color: var(--pbc-ink);
+	font-family: inherit;
+	font-size: 1.05rem;
+}
+
+.pbc-form__input--short {
+	max-width: 10em;
+}
+
+.pbc-form__input[aria-invalid="true"] {
+	border-color: var(--pbc-error);
+	border-width: 3px;
+}
+
+.pbc-form__help {
+	display: block;
+	margin-top: 6px;
+	color: var(--pbc-ink-2);
+	font-size: 0.95rem;
+}
+
+.pbc-form__options {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+	gap: 10px;
+}
+
+.pbc-form__options--stack {
+	grid-template-columns: 1fr;
+}
+
+.pbc-form__option {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	min-height: 56px;
+	padding: 8px 18px;
+	border: 2px solid var(--pbc-line);
+	border-radius: 14px;
+	background: var(--pbc-card);
+	font-size: 1.05rem;
+	font-weight: 700;
+	cursor: pointer;
+}
+
+.pbc-form__option--plain {
+	min-height: 52px;
+	border-width: 1px;
+	border-radius: 12px;
+	font-weight: 400;
+}
+
+.pbc-form__option:has(.pbc-form__check:checked) {
+	border-color: var(--pbc-sea);
+	background: var(--pbc-mist);
+}
+
+.pbc-form__option:has(.pbc-form__check:focus-visible) {
+	outline: 3px solid var(--pbc-focus);
+	outline-offset: 3px;
+}
+
+.pbc-form__check {
+	flex: none;
+	width: 24px;
+	height: 24px;
+	margin: 0;
+	accent-color: var(--pbc-sea);
+}
+
+.pbc-form__check--large {
+	width: 26px;
+	height: 26px;
+	margin-top: 2px;
+}
+
+.pbc-form__consent {
+	display: flex;
+	align-items: flex-start;
+	gap: 14px;
+	cursor: pointer;
+}
+
+.pbc-form__error {
+	margin: 8px 0 0;
+	color: var(--pbc-error);
+	font-weight: 700;
+}
+
+.pbc-form__error::before {
+	content: "⚠ ";
+}
+
+.pbc-form__summary {
+	padding: 18px 20px;
+	border: 3px solid var(--pbc-error);
+	border-radius: 14px;
+	background: var(--pbc-card);
+}
+
+.pbc-form__summary ul {
+	margin: 8px 0 0;
+	padding-left: 1.2em;
+}
+
+.pbc-form__summary a {
+	color: var(--pbc-error);
+}
+
+.pbc-form__submit {
+	align-self: flex-start;
+	min-height: 56px;
+	padding: 0 28px;
+	font-size: 1.05rem;
+}
+
+.pbc-form__done {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding: 28px;
+	border: 2px solid var(--pbc-sea);
+	border-radius: 20px;
+	background: var(--pbc-mist);
+}
+
+.pbc-form__done-title {
+	font-size: 1.25rem;
+}
+
+.pbc-form__done-text {
+	color: var(--pbc-ink-2);
+	font-size: 1.05rem;
+}
+
+/* ---------- Microinteracciones ---------- */
+.pbc-form__input,
+.pbc-form__option {
+	transition:
+		border-color var(--pbc-speed) var(--pbc-ease),
+		background-color var(--pbc-speed) var(--pbc-ease),
+		box-shadow var(--pbc-speed) var(--pbc-ease);
+}
+
+.pbc-form__input:hover,
+.pbc-form__option:hover {
+	border-color: var(--pbc-sea);
+}
+
+.pbc-form__input:focus {
+	border-color: var(--pbc-sea);
+	box-shadow: 0 0 0 3px var(--pbc-mist);
+}

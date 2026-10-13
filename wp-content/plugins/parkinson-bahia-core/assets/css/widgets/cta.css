@@ -1,0 +1,42 @@
+/* Widget «Llamada con botón». */
+.pbc-cta {
+	border-top: 1px solid var(--pbc-line);
+}
+
+.pbc-cta__inner {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 24px 48px;
+	max-width: var(--pbc-width);
+	margin-inline: auto;
+	padding: clamp(56px, 8vw, 96px) var(--pbc-gutter);
+}
+
+.pbc-cta__body {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	max-width: 40em;
+}
+
+.pbc-cta__title {
+	margin: 0;
+	font-family: var(--pbc-font-display);
+	font-size: clamp(1.9rem, 3.6vw, 2.6rem);
+	font-weight: 400;
+	line-height: 1.12;
+}
+
+.pbc-cta__text {
+	margin: 0;
+	color: var(--pbc-ink-2);
+	font-size: 1.1rem;
+}
+
+.pbc-cta__button {
+	min-height: 56px;
+	padding: 0 28px;
+	font-size: 1.05rem;
+}
