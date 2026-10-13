@@ -3,7 +3,7 @@
  * Plugin Name:       Párkinson Bahía de Cádiz · Núcleo
  * Plugin URI:        https://parkinsonbahiadecadiz.org
  * Description:       Contenidos (tipos de contenido propios) y widgets de Elementor de la web de Párkinson Bahía de Cádiz.
- * Version:           1.0.0
+ * Version:           1.1.0
  * Requires at least: 6.6
  * Requires PHP:      8.2
  * Author:            Daniel Lucia
@@ -19,7 +19,7 @@ declare(strict_types=1);
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'PBC_CORE_VERSION', '1.0.0' );
+define( 'PBC_CORE_VERSION', '1.1.0' );
 define( 'PBC_CORE_FILE', __FILE__ );
 define( 'PBC_CORE_DIR', plugin_dir_path( __FILE__ ) );
 define( 'PBC_CORE_URL', plugin_dir_url( __FILE__ ) );
@@ -46,7 +46,9 @@ require_once $pbc_core_autoload;
 register_activation_hook(
 	__FILE__,
 	static function (): void {
-		( new DanielLucia\ParkinsonBahia\Core\PostTypes\Terapia() )->register_post_type();
+		foreach ( DanielLucia\ParkinsonBahia\Core\Plugin::post_types() as $pbc_post_type ) {
+			$pbc_post_type->register_post_type();
+		}
 		flush_rewrite_rules();
 	}
 );

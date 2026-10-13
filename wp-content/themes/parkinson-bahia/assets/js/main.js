@@ -128,4 +128,56 @@
 			} ).catch( function () {} );
 		} );
 	}
+
+	/* ---------- Botón de envío con indicador de carga ----------
+	   Al enviar un formulario, su botón muestra un spinner y no admite más
+	   pulsaciones. Los formularios enviados con fetch lo apagan ellos con
+	   window.pbcButtonLoading( boton, false ). */
+	function setButtonLoading( button, loading ) {
+		if ( ! button ) {
+			return;
+		}
+		if ( loading ) {
+			button.dataset.pbcLabel = button.textContent;
+			button.style.minWidth = button.offsetWidth + 'px';
+			button.classList.add( 'pbc-button--loading' );
+			button.setAttribute( 'aria-busy', 'true' );
+			if ( button.dataset.pbcLoadingText ) {
+				button.textContent = button.dataset.pbcLoadingText;
+			}
+		} else {
+			button.classList.remove( 'pbc-button--loading' );
+			button.removeAttribute( 'aria-busy' );
+			button.style.minWidth = '';
+			if ( button.dataset.pbcLabel ) {
+				button.textContent = button.dataset.pbcLabel;
+			}
+		}
+	}
+
+	window.pbcButtonLoading = setButtonLoading;
+
+	document.addEventListener( 'submit', function ( event ) {
+		var form = event.target;
+		var button = event.submitter && event.submitter.classList.contains( 'pbc-button' ) ? event.submitter : form.querySelector( '.pbc-button[type="submit"]' );
+
+		if ( ! button ) {
+			return;
+		}
+		// Segunda pulsación mientras se envía: se ignora.
+		if ( button.classList.contains( 'pbc-button--loading' ) ) {
+			event.preventDefault();
+			return;
+		}
+		if ( ! event.defaultPrevented ) {
+			setButtonLoading( button, true );
+		}
+	} );
+
+	// Al volver atrás con el navegador la página se recupera tal cual: se apaga el indicador.
+	window.addEventListener( 'pageshow', function () {
+		document.querySelectorAll( '.pbc-button--loading' ).forEach( function ( button ) {
+			setButtonLoading( button, false );
+		} );
+	} );
 }() );

@@ -1,0 +1,92 @@
+/* Widget «Redes y federaciones». */
+.pbc-networks {
+	background: var(--pbc-mist);
+}
+
+html[data-contrast="high"] .pbc-networks {
+	border-top: 1px solid var(--pbc-line);
+}
+
+.pbc-networks__inner {
+	max-width: var(--pbc-width);
+	margin-inline: auto;
+	padding: clamp(48px, 7vw, 80px) var(--pbc-gutter);
+}
+
+.pbc-networks__title {
+	margin: 0 0 8px;
+	font-family: var(--pbc-font-display);
+	font-size: clamp(1.7rem, 3vw, 2.2rem);
+	font-weight: 400;
+	line-height: 1.15;
+}
+
+.pbc-networks__text {
+	margin: 0;
+	color: var(--pbc-ink-2);
+	font-size: 1.05rem;
+}
+
+.pbc-networks__list {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+	gap: 12px;
+	margin: 28px 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.pbc-networks__item {
+	display: flex;
+}
+
+.pbc-networks__card {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	gap: 4px;
+	padding: 20px 22px;
+	border: 2px solid transparent;
+	border-radius: 16px;
+	background: var(--pbc-card);
+	color: var(--pbc-ink);
+	text-decoration: none;
+}
+
+html[data-contrast="high"] .pbc-networks__card {
+	border-color: var(--pbc-line);
+}
+
+.pbc-networks__short {
+	color: var(--pbc-sea);
+	font-family: var(--pbc-font-display);
+	font-size: 1.3rem;
+}
+
+.pbc-networks__name {
+	color: var(--pbc-ink-2);
+	font-size: 0.95rem;
+}
+
+/* ---------- Microinteracciones ---------- */
+a.pbc-networks__card {
+	transition:
+		border-color var(--pbc-speed) var(--pbc-ease),
+		transform var(--pbc-speed) var(--pbc-ease);
+}
+
+a.pbc-networks__card:hover {
+	border-color: var(--pbc-sea);
+}
+
+a.pbc-networks__card .pbc-networks__short {
+	text-decoration: underline;
+	text-decoration-thickness: 2px;
+	text-underline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	a.pbc-networks__card:hover {
+		transform: translateY(-2px);
+	}
+}

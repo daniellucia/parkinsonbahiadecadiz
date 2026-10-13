@@ -84,6 +84,7 @@ Every interactive element (links, buttons, cards that are links, chips, menu ite
 - **Never the only signal and never an obstacle:** the hover state must also be visible without motion (colour/border), focus keeps the visible ring, targets must not move away from the pointer or change the layout (use `transform`, not margins or sizes, so there is no layout shift), and the same feedback applies on `:focus-visible` where it makes sense.
 - **Respect `prefers-reduced-motion`:** put every `transform` inside `@media (prefers-reduced-motion: no-preference)`; colour changes may stay. The theme also has a global reduced-motion rule as a safety net.
 - **CSS only**, animating `transform`, `opacity`, colours and shadows. No animation libraries and no JavaScript for hover effects.
+- **Form submit buttons show a loading spinner inside the button itself** as soon as the form is submitted, so the person knows something is happening and does not press again. This is already built into the theme for every `<form>` whose submit control is a `.pbc-button` (`main.js` + `.pbc-button--loading` in `main.css`): the button keeps its width, shows the spinner next to the text, gets `aria-busy="true"`, optionally swaps its text for `data-pbc-loading-text` (e.g. "Enviando…"), and ignores further presses. Do not use the `disabled` attribute for this (it drops focus and the value from the request). Forms sent with `fetch` must remove the state themselves when the response arrives (`window.pbcButtonLoading( button, false )`) and announce the result in a `role="status"` / `role="alert"` region next to the form. With `prefers-reduced-motion` the spinner does not rotate; the text change carries the message. Never leave a button spinning after an error.
 - Each widget's stylesheet ends with a "Microinteracciones" block; reuse the patterns already in `main.css` (`.pbc-button`) and the home widgets so the whole site responds the same way.
 
 ## Data model: CPTs first
@@ -100,16 +101,16 @@ CPT inventory from the design review (`Parkinson Bahia de Cadiz.dc.html`; slugs 
 | Data in the design | Where it appears | Model |
 |---|---|---|
 | Noticias | Inicio, Actualidad, detalle | Native posts + categories (Institucional, Proyectos, Consejos, Día Mundial) |
-| Terapias (nombre, entradilla, "qué trabajamos", quién la imparte, foto) | Inicio, Terapias | CPT Terapia, with its own page |
-| Preguntas frecuentes | Centro de día | CPT Pregunta + taxonomy Tema |
+| Terapias (nombre, entradilla, "qué trabajamos", quién la imparte, foto) | Inicio, Terapias | Done: CPT Terapia, with its own page |
+| Preguntas frecuentes | Centro de día | CPT Pregunta + taxonomy Tema (pending) |
 | Instalaciones (foto, nombre, alt) | Centro de día, Inicio | CPT Espacio |
 | Recursos descargables (guías y fichas) | Familias | CPT Recurso + taxonomy Tema (Alimentación, Voz y habla, Memoria, Ejercicio, Vida diaria); file as attachment |
 | Vídeos de ejercicios | Familias | CPT Vídeo (or Recurso of type vídeo — decide with the plugin) |
 | En los medios (medio, fecha, titular, enlace) | Actualidad | CPT Aparición en prensa |
-| Equipo y junta directiva | La asociación | CPT Persona + taxonomy Grupo (Equipo, Junta directiva), field Cargo |
-| Historia (año, título, texto) | La asociación | CPT Hito |
-| Documentos de transparencia | La asociación | CPT Documento + taxonomy Tipo, field Año; file as attachment |
-| Redes y federaciones | La asociación, pie | CPT Entidad (or Financiador/Colaborador with a taxonomy Tipo) |
+| Equipo y junta directiva | La asociación | Done: CPT Puesto (role + number of people) and CPT Directivo (name + cargo) |
+| Historia (año, título, texto) | La asociación | Done: CPT Hito |
+| Documentos de transparencia | La asociación | Done: CPT Documento (file as attachment); taxonomy Tipo / field Año pending if needed |
+| Redes y federaciones | La asociación, pie | Done: CPT Entidad |
 | Financiadores | Pie de todas las páginas | CPT Financiador (logo, enlace) — rendered through the theme hook `parkinson_bahia/footer_funders` |
 | Mensajes de formularios (contacto, socio, voluntariado, donativo) | Colabora, Contacto | Private CPT or custom table — decide with the forms work (personal data, see the skill's security rules) |
 
@@ -177,11 +178,13 @@ Namespace `DanielLucia\ParkinsonBahia\Theme` (PSR-4 → `src/`), text domain `pa
 
 Namespace `DanielLucia\ParkinsonBahia\Core` (PSR-4 → `src/`), text domain `parkinson-bahia-core`. After cloning run `ddev exec -d /var/www/html/wp-content/plugins/parkinson-bahia-core composer install`.
 
-- `src/PostTypes/`: one class per CPT. Exists: `Terapia` (`pbc_terapia`, URLs under `/terapias/`; title = name, excerpt = short summary for lists, content = full description, `menu_order` = order).
+- `src/PostTypes/`: one class per CPT, all extending the abstract `PostType` (registration, extra fields as registered post meta, native meta box, save with nonce + capability + sanitising; field types `text`, `number`, `url`, `file`). `Plugin::post_types()` is the list. **Never call translation functions from `register()` or a constructor** — WordPress 6.7+ raises `_load_textdomain_just_in_time` if a text domain is used before `init`; `register()` only adds hooks, and labels/fields are built inside the callbacks.
+  - `Terapia` (`pbc_terapia`): public, URLs under `/terapias/`; title = name, excerpt = short summary for lists, content = full description, `menu_order` = order.
+  - List-only CPTs (no public URL, `list_only_args()`), grouped in the admin menu "La asociación" (`src/Admin/Menu.php`): `Hito` (`pbc_hito`, meta `_pbc_year`, excerpt = text), `Puesto` (`pbc_puesto`, meta `_pbc_count`), `Directivo` (`pbc_directivo`, meta `_pbc_role`), `Documento` (`pbc_documento`, meta `_pbc_file` = attachment ID chosen with the media picker), `Entidad` (`pbc_entidad`, meta `_pbc_short`, `_pbc_url`).
 - `src/Elementor/Integration.php`: widget category `parkinson-bahia`, the `WIDGETS` map (slug => class) and one registered stylesheet per widget (`pbc-widget-<slug>` → `assets/css/widgets/<slug>.css`). It also stops Elementor from printing Google Fonts.
 - `src/Elementor/Widgets/Widget.php`: abstract base every widget extends. A new widget implements `slug()`, `get_title()`, `get_icon()`, `register_controls()` and `render()`, is added to `WIDGETS`, and gets its CSS file. Helpers: `text_control`, `image_control`, `heading_tag_control` / `heading_tag`, `link_controls` / `link_value`, `render_heading`, `render_text`, `image_html`, `title_id`. Widgets that query content override `is_dynamic_content()` to return `true`.
-- Widgets so far (all used on the home page): `Hero`, `Paths`, `Feature`, `Therapies` (queries the CPT), `Steps`, `LatestNews` (queries posts), `Support`.
-- `src/Cli/SeedCommand.php`: `ddev wp pbc seed-home [--force] [--skip-images]` creates the base pages, the therapies, three news posts, the main menu and the home page (Elementor data saved through the document API), sets the front page and the posts page. Idempotent; take a `ddev snapshot` before using `--force`.
+- Widgets so far — home: `Hero`, `Paths`, `Feature`, `Therapies` (CPT), `Steps`, `LatestNews` (posts), `Support`; La asociación: `PageHeader` (breadcrumb + `h1`, reusable as the first widget of every inner page), `Mission`, `Timeline` (Hito), `Team` (Puesto), `Board` (Directivo), `Documents` (Documento), `Networks` (Entidad). List widgets use the base helpers `items()`, `source_note()` and `render_empty_notice()`.
+- `src/Cli/SeedCommand.php`: `ddev wp pbc seed-asociacion [--force]` builds the La asociación page and its CPT items; `ddev wp pbc seed-home [--force] [--skip-images]` creates the base pages, the therapies, three news posts, the main menu and the home page (Elementor data saved through the document API), sets the front page and the posts page. Idempotent; take a `ddev snapshot` before using `--force`.
 - Elementor's stylesheet has `.elementor img { border-radius: 0 }`; image rules in widget CSS need two classes (`.pbc-hero .pbc-hero__image`) to win.
 - Local quirk: WordPress generates `http://` URLs here, so over `https://` the browser blocks images that have `srcset` (mixed content). Check pages over `http://parkinsonbahiadecadiz.ddev.site`.
 
@@ -201,6 +204,16 @@ Namespace `DanielLucia\ParkinsonBahia\Core` (PSR-4 → `src/`), text domain `par
 ## Keeping README.md up to date
 
 `README.md` (Spanish, for people) is the project's running record. Every time a feature is added, changed or removed, or something relevant about the project changes (a new CPT, widget, page, template, command, integration, setup step, decision or pending item), update `README.md` in the same piece of work and the same commit: its "Funcionalidades", "Páginas" and "Pendiente" sections and the setup steps if they changed. Rules and conventions for working on the code go in this file (`CLAUDE.md`) instead.
+
+## Versioning of our theme and plugins
+
+Our theme and plugin(s) carry their own version number and we raise it as work is done, following semantic versioning (`MAJOR.MINOR.PATCH`):
+
+- **PATCH** (1.2.0 → 1.2.1): bug fixes, small style or copy corrections, accessibility or performance fixes with no new functionality.
+- **MINOR** (1.2.1 → 1.3.0): new functionality that keeps what exists working — a new widget, CPT, template, control, page or option.
+- **MAJOR** (1.3.0 → 2.0.0): changes that break what exists — renamed or removed widgets, controls, CPT or meta keys, hooks, CSS tokens/classes others rely on, or anything that needs a data migration.
+
+Rules: bump only the package that changed, once per finished task (not per file), in the same commit as the work. Keep every place in sync — theme: `Version:` in `style.css` and `Theme::VERSION`; plugin: `Version:` in the main file header and `PBC_CORE_VERSION`. Asset cache-busting uses file modification times, so it does not depend on the version. Mention the new version in the commit message, and note relevant changes in `README.md`.
 
 ## Git workflow
 

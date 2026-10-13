@@ -27,10 +27,11 @@ ddev exec -d /var/www/html/wp-content/plugins/parkinson-bahia-core composer inst
 ddev wp plugin activate elementor parkinson-bahia-core
 ddev wp theme activate parkinson-bahia
 ddev wp pbc seed-home        # crea la portada, las páginas base, las terapias y tres noticias
+ddev wp pbc seed-asociacion  # crea la página «La asociación» y sus contenidos
 ddev launch
 ```
 
-`ddev wp pbc seed-home` se puede repetir sin duplicar nada. Con `--force` reescribe la portada; con `--skip-images` no descarga las fotos de la web actual.
+Los dos comandos se pueden repetir sin duplicar nada. Con `--force` reescriben su página; `seed-home` con `--skip-images` no descarga las fotos de la web actual.
 
 ## Cómo está construida
 
@@ -39,11 +40,14 @@ ddev launch
 - **Cabecera y pie se hacen en el tema** (`header.php`, `footer.php`, menús de WordPress), no con Elementor.
 - **Los enlaces de los widgets se eligen en un desplegable de páginas**, con «Enlace personalizado» como última opción.
 - **Microinteracciones amables** al pasar el ratón o pulsar (color, sombra, un ligero movimiento), nunca animaciones que empiecen solas; se desactivan si la persona ha pedido reducir el movimiento.
-- Accesibilidad (WCAG 2.2 AA), rendimiento y seguridad son requisitos de cada tarea. El detalle está en `CLAUDE.md`.
+- **Un único título principal (h1) por página** y conformidad con **WCAG 2.2 nivel AA**, comprobada con axe-core en cada plantilla.
+- **Los botones de envío de formularios muestran un indicador de carga** dentro del propio botón.
+- Las versiones del tema y del plugin suben con cada tarea (versionado semántico).
+- Accesibilidad, rendimiento y seguridad son requisitos de cada tarea. El detalle está en `CLAUDE.md`.
 
 ## Funcionalidades
 
-### Tema `parkinson-bahia`
+### Tema `parkinson-bahia` (versión 1.1.0)
 
 - Diseño tomado del proyecto de claude.ai/design «Rediseño Asociación Párkinson Cádiz»: colores, tipografías (Atkinson Hyperlegible Next y Young Serif, alojadas en el tema) y componentes.
 - Barra superior con teléfono, horario, tres tamaños de texto y alto contraste (se recuerdan en el navegador).
@@ -51,10 +55,13 @@ ddev launch
 - Bloque de contacto común antes del pie y pie con menús, redes sociales y datos legales.
 - Plantillas: Actualidad (noticia destacada, filtro por categoría, paginación), noticia, página, página de Elementor a ancho completo, tipos de contenido propios, búsqueda y 404.
 - Datos de contacto, botón de cabecera, redes y textos del pie editables en Apariencia → Personalizar.
+- Buscador en el pie de todas las páginas.
+- Indicador de carga en el botón al enviar cualquier formulario.
 
-### Plugin `parkinson-bahia-core`
+### Plugin `parkinson-bahia-core` (versión 1.1.0)
 
 - **Tipo de contenido «Terapias»**: una página por terapia, con resumen, foto y orden.
+- **Menú «La asociación» del escritorio**, con los datos que alimentan esa página: Historia (hitos por año), Equipo profesional (puestos y número de personas), Junta directiva (nombre y cargo), Documentos de transparencia (con su archivo) y Redes y federaciones (siglas y web).
 - **Widgets de Elementor** (categoría «Párkinson Bahía de Cádiz»):
 
 | Widget | Para qué sirve | De dónde salen los datos |
@@ -66,18 +73,26 @@ ddev launch
 | Pasos | Secuencia numerada (cómo pedir plaza) | Campos del widget |
 | Últimas noticias | Las noticias más recientes | Entradas del blog |
 | Llamada a colaborar | Mensaje y enlaces grandes (socio, donativo, voluntariado) | Campos del widget |
+| Cabecera de página | Migas de pan, título principal, texto y foto opcional | Campos del widget |
+| Cita destacada | La misión u otra frase importante | Campos del widget |
+| Historia | Línea de tiempo | La asociación → Historia |
+| Equipo profesional | Texto, fotos opcionales y lista de puestos | La asociación → Equipo profesional |
+| Junta directiva | Personas y cargos | La asociación → Junta directiva |
+| Transparencia | Datos registrales y documentos descargables | La asociación → Documentos de transparencia |
+| Redes y federaciones | Entidades de las que forma parte | La asociación → Redes y federaciones |
 
 - Elementor no carga Google Fonts: las fuentes las sirve el tema.
-- Comando `wp pbc seed-home` para montar la portada con el contenido del diseño.
+- Comandos `wp pbc seed-home` y `wp pbc seed-asociacion` para montar esas páginas con el contenido del diseño.
 
 ### Páginas
 
 - **Inicio**: montada con los siete widgets y configurada como página de inicio. Actualidad es la página de entradas.
-- La asociación, Centro de día, Terapias, Familias y cuidadores, Colabora y Contacto: creadas, con contenido pendiente.
+- **La asociación**: montada con siete widgets (cabecera, misión, historia, equipo, junta directiva, transparencia y redes). Faltan la foto de cabecera, las fotos del equipo y los archivos de los documentos, que aparecen como «Próximamente».
+- Centro de día, Terapias, Familias y cuidadores, Colabora y Contacto: creadas, con contenido pendiente.
 
 ## Pendiente
 
-- Resto de páginas y sus widgets; tipos de contenido que faltan (preguntas frecuentes, instalaciones, recursos, prensa, equipo, historia, transparencia, entidades, financiadores).
+- Resto de páginas y sus widgets; tipos de contenido que faltan (preguntas frecuentes, instalaciones, recursos, vídeos, prensa, financiadores).
 - Formularios (contacto, socio, voluntariado), donativos, mapa, cookies y declaración de accesibilidad.
 - Redirecciones 301 de la web actual.
 - Datos por confirmar con la asociación (ver «Preguntas pendientes» en `docs/investigacion.md`) y fotos originales a mayor resolución: las de la web actual miden 800 px de ancho.

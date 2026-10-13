@@ -961,3 +961,36 @@ a,
 .pbc-footer .pbc-button--primary {
 	border-color: var(--pbc-on-dark);
 }
+
+/* ---------- Botón enviando ---------- */
+.pbc-button--loading {
+	cursor: progress;
+}
+
+.pbc-button--loading::before {
+	content: "";
+	flex: none;
+	width: 1.1em;
+	height: 1.1em;
+	border: 3px solid currentColor;
+	border-right-color: transparent;
+	border-radius: 50%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.pbc-button--loading::before {
+		animation: pbc-spin 0.8s linear infinite;
+	}
+
+	.pbc-button--loading,
+	.pbc-button--loading:hover {
+		box-shadow: none;
+		transform: none;
+	}
+}
+
+@keyframes pbc-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}

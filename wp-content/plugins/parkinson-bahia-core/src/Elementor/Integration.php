@@ -28,6 +28,13 @@ final class Integration {
 		'steps'       => Widgets\Steps::class,
 		'latest-news' => Widgets\LatestNews::class,
 		'support'     => Widgets\Support::class,
+		'page-header' => Widgets\PageHeader::class,
+		'mission'     => Widgets\Mission::class,
+		'timeline'    => Widgets\Timeline::class,
+		'team'        => Widgets\Team::class,
+		'board'       => Widgets\Board::class,
+		'documents'   => Widgets\Documents::class,
+		'networks'    => Widgets\Networks::class,
 	];
 
 	public function register(): void {

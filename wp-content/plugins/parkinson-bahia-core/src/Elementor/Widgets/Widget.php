@@ -285,6 +285,55 @@ abstract class Widget extends Widget_Base {
 	}
 
 	/**
+	 * Elementos publicados de un tipo de contenido, por «Orden» y título.
+	 * Una sola consulta, sin paginación y con los campos extra ya cargados.
+	 *
+	 * @return \WP_Post[]
+	 */
+	protected function items( string $post_type, int $limit = 60 ): array {
+		$query = new \WP_Query(
+			[
+				'post_type'              => $post_type,
+				'post_status'            => 'publish',
+				'has_password'           => false,
+				'posts_per_page'         => $limit,
+				'orderby'                => [
+					'menu_order' => 'ASC',
+					'title'      => 'ASC',
+				],
+				'no_found_rows'          => true,
+				'update_post_term_cache' => false,
+			]
+		);
+
+		return $query->posts;
+	}
+
+	/**
+	 * Aviso para quien edita cuando un listado todavía no tiene contenido.
+	 * En la web pública no se muestra nada.
+	 */
+	protected function render_empty_notice( string $message ): void {
+		if ( \Elementor\Plugin::$instance->editor->is_edit_mode() ) {
+			printf( '<p class="pbc-empty-notice">%s</p>', esc_html( $message ) );
+		}
+	}
+
+	/**
+	 * Aviso fijo en el panel: de dónde salen los datos del widget.
+	 */
+	protected function source_note( string $message ): void {
+		$this->add_control(
+			'source_note',
+			[
+				'type'            => Controls_Manager::RAW_HTML,
+				'raw'             => esc_html( $message ),
+				'content_classes' => 'elementor-panel-alert elementor-panel-alert-info',
+			]
+		);
+	}
+
+	/**
 	 * Identificador único para enlazar un título con su sección (aria-labelledby).
 	 */
 	protected function title_id(): string {

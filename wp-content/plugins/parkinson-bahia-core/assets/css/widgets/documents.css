@@ -1,0 +1,104 @@
+/* Widget «Transparencia». */
+.pbc-documents {
+	border-top: 1px solid var(--pbc-line);
+}
+
+.pbc-documents__inner {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
+	gap: clamp(32px, 5vw, 72px);
+	max-width: var(--pbc-width);
+	margin-inline: auto;
+	padding: clamp(56px, 8vw, 104px) var(--pbc-gutter);
+}
+
+.pbc-documents__body {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.pbc-documents__title {
+	margin: 0;
+	font-family: var(--pbc-font-display);
+	font-size: clamp(1.9rem, 3.6vw, 2.6rem);
+	font-weight: 400;
+	line-height: 1.12;
+}
+
+.pbc-documents__text {
+	margin: 0;
+	color: var(--pbc-ink-2);
+	font-size: 1.1rem;
+}
+
+.pbc-documents__facts {
+	display: grid;
+	gap: 14px;
+	margin: 8px 0 0;
+}
+
+.pbc-documents__fact-label {
+	color: var(--pbc-ink-2);
+	font-size: 0.9rem;
+}
+
+.pbc-documents__fact-value {
+	margin: 0;
+	font-weight: 500;
+}
+
+.pbc-documents__list {
+	align-self: start;
+	margin: 0;
+	padding: 0;
+	border-top: 1px solid var(--pbc-line);
+	list-style: none;
+}
+
+.pbc-documents__item {
+	border-bottom: 1px solid var(--pbc-line);
+}
+
+.pbc-documents__link {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 4px 16px;
+	min-height: 56px;
+	padding: 18px 4px;
+	color: var(--pbc-ink);
+	font-size: 1.1rem;
+	font-weight: 500;
+	text-decoration: none;
+}
+
+.pbc-documents__meta {
+	color: var(--pbc-sea);
+	font-size: 0.9rem;
+	font-weight: 700;
+}
+
+.pbc-documents__link--pending .pbc-documents__meta {
+	color: var(--pbc-ink-2);
+	font-weight: 400;
+}
+
+/* ---------- Microinteracciones ---------- */
+a.pbc-documents__link {
+	transition:
+		background-color var(--pbc-speed) var(--pbc-ease),
+		color var(--pbc-speed) var(--pbc-ease);
+}
+
+a.pbc-documents__link:hover {
+	background: var(--pbc-mist);
+	color: var(--pbc-sea);
+}
+
+a.pbc-documents__link:hover .pbc-documents__name {
+	text-decoration: underline;
+	text-decoration-thickness: 2px;
+	text-underline-offset: 3px;
+}

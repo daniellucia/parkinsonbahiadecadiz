@@ -1,0 +1,61 @@
+/* Widget «Cabecera de página». Las migas usan el bloque .pbc-breadcrumb del tema. */
+.pbc-page-hero__inner {
+	max-width: var(--pbc-width);
+	margin-inline: auto;
+	padding: 24px var(--pbc-gutter) clamp(48px, 7vw, 88px);
+}
+
+.pbc-page-hero__grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+	align-items: center;
+	gap: clamp(32px, 5vw, 72px);
+}
+
+.pbc-page-hero__grid--text {
+	display: block;
+	max-width: 46em;
+}
+
+.pbc-page-hero__body {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.pbc-page-hero__eyebrow {
+	margin: 0;
+	color: var(--pbc-clay-text);
+	font-size: 0.95rem;
+	font-weight: 700;
+}
+
+.pbc-page-hero__title {
+	margin: 0;
+	font-family: var(--pbc-font-display);
+	font-size: clamp(2.3rem, 5vw, 3.6rem);
+	font-weight: 400;
+	line-height: 1.08;
+	overflow-wrap: break-word;
+}
+
+.pbc-page-hero__text {
+	margin: 0;
+	color: var(--pbc-ink-2);
+	font-size: 1.2rem;
+}
+
+.pbc-page-hero__figure {
+	margin: 0;
+}
+
+/* Doble clase: Elementor aplica «.elementor img { border-radius: 0 }» y hay que superarlo. */
+.pbc-page-hero .pbc-page-hero__image {
+	display: block;
+	width: 100%;
+	height: auto;
+	aspect-ratio: 4 / 3;
+	border-radius: 24px 24px 200px 24px;
+	background: var(--pbc-sand);
+	object-fit: cover;
+}

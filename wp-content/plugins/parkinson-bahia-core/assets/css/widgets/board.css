@@ -1,0 +1,59 @@
+/* Widget «Junta directiva». */
+.pbc-board__inner {
+	max-width: var(--pbc-width);
+	margin-inline: auto;
+	padding: clamp(56px, 8vw, 104px) var(--pbc-gutter);
+}
+
+.pbc-board__header {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: end;
+	justify-content: space-between;
+	gap: 12px 40px;
+	margin-bottom: 32px;
+}
+
+.pbc-board__title {
+	margin: 0;
+	font-family: var(--pbc-font-display);
+	font-size: clamp(1.9rem, 3.6vw, 2.6rem);
+	font-weight: 400;
+	line-height: 1.12;
+}
+
+.pbc-board__text {
+	max-width: 30em;
+	margin: 0;
+	color: var(--pbc-ink-2);
+}
+
+.pbc-board__list {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+	gap: 16px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.pbc-board__item {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	padding: 22px 24px;
+	border: 1px solid var(--pbc-line);
+	border-radius: 16px;
+	background: var(--pbc-card);
+}
+
+.pbc-board__role {
+	color: var(--pbc-clay-text);
+	font-size: 0.9rem;
+	font-weight: 700;
+}
+
+.pbc-board__name {
+	font-size: 1.15rem;
+	font-weight: 500;
+}

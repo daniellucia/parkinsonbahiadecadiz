@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace DanielLucia\ParkinsonBahia\Core\Cli;
 
+use DanielLucia\ParkinsonBahia\Core\PostTypes;
 use DanielLucia\ParkinsonBahia\Core\PostTypes\Terapia;
 use WP_CLI;
 
@@ -484,10 +485,216 @@ final class SeedCommand {
 			],
 		];
 
+		$this->save_page( $home_id, $widgets, 'home' );
+	}
+
+
+	/**
+	 * Crea la página «La asociación» con sus widgets y sus contenidos.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--force]
+	 * : Reescribe el contenido de la página aunque ya tenga widgets.
+	 *
+	 * @param string[]             $args       Argumentos posicionales.
+	 * @param array<string, mixed> $assoc_args Opciones.
+	 */
+	public function asociacion( array $args, array $assoc_args ): void {
+		if ( ! did_action( 'elementor/loaded' ) ) {
+			WP_CLI::error( 'Elementor no está activo.' );
+		}
+
+		$admins = get_users(
+			[
+				'role'   => 'administrator',
+				'number' => 1,
+				'fields' => 'ID',
+			]
+		);
+		if ( ! $admins ) {
+			WP_CLI::error( 'No hay ningún usuario administrador.' );
+		}
+		wp_set_current_user( (int) $admins[0] );
+
+		$pages   = $this->seed_pages();
+		$page_id = $pages['la-asociacion'];
+
+		$this->seed_items(
+			PostTypes\Hito::POST_TYPE,
+			[
+				[ 'Nace la asociación', 'Un grupo de familias de San Fernando, con Baldomero Guerrero Braza como primer presidente, decide unirse para no afrontar el párkinson en solitario.', [ PostTypes\Hito::META_YEAR => 2003 ] ],
+				[ 'Abre el centro de día', 'Ponemos en marcha la Unidad de Estancia Diurna, con plazas concertadas con la Junta de Andalucía.', [ PostTypes\Hito::META_YEAR => 2008 ] ],
+				[ 'Primera piedra', 'Empiezan las obras del nuevo centro en una parcela cedida por el Ayuntamiento de San Fernando.', [ PostTypes\Hito::META_YEAR => 2020 ] ],
+				[ 'Nos mudamos', 'En diciembre empezamos a trabajar en el edificio nuevo de Camposoto, con capacidad para 60 personas.', [ PostTypes\Hito::META_YEAR => 2025 ] ],
+				[ 'Inauguración', 'El 15 de enero se inaugura oficialmente el centro, una referencia en la atención al párkinson.', [ PostTypes\Hito::META_YEAR => 2026 ] ],
+			]
+		);
+
+		$team = [];
+		foreach ( [ 'Directora' => 1, 'Trabajadora social' => 1, 'Psicólogos' => 2, 'Fisioterapeuta' => 1, 'Logopeda' => 1, 'Auxiliares de clínica' => 6, 'Cocinera' => 1, 'Conductores' => 4, 'Contable' => 1, 'Informática' => 1 ] as $role => $count ) {
+			$team[] = [ $role, '', [ PostTypes\Puesto::META_COUNT => $count ] ];
+		}
+		$this->seed_items( PostTypes\Puesto::POST_TYPE, $team );
+
+		$board = [];
+		foreach ( [
+			[ 'Joaquín Izquierdo Periñán', 'Presidente' ],
+			[ 'Antonio Prieto Ramírez', 'Vicepresidente' ],
+			[ 'Miguel Ángel Díaz Aguado', 'Secretario' ],
+			[ 'John Bénjamin Hackl', 'Tesorero' ],
+			[ 'Mª Dolores Garzón Coello', 'Vocal' ],
+			[ 'Mª Carmen Nodar Martínez', 'Vocal' ],
+			[ 'Mª Isabel Romero González', 'Vocal' ],
+			[ 'Manuel Torres Guzmán', 'Vocal' ],
+		] as [ $name, $role ] ) {
+			$board[] = [ $name, '', [ PostTypes\Directivo::META_ROLE => $role ] ];
+		}
+		$this->seed_items( PostTypes\Directivo::POST_TYPE, $board );
+
+		$documents = [];
+		foreach ( [ 'Memoria de actividades 2025', 'Cuentas anuales 2025', 'Programación 2025', 'Plan de Igualdad', 'Plan de Voluntariado', 'Código ético' ] as $title ) {
+			$documents[] = [ $title, '', [] ];
+		}
+		$this->seed_items( PostTypes\Documento::POST_TYPE, $documents );
+
+		$networks = [];
+		foreach ( [
+			'FEP'     => 'Federación Española de Párkinson',
+			'FANDEP'  => 'Federación Andaluza de Párkinson',
+			'EPDA'    => 'European Parkinson\'s Disease Association',
+			'FEGADI'  => 'Federación Gaditana de Discapacitados',
+			'COCEMFE' => 'Confederación de personas con discapacidad física y orgánica',
+		] as $short => $name ) {
+			$networks[] = [ $name, '', [ PostTypes\Entidad::META_SHORT => $short ] ];
+		}
+		$this->seed_items( PostTypes\Entidad::POST_TYPE, $networks );
+
+		$has = '' !== (string) get_post_meta( $page_id, '_elementor_data', true );
+
+		if ( $has && empty( $assoc_args['force'] ) ) {
+			WP_CLI::log( 'La página ya tiene contenido; no se toca (usa --force para reescribirla).' );
+		} else {
+			$rows = static function ( array $items ): array {
+				foreach ( $items as $index => $item ) {
+					$items[ $index ]['_id'] = substr( md5( wp_json_encode( $item ) . $index ), 0, 7 );
+				}
+				return $items;
+			};
+
+			$this->save_page(
+				$page_id,
+				[
+					'pbc-page-header' => [
+						'eyebrow'   => 'Quiénes somos',
+						'title'     => 'Somos familias que decidieron no estar solas frente al párkinson.',
+						'title_tag' => 'h1',
+						'text'      => 'La Asociación de Familiares y Enfermos de Párkinson Bahía de Cádiz nació en San Fernando en abril de 2003. Es una entidad sin ánimo de lucro y atiende a personas de toda la provincia de Cádiz, donde unas 5.000 personas viven con un diagnóstico de párkinson.',
+					],
+					'pbc-mission'     => [
+						'title'     => 'Nuestra misión',
+						'title_tag' => 'h2',
+						'quote'     => 'Mejorar la calidad de vida de las personas afectadas de párkinson y la de sus familiares y/o cuidadores/as.',
+						'text'      => 'Lo hacemos con terapias rehabilitadoras, un centro de día especializado, transporte adaptado y apoyo a las familias que cuidan.',
+					],
+					'pbc-timeline'    => [
+						'title'     => 'Más de veinte años de camino',
+						'title_tag' => 'h2',
+					],
+					'pbc-team'        => [
+						'title'     => 'Las personas que te atienden',
+						'title_tag' => 'h2',
+						'text'      => 'Un equipo de 19 profesionales, dirigido por Lola Garzón, que lleva con la asociación desde sus primeros años.',
+					],
+					'pbc-board'       => [
+						'title'     => 'Junta directiva',
+						'title_tag' => 'h2',
+						'text'      => 'Socios y socias que dedican su tiempo, sin cobrar, a gobernar la asociación. Renovada en enero de 2025.',
+					],
+					'pbc-documents'   => [
+						'title'     => 'Transparencia',
+						'title_tag' => 'h2',
+						'text'      => 'Rendimos cuentas a nuestros socios, a las administraciones que nos apoyan y a cualquier persona que quiera saber cómo trabajamos.',
+						'facts'     => $rows(
+							[
+								[
+									'label' => 'CIF',
+									'value' => 'G-11591302',
+								],
+								[
+									'label' => 'Registro de Asociaciones de Andalucía',
+									'value' => 'nº 6.809, inscrita el 23 de junio de 2003',
+								],
+								[
+									'label' => 'Registro de Entidades de Voluntariado de Andalucía',
+									'value' => 'nº 1198',
+								],
+							]
+						),
+					],
+					'pbc-networks'    => [
+						'title'     => 'Formamos parte de',
+						'title_tag' => 'h2',
+						'text'      => 'Trabajamos junto a otras entidades para defender los derechos de las personas con párkinson.',
+					],
+				],
+				'asociacion'
+			);
+			WP_CLI::log( 'Página «La asociación» montada con sus widgets.' );
+		}
+
+		WP_CLI::success( 'La asociación lista: ' . get_permalink( $page_id ) );
+	}
+
+	/**
+	 * Crea elementos de un tipo de contenido si todavía no existen (por título).
+	 *
+	 * @param array<int, array{0:string, 1:string, 2:array<string, mixed>}> $items Título, extracto y campos.
+	 */
+	private function seed_items( string $post_type, array $items ): void {
+		foreach ( $items as $order => [ $title, $excerpt, $meta ] ) {
+			$existing = get_posts(
+				[
+					'post_type'      => $post_type,
+					'post_status'    => 'any',
+					'title'          => $title,
+					'posts_per_page' => 1,
+					'fields'         => 'ids',
+				]
+			);
+
+			if ( $existing ) {
+				continue;
+			}
+
+			$post_id = (int) wp_insert_post(
+				[
+					'post_type'    => $post_type,
+					'post_status'  => 'publish',
+					'post_title'   => $title,
+					'post_excerpt' => $excerpt,
+					'menu_order'   => $order + 1,
+				]
+			);
+
+			foreach ( $meta as $key => $value ) {
+				update_post_meta( $post_id, $key, $value );
+			}
+		}
+
+		WP_CLI::log( "Contenidos comprobados: {$post_type}" );
+	}
+
+	/**
+	 * Guarda una página de Elementor: un contenedor a ancho completo con un widget por sección.
+	 *
+	 * @param array<string, array<string, mixed>> $widgets Tipo de widget => ajustes.
+	 */
+	private function save_page( int $page_id, array $widgets, string $prefix ): void {
 		$elements = [];
 		foreach ( $widgets as $type => $settings ) {
 			$elements[] = [
-				'id'         => substr( md5( 'home-' . $type ), 0, 7 ),
+				'id'         => substr( md5( $prefix . '-' . $type ), 0, 7 ),
 				'elType'     => 'widget',
 				'widgetType' => $type,
 				'settings'   => $settings,
@@ -507,7 +714,7 @@ final class SeedCommand {
 		// Un único contenedor a ancho completo, sin relleno ni separación: cada widget trae los suyos.
 		$data = [
 			[
-				'id'       => substr( md5( 'home-container' ), 0, 7 ),
+				'id'       => substr( md5( $prefix . '-container' ), 0, 7 ),
 				'elType'   => 'container',
 				'settings' => [
 					'content_width'  => 'full',
@@ -528,10 +735,10 @@ final class SeedCommand {
 			],
 		];
 
-		$document = \Elementor\Plugin::$instance->documents->get( $home_id, false );
+		$document = \Elementor\Plugin::$instance->documents->get( $page_id, false );
 
 		if ( ! $document ) {
-			WP_CLI::error( 'Elementor no reconoce la página de inicio.' );
+			WP_CLI::error( 'Elementor no reconoce la página.' );
 		}
 
 		$document->set_is_built_with_elementor( true );
@@ -543,7 +750,7 @@ final class SeedCommand {
 		);
 
 		if ( ! $saved ) {
-			WP_CLI::error( 'Elementor no ha guardado la portada.' );
+			WP_CLI::error( 'Elementor no ha guardado la página.' );
 		}
 
 		\Elementor\Plugin::$instance->files_manager->clear_cache();

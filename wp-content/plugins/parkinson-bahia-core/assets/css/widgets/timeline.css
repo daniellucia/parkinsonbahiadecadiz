@@ -1,0 +1,61 @@
+/* Widget «Historia». */
+.pbc-timeline__inner {
+	max-width: var(--pbc-width);
+	margin-inline: auto;
+	padding: clamp(56px, 8vw, 104px) var(--pbc-gutter);
+}
+
+.pbc-timeline__title {
+	margin: 0 0 40px;
+	font-family: var(--pbc-font-display);
+	font-size: clamp(1.9rem, 3.6vw, 2.6rem);
+	font-weight: 400;
+	line-height: 1.12;
+}
+
+.pbc-timeline__list {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr));
+	gap: 24px 0;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.pbc-timeline__item {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding: 24px 24px 0 0;
+	border-top: 2px solid var(--pbc-sea);
+}
+
+.pbc-timeline__item::before {
+	content: "";
+	position: absolute;
+	top: -9px;
+	left: 0;
+	width: 16px;
+	height: 16px;
+	border: 3px solid var(--pbc-sea);
+	border-radius: 50%;
+	background: var(--pbc-paper);
+}
+
+.pbc-timeline__year {
+	margin-top: 12px;
+	color: var(--pbc-clay-text);
+	font-family: var(--pbc-font-display);
+	font-size: 2rem;
+	line-height: 1;
+}
+
+.pbc-timeline__item-title {
+	font-size: 1.15rem;
+	font-weight: 700;
+}
+
+.pbc-timeline__item-text {
+	color: var(--pbc-ink-2);
+}

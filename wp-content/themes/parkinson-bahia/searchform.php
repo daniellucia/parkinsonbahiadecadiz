@@ -15,6 +15,6 @@ $pbc_search_id = wp_unique_id( 'pbc-search-' );
 	<label class="pbc-search__label" for="<?php echo esc_attr( $pbc_search_id ); ?>"><?php esc_html_e( 'Buscar en la web', 'parkinson-bahia' ); ?></label>
 	<div class="pbc-search__row">
 		<input class="pbc-search__input" type="search" id="<?php echo esc_attr( $pbc_search_id ); ?>" name="s" value="<?php echo esc_attr( get_search_query() ); ?>" autocomplete="off">
-		<button class="pbc-button pbc-button--primary" type="submit"><?php esc_html_e( 'Buscar', 'parkinson-bahia' ); ?></button>
+		<button class="pbc-button pbc-button--primary" type="submit" data-pbc-loading-text="<?php esc_attr_e( 'Buscando…', 'parkinson-bahia' ); ?>"><?php esc_html_e( 'Buscar', 'parkinson-bahia' ); ?></button>
 	</div>
 </form>
