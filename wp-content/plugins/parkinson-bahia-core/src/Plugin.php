@@ -31,6 +31,8 @@ final class Plugin {
 			new PostTypes\Directivo(),
 			new PostTypes\Documento(),
 			new PostTypes\Entidad(),
+			new PostTypes\Espacio(),
+			new PostTypes\Pregunta(),
 		];
 	}
 
@@ -49,6 +51,7 @@ final class Plugin {
 			$seed = new SeedCommand();
 			\WP_CLI::add_command( 'pbc seed-home', [ $seed, 'home' ] );
 			\WP_CLI::add_command( 'pbc seed-asociacion', [ $seed, 'asociacion' ] );
+			\WP_CLI::add_command( 'pbc seed-centro', [ $seed, 'centro' ] );
 		}
 	}
 }

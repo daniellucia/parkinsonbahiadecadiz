@@ -647,6 +647,282 @@ final class SeedCommand {
 	}
 
 	/**
+	 * Crea la página «Centro de día» con sus widgets y sus contenidos.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--force]
+	 * : Reescribe el contenido de la página aunque ya tenga widgets.
+	 *
+	 * [--skip-images]
+	 * : No descarga las fotos de la web actual.
+	 *
+	 * @param string[]             $args       Argumentos posicionales.
+	 * @param array<string, mixed> $assoc_args Opciones.
+	 */
+	public function centro( array $args, array $assoc_args ): void {
+		if ( ! did_action( 'elementor/loaded' ) ) {
+			WP_CLI::error( 'Elementor no está activo.' );
+		}
+
+		$admins = get_users(
+			[
+				'role'   => 'administrator',
+				'number' => 1,
+				'fields' => 'ID',
+			]
+		);
+		if ( ! $admins ) {
+			WP_CLI::error( 'No hay ningún usuario administrador.' );
+		}
+		wp_set_current_user( (int) $admins[0] );
+
+		$with_images = empty( $assoc_args['skip-images'] );
+		$pages       = $this->seed_pages();
+		$page_id     = $pages['centro-de-dia'];
+
+		// Instalaciones: nombre de la sala, foto y texto alternativo.
+		$spaces = [
+			[ '2026/01/20260108_120755.jpg', 'Recepción', 'Recepción del centro, amplia y luminosa' ],
+			[ '2026/01/20260108_111217.jpg', 'Rehabilitación funcional', 'Sala de rehabilitación funcional con aparatos de ejercicio' ],
+			[ '2026/01/20260108_113221.jpg', 'Fisioterapia individual', 'Sala de fisioterapia individual con camilla' ],
+			[ '2026/01/20260108_120850.jpg', 'Logopedia', 'Sala de logopedia' ],
+			[ '2026/01/20260108_110920.jpg', 'Estimulación cognitiva informatizada', 'Sala con ordenadores para estimulación cognitiva' ],
+			[ '2026/01/20260108_111615.jpg', 'Neuropsicología', 'Despacho de neuropsicología' ],
+			[ '2026/01/20260108_112732.jpg', 'Psicología', 'Despacho de la unidad de psicología' ],
+			[ '2026/05/20260518_101622.jpg', 'Sala multisensorial', 'Sala multisensorial con luces y elementos de estimulación' ],
+			[ '2026/01/20260120_112924.jpg', 'Comedor', 'Comedor con mesas preparadas' ],
+			[ '2026/01/20260109_091918.jpg', 'Salón de estar', 'Salón de estar con sillones' ],
+			[ '2026/01/20260108_113359.jpg', 'Espacio de investigación', 'Espacio de investigación y desarrollo' ],
+			[ '2026/01/20260108_112838.jpg', 'Salón de actos', 'Salón de actos con capacidad para unas 70 personas' ],
+		];
+
+		$this->seed_items( PostTypes\Espacio::POST_TYPE, array_map( static fn ( array $space ): array => [ $space[1], '', [] ], $spaces ) );
+
+		if ( $with_images ) {
+			foreach ( $spaces as [ $path, $title, $alt ] ) {
+				$found = get_posts(
+					[
+						'post_type'      => PostTypes\Espacio::POST_TYPE,
+						'title'          => $title,
+						'posts_per_page' => 1,
+						'fields'         => 'ids',
+					]
+				);
+				if ( $found && ! has_post_thumbnail( $found[0] ) ) {
+					$image_id = $this->image( $path, $alt );
+					if ( $image_id > 0 ) {
+						set_post_thumbnail( $found[0], $image_id );
+					}
+				}
+			}
+		}
+
+		// Preguntas frecuentes del tema «Centro de día».
+		$topic = term_exists( 'Centro de día', PostTypes\Pregunta::TAXONOMY );
+		if ( ! $topic ) {
+			$topic = wp_insert_term( 'Centro de día', PostTypes\Pregunta::TAXONOMY );
+		}
+		$topic_id = is_array( $topic ) ? (int) $topic['term_id'] : 0;
+
+		$faqs = [
+			'¿Hace falta tener reconocida la dependencia?' => 'Para una plaza concertada, sí. Si todavía no la tienes, nuestra trabajadora social te explica cómo pedirla y te acompaña en el proceso. Mientras tanto, puedes valorar una plaza privada.',
+			'¿Qué incluye la plaza?'                      => 'Las terapias de tu plan, la comida del mediodía y el transporte adaptado de ida y vuelta.',
+			'¿Desde qué localidades hay transporte?'      => 'Atendemos a personas de toda la provincia. Las rutas dependen de cada año, así que lo mejor es llamarnos y te confirmamos si pasamos por tu zona.',
+			'¿Puedo venir algunos días a la semana?'      => 'Cuéntanos qué necesitas. Buscamos la fórmula que mejor encaje contigo y con tu familia.',
+			'¿Las familias también pueden recibir apoyo?' => 'Sí. Tenemos atención psicológica y grupos de autoayuda para familiares y cuidadores, aunque la persona con párkinson no venga al centro de día.',
+		];
+
+		$order = 0;
+		foreach ( $faqs as $question => $answer ) {
+			++$order;
+			$existing = get_posts(
+				[
+					'post_type'      => PostTypes\Pregunta::POST_TYPE,
+					'post_status'    => 'any',
+					'title'          => $question,
+					'posts_per_page' => 1,
+					'fields'         => 'ids',
+				]
+			);
+			if ( $existing ) {
+				continue;
+			}
+			$faq_id = (int) wp_insert_post(
+				[
+					'post_type'    => PostTypes\Pregunta::POST_TYPE,
+					'post_status'  => 'publish',
+					'post_title'   => $question,
+					'post_content' => '<!-- wp:paragraph --><p>' . esc_html( $answer ) . '</p><!-- /wp:paragraph -->',
+					'menu_order'   => $order,
+				]
+			);
+			if ( $topic_id > 0 ) {
+				wp_set_object_terms( $faq_id, [ $topic_id ], PostTypes\Pregunta::TAXONOMY );
+			}
+		}
+		WP_CLI::log( 'Contenidos comprobados: ' . PostTypes\Pregunta::POST_TYPE );
+
+		$has = '' !== (string) get_post_meta( $page_id, '_elementor_data', true );
+
+		if ( $has && empty( $assoc_args['force'] ) ) {
+			WP_CLI::log( 'La página ya tiene contenido; no se toca (usa --force para reescribirla).' );
+		} else {
+			$rows = static function ( array $items ): array {
+				foreach ( $items as $index => $item ) {
+					$items[ $index ]['_id'] = substr( md5( wp_json_encode( $item ) . $index ), 0, 7 );
+				}
+				return $items;
+			};
+
+			$day_image_id = $with_images ? $this->image( '2026/01/20260109_091918.jpg', 'Salón de estar del centro, luminoso, con sillones' ) : 0;
+
+			$this->save_page(
+				$page_id,
+				[
+					'pbc-page-header' => [
+						'title'     => 'Centro de día para personas con párkinson',
+						'title_tag' => 'h1',
+						'text'      => 'También lo llamamos Unidad de Estancia Diurna. Vienes por la mañana, haces tus terapias, comes con nosotros y vuelves a casa por la tarde. Nosotros te recogemos y te llevamos.',
+						'variant'   => 'sand',
+						// El horario y el calendario son los datos confirmados del proyecto (CLAUDE.md), no los del boceto.
+						'facts'     => $rows(
+							[
+								[
+									'label' => 'Horario',
+									'value' => 'Lunes a viernes, de 9:00 a 17:00',
+								],
+								[
+									'label' => 'Dónde',
+									'value' => 'Camposoto, San Fernando',
+								],
+								[
+									'label' => 'Calendario',
+									'value' => 'Cerrado en agosto',
+								],
+							]
+						),
+					],
+					'pbc-notice'      => [
+						'lead'             => 'Ahora mismo hay lista de espera.',
+						'text'             => 'Llámanos igualmente: te apuntamos, te orientamos y te contamos qué puedes hacer mientras tanto.',
+						'button_label'     => 'Llamar al 956 59 19 28',
+						'button_link_page' => 'custom',
+						'button_link'      => [
+							'url'         => 'tel:+34956591928',
+							'is_external' => '',
+							'nofollow'    => '',
+						],
+					],
+					'pbc-schedule'    => [
+						'title'     => 'Así es un día en el centro',
+						'title_tag' => 'h2',
+						'text'      => 'Cada persona tiene su plan, pero el día suele ir más o menos así. Las terapias se hacen en grupos pequeños o de forma individual.',
+						'image'     => [
+							'id'  => $day_image_id > 0 ? $day_image_id : '',
+							'url' => $day_image_id > 0 ? (string) wp_get_attachment_url( $day_image_id ) : '',
+						],
+						'items'     => $rows(
+							[
+								[
+									'time'  => '9:00',
+									'title' => 'Te recogemos en casa',
+									'text'  => 'El transporte adaptado pasa por tu puerta.',
+								],
+								[
+									'time'  => '10:00',
+									'title' => 'Terapias de la mañana',
+									'text'  => 'Fisioterapia, logopedia o estimulación cognitiva, según tu plan.',
+								],
+								[
+									'time'  => '12:00',
+									'title' => 'Un rato de descanso',
+									'text'  => 'Charla, café y tiempo en el salón con los compañeros.',
+								],
+								[
+									'time'  => '13:30',
+									'title' => 'Comida',
+									'text'  => 'Menú elaborado en nuestra cocina, adaptado a cada persona.',
+								],
+								[
+									'time'  => '15:00',
+									'title' => 'Talleres de la tarde',
+									'text'  => 'Musicoterapia, cineterapia y actividades en grupo.',
+								],
+								[
+									'time'  => '16:30',
+									'title' => 'Vuelta a casa',
+									'text'  => 'Te dejamos de nuevo en tu puerta.',
+								],
+							]
+						),
+					],
+					'pbc-steps'       => [
+						'title'     => 'Cómo solicitar plaza',
+						'title_tag' => 'h2',
+						'intro'     => 'Te acompañamos en cada paso. Si algo no lo entiendes, pregúntanos: para eso estamos.',
+						'variant'   => 'dark',
+						'items'     => $rows(
+							[
+								[
+									'title' => 'Llámanos o escríbenos',
+									'text'  => 'Al 956 59 19 28 o a unidad@parkinsonbahiadecadiz.org. También puede llamar un familiar.',
+								],
+								[
+									'title' => 'Visita el centro',
+									'text'  => 'Pide cita y ven con quien quieras. Te enseñamos las salas y conoces al equipo.',
+								],
+								[
+									'title' => 'Entrevista con trabajo social',
+									'text'  => 'Vemos tu situación y te ayudamos con la solicitud de dependencia si hace falta.',
+								],
+								[
+									'title' => 'Tu plan y tu ruta',
+									'text'  => 'El equipo prepara tus terapias y te asignamos el transporte desde casa.',
+								],
+							]
+						),
+						'notes'     => $rows(
+							[
+								[
+									'title' => 'Plaza concertada',
+									'text'  => 'A través de la Junta de Andalucía, para personas con la situación de dependencia reconocida. Te ayudamos con la solicitud si aún no la tienes.',
+								],
+								[
+									'title' => 'Plaza privada',
+									'text'  => 'Para quien no tiene la dependencia reconocida o está esperando la resolución. Pregúntanos el precio y la disponibilidad.',
+								],
+							]
+						),
+					],
+					'pbc-spaces'      => [
+						'title'     => 'Las instalaciones',
+						'title_tag' => 'h2',
+						'text'      => 'Más de 1.900 m² sin barreras, en dos plantas con ascensor. Puedes venir a verlas: pide cita y te las enseñamos.',
+						'footnote'  => 'El equipamiento se ha financiado con la ayuda de la Diputación de Cádiz, el Ayuntamiento de San Fernando, la Fundación "la Caixa", la Fundación Bidafarma y aportación propia.',
+						'count'     => 0,
+					],
+					'pbc-media-text'  => [
+						'title'     => 'Te recogemos en casa',
+						'title_tag' => 'h2',
+						'text'      => "Tenemos furgonetas adaptadas y cuatro conductores que ya conocen a cada persona. Te recogen por la mañana y te dejan en tu puerta por la tarde. El servicio cuenta con el apoyo de la Diputación de Cádiz.\n\n¿Vives fuera de San Fernando? Llámanos y te decimos si tu localidad está en alguna de nuestras rutas.",
+						'variant'   => 'sand',
+					],
+					'pbc-faq'         => [
+						'title'     => 'Preguntas frecuentes',
+						'title_tag' => 'h2',
+						'topic'     => $topic_id > 0 ? 'term-' . $topic_id : '',
+					],
+				],
+				'centro'
+			);
+			WP_CLI::log( 'Página «Centro de día» montada con sus widgets.' );
+		}
+
+		WP_CLI::success( 'Centro de día listo: ' . get_permalink( $page_id ) );
+	}
+
+	/**
 	 * Crea elementos de un tipo de contenido si todavía no existen (por título).
 	 *
 	 * @param array<int, array{0:string, 1:string, 2:array<string, mixed>}> $items Título, extracto y campos.

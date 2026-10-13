@@ -28,10 +28,11 @@ ddev wp plugin activate elementor parkinson-bahia-core
 ddev wp theme activate parkinson-bahia
 ddev wp pbc seed-home        # crea la portada, las páginas base, las terapias y tres noticias
 ddev wp pbc seed-asociacion  # crea la página «La asociación» y sus contenidos
+ddev wp pbc seed-centro      # crea la página «Centro de día» y sus contenidos
 ddev launch
 ```
 
-Los dos comandos se pueden repetir sin duplicar nada. Con `--force` reescriben su página; `seed-home` con `--skip-images` no descarga las fotos de la web actual.
+Los tres comandos se pueden repetir sin duplicar nada. Con `--force` reescriben su página; `seed-home` con `--skip-images` no descarga las fotos de la web actual.
 
 ## Cómo está construida
 
@@ -58,10 +59,11 @@ Los dos comandos se pueden repetir sin duplicar nada. Con `--force` reescriben s
 - Buscador en el pie de todas las páginas.
 - Indicador de carga en el botón al enviar cualquier formulario.
 
-### Plugin `parkinson-bahia-core` (versión 1.1.0)
+### Plugin `parkinson-bahia-core` (versión 1.2.0)
 
 - **Tipo de contenido «Terapias»**: una página por terapia, con resumen, foto y orden.
 - **Menú «La asociación» del escritorio**, con los datos que alimentan esa página: Historia (hitos por año), Equipo profesional (puestos y número de personas), Junta directiva (nombre y cargo), Documentos de transparencia (con su archivo) y Redes y federaciones (siglas y web).
+- **Menú «Centro de día» del escritorio**: Instalaciones (sala y foto) y Preguntas frecuentes (pregunta, respuesta y tema).
 - **Widgets de Elementor** (categoría «Párkinson Bahía de Cádiz»):
 
 | Widget | Para qué sirve | De dónde salen los datos |
@@ -80,19 +82,26 @@ Los dos comandos se pueden repetir sin duplicar nada. Con `--force` reescriben s
 | Junta directiva | Personas y cargos | La asociación → Junta directiva |
 | Transparencia | Datos registrales y documentos descargables | La asociación → Documentos de transparencia |
 | Redes y federaciones | Entidades de las que forma parte | La asociación → Redes y federaciones |
+| Aviso | Mensaje importante con botón (lista de espera) | Campos del widget |
+| Horario del día | Texto, foto y momentos del día con su hora | Campos del widget |
+| Texto con foto | Foto a un lado y texto al otro | Campos del widget |
+| Instalaciones | Galería de salas con su nombre | Centro de día → Instalaciones |
+| Preguntas frecuentes | Preguntas desplegables, de un tema o de todos | Centro de día → Preguntas frecuentes |
 
 - Elementor no carga Google Fonts: las fuentes las sirve el tema.
-- Comandos `wp pbc seed-home` y `wp pbc seed-asociacion` para montar esas páginas con el contenido del diseño.
+- «Cabecera de página» admite fondo arena y datos clave; «Pasos» admite fondo azul oscuro y tarjetas de apoyo.
+- Comandos `wp pbc seed-home`, `wp pbc seed-asociacion` y `wp pbc seed-centro` para montar esas páginas con el contenido del diseño.
 
 ### Páginas
 
 - **Inicio**: montada con los siete widgets y configurada como página de inicio. Actualidad es la página de entradas.
 - **La asociación**: montada con siete widgets (cabecera, misión, historia, equipo, junta directiva, transparencia y redes). Faltan la foto de cabecera, las fotos del equipo y los archivos de los documentos, que aparecen como «Próximamente».
-- Centro de día, Terapias, Familias y cuidadores, Colabora y Contacto: creadas, con contenido pendiente.
+- **Centro de día**: montada con siete widgets (cabecera con datos clave, aviso de lista de espera, un día en el centro, cómo solicitar plaza, instalaciones, transporte y preguntas frecuentes). Falta la foto del transporte. El horario y el calendario usan el dato confirmado («cerrado en agosto»), no el del boceto («abierto todo el año»).
+- Terapias, Familias y cuidadores, Colabora y Contacto: creadas, con contenido pendiente.
 
 ## Pendiente
 
-- Resto de páginas y sus widgets; tipos de contenido que faltan (preguntas frecuentes, instalaciones, recursos, vídeos, prensa, financiadores).
+- Resto de páginas y sus widgets; tipos de contenido que faltan (recursos, vídeos, prensa, financiadores).
 - Formularios (contacto, socio, voluntariado), donativos, mapa, cookies y declaración de accesibilidad.
 - Redirecciones 301 de la web actual.
 - Datos por confirmar con la asociación (ver «Preguntas pendientes» en `docs/investigacion.md`) y fotos originales a mayor resolución: las de la web actual miden 800 px de ancho.

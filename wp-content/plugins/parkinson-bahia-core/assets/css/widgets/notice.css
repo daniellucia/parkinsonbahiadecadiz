@@ -1,0 +1,24 @@
+/* Widget «Aviso». */
+.pbc-notice {
+	max-width: var(--pbc-width);
+	margin-inline: auto;
+	padding: clamp(32px, 5vw, 56px) var(--pbc-gutter) 0;
+}
+
+.pbc-notice__box {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px 32px;
+	padding: 24px 28px;
+	border: 1px solid var(--pbc-line);
+	border-radius: 20px;
+	background: var(--pbc-mist);
+}
+
+.pbc-notice__text {
+	max-width: 40em;
+	margin: 0;
+	font-size: 1.1rem;
+}

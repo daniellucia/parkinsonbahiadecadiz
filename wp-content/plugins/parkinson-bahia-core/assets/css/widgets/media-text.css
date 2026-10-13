@@ -1,0 +1,68 @@
+/* Widget «Texto con foto». */
+.pbc-media-text--sand {
+	background: var(--pbc-sand);
+}
+
+html[data-contrast="high"] .pbc-media-text--sand {
+	border-block: 1px solid var(--pbc-line);
+}
+
+.pbc-media-text__inner {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
+	align-items: center;
+	gap: clamp(32px, 5vw, 64px);
+	max-width: var(--pbc-width);
+	margin-inline: auto;
+	padding: clamp(56px, 8vw, 96px) var(--pbc-gutter);
+}
+
+.pbc-media-text--text-only .pbc-media-text__inner {
+	display: block;
+}
+
+.pbc-media-text--text-only .pbc-media-text__body {
+	max-width: 44em;
+}
+
+.pbc-media-text__figure {
+	margin: 0;
+}
+
+@media (min-width: 860px) {
+	.pbc-media-text--image-right .pbc-media-text__figure {
+		order: 2;
+	}
+}
+
+/* Doble clase: Elementor aplica «.elementor img { border-radius: 0 }» y hay que superarlo. */
+.pbc-media-text .pbc-media-text__image {
+	display: block;
+	width: 100%;
+	height: auto;
+	aspect-ratio: 4 / 3;
+	border-radius: 20px;
+	background: var(--pbc-card);
+	object-fit: cover;
+}
+
+.pbc-media-text__body {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 16px;
+}
+
+.pbc-media-text__title {
+	margin: 0;
+	font-family: var(--pbc-font-display);
+	font-size: clamp(1.9rem, 3.6vw, 2.6rem);
+	font-weight: 400;
+	line-height: 1.12;
+}
+
+.pbc-media-text__text {
+	margin: 0;
+	color: var(--pbc-ink-2);
+	font-size: 1.1rem;
+}

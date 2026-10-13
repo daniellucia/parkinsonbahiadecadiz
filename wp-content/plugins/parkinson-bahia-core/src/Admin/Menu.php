@@ -12,6 +12,7 @@ namespace DanielLucia\ParkinsonBahia\Core\Admin;
 
 use DanielLucia\ParkinsonBahia\Core\PostTypes\Documento;
 use DanielLucia\ParkinsonBahia\Core\PostTypes\PostType;
+use DanielLucia\ParkinsonBahia\Core\PostTypes\Pregunta;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -20,6 +21,7 @@ final class Menu {
 	public function register(): void {
 		add_action( 'admin_menu', [ $this, 'add_menu' ], 9 );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue' ] );
+		add_filter( 'parent_file', [ $this, 'highlight_taxonomy_menu' ] );
 	}
 
 	public function add_menu(): void {
@@ -33,6 +35,41 @@ final class Menu {
 			'dashicons-groups',
 			22
 		);
+
+		add_menu_page(
+			__( 'Centro de día', 'parkinson-bahia-core' ),
+			__( 'Centro de día', 'parkinson-bahia-core' ),
+			'edit_posts',
+			PostType::ADMIN_MENU_CENTRE,
+			'',
+			'dashicons-building',
+			23
+		);
+
+		// Las taxonomías no se cuelgan solas de un menú propio. Prioridad 11 en otro gancho
+		// para que quede después de los tipos de contenido.
+		add_action(
+			'admin_menu',
+			static function (): void {
+				add_submenu_page(
+					PostType::ADMIN_MENU_CENTRE,
+					__( 'Temas de las preguntas', 'parkinson-bahia-core' ),
+					__( 'Temas de las preguntas', 'parkinson-bahia-core' ),
+					'manage_categories',
+					'edit-tags.php?taxonomy=' . Pregunta::TAXONOMY . '&post_type=' . Pregunta::POST_TYPE
+				);
+			},
+			11
+		);
+	}
+
+	/**
+	 * Mantiene abierto el menú «Centro de día» al editar los temas de las preguntas.
+	 */
+	public function highlight_taxonomy_menu( string $parent_file ): string {
+		$screen = get_current_screen();
+
+		return $screen && Pregunta::TAXONOMY === $screen->taxonomy ? PostType::ADMIN_MENU_CENTRE : $parent_file;
 	}
 
 	public function enqueue(): void {

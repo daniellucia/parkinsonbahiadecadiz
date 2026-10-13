@@ -67,4 +67,60 @@ html[data-contrast="high"] .pbc-steps__item::before {
 
 .pbc-steps__item-text {
 	color: var(--pbc-ink-2);
+	/* Un correo o una dirección larga no debe salirse de la tarjeta. */
+	overflow-wrap: anywhere;
+}
+
+/* ---------- Tarjetas de apoyo ---------- */
+.pbc-steps__notes {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+	gap: 16px;
+	margin-top: 40px;
+}
+
+.pbc-steps__note {
+	padding: 28px;
+	border: 1px solid var(--pbc-line);
+	border-radius: 20px;
+	background: var(--pbc-card);
+	color: var(--pbc-ink);
+}
+
+.pbc-steps__note-title {
+	margin: 0 0 8px;
+	font-size: 1.25rem;
+}
+
+.pbc-steps__note-text {
+	margin: 0;
+	color: var(--pbc-ink-2);
+}
+
+/* ---------- Variante sobre azul oscuro ---------- */
+.pbc-steps--dark {
+	background: var(--pbc-sea-dark);
+	color: var(--pbc-on-dark);
+}
+
+.pbc-steps--dark .pbc-steps__intro,
+.pbc-steps--dark .pbc-steps__item-text {
+	color: var(--pbc-on-dark-muted);
+}
+
+.pbc-steps--dark .pbc-steps__item {
+	border-color: rgb(255 255 255 / 0.3);
+	background: rgb(255 255 255 / 0.07);
+}
+
+.pbc-steps--dark .pbc-steps__item::before {
+	justify-content: flex-start;
+	width: auto;
+	height: auto;
+	border: 0;
+	border-radius: 0;
+	background: none;
+	color: var(--pbc-on-dark-muted);
+	font-size: 2rem;
+	line-height: 1;
 }

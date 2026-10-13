@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace DanielLucia\ParkinsonBahia\Core\Elementor\Widgets;
 
 use Elementor\Controls_Manager;
+use Elementor\Repeater;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -42,6 +43,49 @@ final class PageHeader extends Widget {
 				'type'        => Controls_Manager::SWITCHER,
 			]
 		);
+		$this->add_control(
+			'variant',
+			[
+				'label'   => esc_html__( 'Fondo', 'parkinson-bahia-core' ),
+				'type'    => Controls_Manager::SELECT,
+				'options' => [
+					''     => esc_html__( 'Claro', 'parkinson-bahia-core' ),
+					'sand' => esc_html__( 'Arena', 'parkinson-bahia-core' ),
+				],
+				'default' => '',
+			]
+		);
+		$this->end_controls_section();
+
+		$this->start_controls_section( 'facts_section', [ 'label' => esc_html__( 'Datos clave (opcional)', 'parkinson-bahia-core' ) ] );
+		$repeater = new Repeater();
+		$repeater->add_control(
+			'label',
+			[
+				'label'       => esc_html__( 'Dato', 'parkinson-bahia-core' ),
+				'type'        => Controls_Manager::TEXT,
+				'label_block' => true,
+			]
+		);
+		$repeater->add_control(
+			'value',
+			[
+				'label'       => esc_html__( 'Valor', 'parkinson-bahia-core' ),
+				'type'        => Controls_Manager::TEXT,
+				'label_block' => true,
+			]
+		);
+		$this->add_control(
+			'facts',
+			[
+				'label'       => esc_html__( 'Datos', 'parkinson-bahia-core' ),
+				'description' => esc_html__( 'Se muestran junto al título, en tarjetas.', 'parkinson-bahia-core' ),
+				'type'        => Controls_Manager::REPEATER,
+				'fields'      => $repeater->get_controls(),
+				'title_field' => '{{ label }}: {{ value }}',
+				'default'     => [],
+			]
+		);
 		$this->end_controls_section();
 	}
 
@@ -59,8 +103,13 @@ final class PageHeader extends Widget {
 			'yes' === ( $settings['image_decorative'] ?? '' )
 		);
 		$page_id  = (int) get_queried_object_id();
+		$facts    = array_filter(
+			is_array( $settings['facts'] ?? null ) ? $settings['facts'] : [],
+			static fn ( $fact ): bool => '' !== trim( (string) ( $fact['label'] ?? '' ) ) && '' !== trim( (string) ( $fact['value'] ?? '' ) )
+		);
+		$has_side = '' !== $image || $facts;
 		?>
-		<section class="pbc-page-hero">
+		<section class="pbc-page-hero<?php echo 'sand' === ( $settings['variant'] ?? '' ) ? ' pbc-page-hero--sand' : ''; ?>">
 			<div class="pbc-page-hero__inner">
 				<?php if ( $page_id > 0 && ! is_front_page() ) : ?>
 					<nav class="pbc-breadcrumb" aria-label="<?php esc_attr_e( 'Estás en', 'parkinson-bahia-core' ); ?>">
@@ -73,7 +122,7 @@ final class PageHeader extends Widget {
 						</ol>
 					</nav>
 				<?php endif; ?>
-				<div class="pbc-page-hero__grid<?php echo '' === $image ? ' pbc-page-hero__grid--text' : ''; ?>">
+				<div class="pbc-page-hero__grid<?php echo $has_side ? '' : ' pbc-page-hero__grid--text'; ?>">
 					<div class="pbc-page-hero__body">
 						<?php $this->render_text( (string) $settings['eyebrow'], 'pbc-page-hero__eyebrow' ); ?>
 						<?php $this->render_heading( $this->heading_tag( $settings, 'h1' ), (string) $settings['title'], 'pbc-page-hero__title' ); ?>
@@ -83,6 +132,16 @@ final class PageHeader extends Widget {
 						<figure class="pbc-page-hero__figure">
 							<?php echo $image; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML generado por wp_get_attachment_image(). ?>
 						</figure>
+					<?php endif; ?>
+					<?php if ( $facts ) : ?>
+						<dl class="pbc-page-hero__facts">
+							<?php foreach ( $facts as $fact ) : ?>
+								<div class="pbc-page-hero__fact">
+									<dt class="pbc-page-hero__fact-label"><?php echo esc_html( $fact['label'] ); ?></dt>
+									<dd class="pbc-page-hero__fact-value"><?php echo esc_html( $fact['value'] ); ?></dd>
+								</div>
+							<?php endforeach; ?>
+						</dl>
 					<?php endif; ?>
 				</div>
 			</div>

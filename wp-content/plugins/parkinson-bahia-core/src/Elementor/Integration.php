@@ -35,6 +35,11 @@ final class Integration {
 		'board'       => Widgets\Board::class,
 		'documents'   => Widgets\Documents::class,
 		'networks'    => Widgets\Networks::class,
+		'notice'      => Widgets\Notice::class,
+		'schedule'    => Widgets\Schedule::class,
+		'media-text'  => Widgets\MediaText::class,
+		'spaces'      => Widgets\Spaces::class,
+		'faq'         => Widgets\Faq::class,
 	];
 
 	public function register(): void {

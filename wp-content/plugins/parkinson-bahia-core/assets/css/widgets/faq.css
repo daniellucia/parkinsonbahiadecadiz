@@ -1,0 +1,109 @@
+/* Widget «Preguntas frecuentes». Usa <details>: funciona con teclado y sin JavaScript. */
+.pbc-faq__inner {
+	max-width: var(--pbc-width-narrow);
+	margin-inline: auto;
+	padding: clamp(56px, 8vw, 96px) var(--pbc-gutter);
+}
+
+.pbc-faq__title {
+	margin: 0 0 28px;
+	font-family: var(--pbc-font-display);
+	font-size: clamp(1.9rem, 3.6vw, 2.6rem);
+	font-weight: 400;
+	line-height: 1.12;
+}
+
+.pbc-faq__list {
+	border-top: 1px solid var(--pbc-line);
+}
+
+.pbc-faq__item {
+	border-bottom: 1px solid var(--pbc-line);
+}
+
+.pbc-faq__question {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 20px;
+	min-height: 44px;
+	padding: 22px 0;
+	font-size: 1.15rem;
+	font-weight: 700;
+	list-style: none;
+	cursor: pointer;
+}
+
+.pbc-faq__question::-webkit-details-marker {
+	display: none;
+}
+
+.pbc-faq__icon {
+	position: relative;
+	flex: none;
+	width: 36px;
+	height: 36px;
+	border: 2px solid var(--pbc-sea);
+	border-radius: 50%;
+	color: var(--pbc-sea);
+}
+
+/* El signo «+» se dibuja con dos barras; al abrir, la vertical desaparece y queda «−». */
+.pbc-faq__icon::before,
+.pbc-faq__icon::after {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 14px;
+	height: 2px;
+	background: currentColor;
+	transform: translate(-50%, -50%);
+}
+
+.pbc-faq__icon::after {
+	transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.pbc-faq__item[open] .pbc-faq__icon::after {
+	transform: translate(-50%, -50%) rotate(0deg);
+}
+
+.pbc-faq__answer {
+	max-width: 40em;
+	padding-bottom: 24px;
+	color: var(--pbc-ink-2);
+	font-size: 1.05rem;
+}
+
+.pbc-faq__answer > :first-child {
+	margin-top: 0;
+}
+
+.pbc-faq__answer > :last-child {
+	margin-bottom: 0;
+}
+
+/* ---------- Microinteracciones ---------- */
+.pbc-faq__question,
+.pbc-faq__icon {
+	transition:
+		color var(--pbc-speed) var(--pbc-ease),
+		background-color var(--pbc-speed) var(--pbc-ease);
+}
+
+.pbc-faq__question:hover {
+	color: var(--pbc-sea);
+}
+
+.pbc-faq__question:hover .pbc-faq__icon,
+.pbc-faq__item[open] .pbc-faq__icon {
+	background: var(--pbc-sea);
+	color: var(--pbc-on-dark);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.pbc-faq__icon::after {
+		transition: transform var(--pbc-speed) var(--pbc-ease);
+	}
+}

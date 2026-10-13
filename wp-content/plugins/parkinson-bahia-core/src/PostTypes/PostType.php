@@ -25,6 +25,11 @@ abstract class PostType {
 	public const ADMIN_MENU = 'pbc-asociacion';
 
 	/**
+	 * Menú del escritorio que agrupa los datos del centro de día.
+	 */
+	public const ADMIN_MENU_CENTRE = 'pbc-centro';
+
+	/**
 	 * Identificador del tipo de contenido (máx. 20 caracteres).
 	 */
 	abstract public function name(): string;
@@ -43,6 +48,13 @@ abstract class PostType {
 	 */
 	protected function fields(): array {
 		return [];
+	}
+
+	/**
+	 * Menú del escritorio bajo el que aparece un tipo de contenido de solo listado.
+	 */
+	protected function admin_menu(): string {
+		return self::ADMIN_MENU;
 	}
 
 	/**
@@ -95,7 +107,7 @@ abstract class PostType {
 			'labels'              => $labels,
 			'public'              => false,
 			'show_ui'             => true,
-			'show_in_menu'        => self::ADMIN_MENU,
+			'show_in_menu'        => $this->admin_menu(),
 			'show_in_rest'        => true,
 			'publicly_queryable'  => false,
 			'exclude_from_search' => true,

@@ -1,0 +1,82 @@
+/* Widget «Horario del día». */
+.pbc-schedule__inner {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
+	gap: clamp(32px, 5vw, 72px);
+	max-width: var(--pbc-width);
+	margin-inline: auto;
+	padding: clamp(48px, 7vw, 88px) var(--pbc-gutter);
+}
+
+.pbc-schedule__body {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.pbc-schedule__title {
+	margin: 0;
+	font-family: var(--pbc-font-display);
+	font-size: clamp(1.9rem, 3.6vw, 2.6rem);
+	font-weight: 400;
+	line-height: 1.12;
+}
+
+.pbc-schedule__text {
+	margin: 0;
+	color: var(--pbc-ink-2);
+	font-size: 1.1rem;
+}
+
+/* Doble clase: Elementor aplica «.elementor img { border-radius: 0 }» y hay que superarlo. */
+.pbc-schedule .pbc-schedule__image {
+	display: block;
+	width: 100%;
+	height: auto;
+	aspect-ratio: 4 / 3;
+	margin-top: 12px;
+	border-radius: 20px 100px 20px 20px;
+	background: var(--pbc-sand);
+	object-fit: cover;
+}
+
+.pbc-schedule__list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.pbc-schedule__item {
+	display: flex;
+	align-items: flex-start;
+	gap: 20px;
+	padding-bottom: 28px;
+}
+
+.pbc-schedule__time {
+	flex: none;
+	width: 4.2em;
+	padding-top: 2px;
+	color: var(--pbc-clay-text);
+	font-family: var(--pbc-font-display);
+	font-size: 1.35rem;
+}
+
+.pbc-schedule__detail {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	gap: 4px;
+	min-width: 0;
+	padding-left: 20px;
+	border-left: 2px solid var(--pbc-line);
+}
+
+.pbc-schedule__item-title {
+	font-size: 1.15rem;
+	font-weight: 700;
+}
+
+.pbc-schedule__item-text {
+	color: var(--pbc-ink-2);
+}

@@ -59,3 +59,43 @@
 	background: var(--pbc-sand);
 	object-fit: cover;
 }
+
+/* ---------- Variante con fondo arena y datos clave ---------- */
+.pbc-page-hero--sand {
+	background: var(--pbc-sand);
+}
+
+html[data-contrast="high"] .pbc-page-hero--sand {
+	border-bottom: 1px solid var(--pbc-line);
+}
+
+.pbc-page-hero__facts {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+	align-self: end;
+	gap: 12px;
+	margin: 0;
+}
+
+.pbc-page-hero__fact {
+	padding: 18px 20px;
+	border: 1px solid transparent;
+	border-radius: 16px;
+	background: var(--pbc-card);
+}
+
+.pbc-page-hero:not(.pbc-page-hero--sand) .pbc-page-hero__fact,
+html[data-contrast="high"] .pbc-page-hero__fact {
+	border-color: var(--pbc-line);
+}
+
+.pbc-page-hero__fact-label {
+	color: var(--pbc-ink-2);
+	font-size: 0.9rem;
+}
+
+.pbc-page-hero__fact-value {
+	margin: 0;
+	font-size: 1.1rem;
+	font-weight: 700;
+}
