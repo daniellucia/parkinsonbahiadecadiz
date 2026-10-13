@@ -25,7 +25,7 @@ final class Menu {
 	}
 
 	public function add_menu(): void {
-		// Sin pantalla propia: WordPress enlaza el menú con su primer submenú.
+		// El identificador es la URL de un listado real (ver PostType::ADMIN_MENU).
 		add_menu_page(
 			__( 'La asociación', 'parkinson-bahia-core' ),
 			__( 'La asociación', 'parkinson-bahia-core' ),

@@ -1,0 +1,25 @@
+{
+    "name": "daniellucia/parkinson-llms-txt",
+    "description": "Genera y sirve /llms.txt a partir del contenido de WordPress.",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Daniel Lucia",
+            "homepage": "https://daniellucia.es"
+        }
+    ],
+    "require": {
+        "php": ">=8.2",
+        "ext-dom": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "DanielLucia\\LlmsTxt\\": "src/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    }
+}

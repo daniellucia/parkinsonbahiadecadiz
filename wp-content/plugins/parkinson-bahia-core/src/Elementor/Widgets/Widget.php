@@ -32,9 +32,16 @@ abstract class Widget extends Widget_Base {
 	private static ?array $page_options = null;
 
 	/**
-	 * Indica si algún widget ya ha pintado el h1 de la página.
+	 * Widget que tiene el h1 de cada página: ID del documento => ID del widget.
+	 *
+	 * @var array<int, string>
 	 */
-	private static bool $h1_rendered = false;
+	private static array $h1_owner = [];
+
+	/**
+	 * Widgets cuyo título es h1 si no se ha elegido otro nivel.
+	 */
+	private const H1_BY_DEFAULT = [ 'pbc-hero', 'pbc-page-header' ];
 
 	/**
 	 * Identificador corto: nombre del widget (pbc-<slug>), del bloque BEM y de la hoja de estilo.
@@ -217,8 +224,8 @@ abstract class Widget extends Widget_Base {
 	/**
 	 * Etiqueta de encabezado validada.
 	 *
-	 * Solo puede haber un h1 por página: si ya se ha pintado uno en esta
-	 * petición, los siguientes widgets que lo pidan bajan a h2.
+	 * Solo puede haber un h1 por página: lo tiene el primer widget del
+	 * documento que lo elige y los demás que lo pidan bajan a h2.
 	 *
 	 * @param array<string, mixed> $settings Ajustes del widget.
 	 */
@@ -226,14 +233,60 @@ abstract class Widget extends Widget_Base {
 		$tag = Utils::validate_html_tag( (string) ( $settings['title_tag'] ?? $fallback ) );
 		$tag = in_array( $tag, [ 'h1', 'h2', 'h3' ], true ) ? $tag : $fallback;
 
-		if ( 'h1' === $tag ) {
-			if ( self::$h1_rendered ) {
-				return 'h2';
-			}
-			self::$h1_rendered = true;
+		if ( 'h1' === $tag && $this->h1_owner() !== (string) $this->get_id() ) {
+			return 'h2';
 		}
 
 		return $tag;
+	}
+
+	/**
+	 * ID del widget al que le corresponde el h1 de la página actual: el primero,
+	 * en el orden del documento, que lo tiene elegido.
+	 *
+	 * Se decide leyendo los datos guardados de la página y no según qué widget
+	 * se pinta antes: Elementor guarda en caché el HTML de los widgets de texto
+	 * fijo y puede pintarlos más de una vez o ninguna, así que el resultado no
+	 * puede depender del orden de ejecución.
+	 */
+	private function h1_owner(): string {
+		$document = \Elementor\Plugin::$instance->documents->get_current();
+
+		if ( ! $document ) {
+			return (string) $this->get_id();
+		}
+
+		$document_id = (int) $document->get_main_id();
+
+		if ( ! isset( self::$h1_owner[ $document_id ] ) ) {
+			$elements                       = $document->get_elements_data();
+			self::$h1_owner[ $document_id ] = self::find_h1_widget( is_array( $elements ) ? $elements : [] ) ?? (string) $this->get_id();
+		}
+
+		return self::$h1_owner[ $document_id ];
+	}
+
+	/**
+	 * @param array<int, array<string, mixed>> $elements Elementos de Elementor.
+	 */
+	private static function find_h1_widget( array $elements ): ?string {
+		foreach ( $elements as $element ) {
+			$type = (string) ( $element['widgetType'] ?? '' );
+
+			if ( str_starts_with( $type, 'pbc-' ) ) {
+				$chosen = (string) ( $element['settings']['title_tag'] ?? ( in_array( $type, self::H1_BY_DEFAULT, true ) ? 'h1' : 'h2' ) );
+				if ( 'h1' === $chosen ) {
+					return (string) ( $element['id'] ?? '' );
+				}
+			}
+
+			$found = self::find_h1_widget( is_array( $element['elements'] ?? null ) ? $element['elements'] : [] );
+			if ( null !== $found ) {
+				return $found;
+			}
+		}
+
+		return null;
 	}
 
 	/**

@@ -21,13 +21,17 @@ abstract class PostType {
 
 	/**
 	 * Menú del escritorio que agrupa los datos de la asociación.
+	 *
+	 * El identificador del menú es la dirección del listado de su primer tipo
+	 * de contenido: así el propio menú enlaza a una pantalla que existe. Un
+	 * identificador inventado («pbc-asociacion») daría un 404 al pulsarlo.
 	 */
-	public const ADMIN_MENU = 'pbc-asociacion';
+	public const ADMIN_MENU = 'edit.php?post_type=pbc_hito';
 
 	/**
 	 * Menú del escritorio que agrupa los datos del centro de día.
 	 */
-	public const ADMIN_MENU_CENTRE = 'pbc-centro';
+	public const ADMIN_MENU_CENTRE = 'edit.php?post_type=pbc_espacio';
 
 	/**
 	 * Identificador del tipo de contenido (máx. 20 caracteres).

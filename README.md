@@ -12,6 +12,7 @@ Solo se versiona el trabajo propio (ver `.gitignore`); el núcleo de WordPress, 
 |---|---|
 | `wp-content/themes/parkinson-bahia/` | Tema: estilos base, cabecera, pie, plantillas de noticias y páginas |
 | `wp-content/plugins/parkinson-bahia-core/` | Plugin: tipos de contenido propios y widgets de Elementor |
+| `wp-content/plugins/parkinson-llms-txt/` | Plugin: genera y sirve `llms.txt` para asistentes de IA |
 | `docs/investigacion.md` | Investigación: datos de la asociación, auditoría de la web actual, preguntas pendientes |
 | `CLAUDE.md` | Normas del proyecto (accesibilidad, rendimiento, seguridad, convenciones) |
 | `.ddev/` | Entorno local |
@@ -24,7 +25,8 @@ Requisitos: [DDEV](https://ddev.com) y Docker.
 ddev start
 ddev exec -d /var/www/html/wp-content/themes/parkinson-bahia composer install
 ddev exec -d /var/www/html/wp-content/plugins/parkinson-bahia-core composer install
-ddev wp plugin activate elementor parkinson-bahia-core
+ddev exec -d /var/www/html/wp-content/plugins/parkinson-llms-txt composer install
+ddev wp plugin activate elementor parkinson-bahia-core parkinson-llms-txt
 ddev wp theme activate parkinson-bahia
 ddev wp pbc seed-home        # crea la portada, las páginas base, las terapias y tres noticias
 ddev wp pbc seed-asociacion  # crea la página «La asociación» y sus contenidos
@@ -59,7 +61,7 @@ Los tres comandos se pueden repetir sin duplicar nada. Con `--force` reescriben 
 - Buscador en el pie de todas las páginas.
 - Indicador de carga en el botón al enviar cualquier formulario.
 
-### Plugin `parkinson-bahia-core` (versión 1.2.0)
+### Plugin `parkinson-bahia-core` (versión 1.3.0)
 
 - **Tipo de contenido «Terapias»**: una página por terapia, con resumen, foto y orden.
 - **Menú «La asociación» del escritorio**, con los datos que alimentan esa página: Historia (hitos por año), Equipo profesional (puestos y número de personas), Junta directiva (nombre y cargo), Documentos de transparencia (con su archivo) y Redes y federaciones (siglas y web).
@@ -89,8 +91,21 @@ Los tres comandos se pueden repetir sin duplicar nada. Con `--force` reescriben 
 | Preguntas frecuentes | Preguntas desplegables, de un tema o de todos | Centro de día → Preguntas frecuentes |
 
 - Elementor no carga Google Fonts: las fuentes las sirve el tema.
+- «Preguntas frecuentes» añade datos estructurados (FAQPage de schema.org) para los buscadores, un único bloque por página.
 - «Cabecera de página» admite fondo arena y datos clave; «Pasos» admite fondo azul oscuro y tarjetas de apoyo.
 - Comandos `wp pbc seed-home`, `wp pbc seed-asociacion` y `wp pbc seed-centro` para montar esas páginas con el contenido del diseño.
+
+### Plugin `parkinson-llms-txt` (versión 1.0.0)
+
+Genera solo el fichero [`llms.txt`](https://llmstxt.org/), que resume la web para los asistentes de inteligencia artificial, y lo mantiene al día cada vez que cambia un contenido.
+
+- `/llms.txt`: nombre, resumen, información importante y una sección por tipo de contenido (páginas, terapias, noticias) con enlace y descripción de cada uno.
+- `/llms-full.txt`: todo el texto de los contenidos incluidos en un solo fichero.
+- Copia en texto limpio (Markdown) de cada página, en su dirección terminada en `index.html.md`.
+- **Ajustes → llms.txt**: activar o desactivar, nombre, resumen, información importante, qué tipos de contenido salen, título y máximo de cada sección, cuáles son secundarios, secciones escritas a mano y vista previa.
+- En cada página o entrada, una caja «llms.txt» para dejarla fuera o escribir su descripción.
+- Excluye solo lo que no está publicado, tiene contraseña o está marcado «no indexar» en un plugin de SEO.
+- Los ajustes de este sitio (resumen, datos de contacto y redes) están guardados en la base de datos local; hay que repetirlos en producción desde Ajustes → llms.txt.
 
 ### Páginas
 
