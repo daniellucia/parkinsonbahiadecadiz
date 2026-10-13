@@ -46,6 +46,46 @@ The site is built on WordPress with Elementor, and **every section of every page
 - Do not depend on Elementor Pro (Theme Builder, Form widget, dynamic tags) unless the client confirms a licence.
 - Widget settings are untrusted input: escape everything in `render()`, validate tag controls with `\Elementor\Utils::validate_html_tag()`, and output URL controls with `add_link_attributes()`.
 
+## Performance and PageSpeed
+
+Every Elementor widget, template, theme file, plugin feature or third-party addition is built with page speed in mind; performance is a requirement of the task, not a later optimisation pass. Many visitors are elderly people on old phones and slow connections, and Google (the main traffic source) ranks on Core Web Vitals.
+
+**Targets (mobile, measured with PageSpeed Insights / Lighthouse):** Performance score ≥ 90 on the home page and on every template type, LCP ≤ 2.5 s, INP ≤ 200 ms, CLS ≤ 0.1. If a change cannot meet them, say so and explain the trade-off instead of shipping it silently.
+
+**Assets**
+- Each widget registers its own small CSS/JS and declares it in `get_style_depends()` / `get_script_depends()`, so it loads only on pages that use it. No global "all widgets" bundle.
+- Prefer CSS over JS and vanilla JS over libraries. No jQuery dependency in our code, no slider/animation/icon libraries, no icon fonts (inline SVG instead).
+- Scripts load in the footer with `defer` (`wp_register_script( ..., [ 'strategy' => 'defer', 'in_footer' => true ] )`). Nothing render-blocking in `<head>` beyond the critical stylesheet.
+- Version assets with `filemtime()` or the package version for long-lived caching; ship minified builds.
+
+**Images and media**
+- Always output images with `wp_get_attachment_image()` (never a raw URL in an `<img>` or a CSS background for content images) so `srcset`, `sizes`, `width`/`height` and lazy loading are generated. Register image sizes that match the real layout slots and pass an accurate `sizes` attribute.
+- The LCP image (normally the hero) gets `fetchpriority="high"` and `loading="eager"`; everything below the fold is lazy. Never lazy-load the LCP image.
+- Serve WebP/AVIF; no uploads straight from a camera at full resolution.
+- Maps, YouTube and social embeds load as a click-to-load facade (static image + button), which also satisfies cookie consent.
+
+**Fonts**
+- Self-hosted WOFF2, at most two families and only the weights used, `font-display: swap`, preload only the one or two files needed above the fold, and a metric-matched fallback (`size-adjust`) to avoid layout shift.
+
+**Layout stability**
+- Reserve space for everything that loads late (images, embeds, cookie banner, funders' logos) with `width`/`height` or `aspect-ratio`. No content injected above existing content after load.
+
+**Markup and Elementor**
+- Keep the DOM shallow: widgets return `has_widget_inner_wrapper(): false`, render their own semantic markup, and are placed in flex/grid containers — never nested sections/columns for spacing. One widget per section instead of many stock widgets.
+- Keep Elementor's performance features on (optimised markup, element caching, lazy-loaded backgrounds, inline font icons as SVG, improved asset/CSS loading) and Google Fonts loading from Elementor off.
+- Set `is_dynamic_content()` to `false` whenever a widget's output is static so Elementor can cache it; `true` only when it depends on a query, the visitor or time.
+
+**Server side**
+- No query inside a loop. Widgets that list CPT items use one `WP_Query` with `no_found_rows => true` when there is no pagination, a capped `posts_per_page`, `update_post_meta_cache`/`update_post_term_cache` disabled when unused, and prime thumbnails once.
+- Cache expensive or remote results in transients/object cache and invalidate on `save_post`. No remote HTTP request during a front-end page render.
+- Autoloaded options stay small; do not store large data with `autoload` on.
+
+**Third parties and plugins**
+- Every extra plugin and external script has a cost: justify it, and prefer a few lines in our own plugin to a heavy add-on. Analytics, if any, must be lightweight and consent-gated.
+- Page caching, compression and HTTP caching headers are configured at hosting level (to be defined with the client's hosting); the code must be cache-friendly — no per-visitor output on public pages, no nonces baked into cached HTML for anonymous forms without a refresh strategy.
+
+**Verify before calling it done:** run Lighthouse (mobile preset) on the affected page, and check there is no new render-blocking resource, no layout shift and no unused asset loading on pages that do not use the widget. Local DDEV scores are only indicative; final numbers come from PageSpeed Insights on staging/production.
+
 ## Project skill
 
 `.claude/skills/parkinson-wp-elementor/SKILL.md` is the single project skill for this build. It covers the architecture above, a widget skeleton and rules, the security checklist (output escaping, requests, forms/personal data/payments, hardening for the nginx stack), the accessible design process, safe Elementor editing through `ddev wp`, and a definition of done per section. Use it for any theme, plugin, widget, design, form or security-review work.
@@ -64,6 +104,15 @@ It replaces three generic third-party skills that were installed in `.agents/ski
 **Class autoloading:** use Composer with PSR-4 — no manual `require` chains for classes. Each theme/plugin has its own `composer.json` with an `autoload.psr-4` mapping (vendor namespace → `src/`), one class per file with the file name matching the class name, and the bootstrap file loads `vendor/autoload.php`. Run it through DDEV (`ddev composer install`, `ddev composer dump-autoload`) from the theme/plugin directory.
 
 **CSS:** all CSS files use BEM naming (`.block`, `.block__element`, `.block--modifier`). Keep specificity flat — no IDs or tag-qualified selectors for styling, no deep nesting.
+
+## Git workflow
+
+Commit automatically, without asking, every time a task is finished or a significant, self-contained piece of work is done (a widget, a CPT, a template, a form, a fix, a documentation or config change). This is a standing instruction.
+
+- One logical change per commit; do not mix unrelated work. Commit only when the result is in a working state (no syntax errors, site still loads).
+- Before committing, review `git status` / `git diff` and stage only the intended files. `.gitignore` is a whitelist that tracks only our own work; never force-add ignored files, and never commit secrets, database dumps or `wp-config.php`.
+- Short imperative subject line saying what changed, plus a body when the reason is not obvious.
+- Do not push, rewrite history or create branches/tags unless asked.
 
 ## Canonical contact data
 
