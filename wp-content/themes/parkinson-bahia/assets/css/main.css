@@ -559,7 +559,9 @@ img {
 	}
 }
 
-/* ---------- Migas de pan ---------- */
+/* ---------- Migas de pan ----------
+   Todos los elementos (enlaces, separador y página actual) comparten la
+   misma altura y se centran en vertical para que el texto quede alineado. */
 .pbc-breadcrumb {
 	margin-bottom: clamp(24px, 4vw, 48px);
 	font-size: 0.95rem;
@@ -568,21 +570,30 @@ img {
 .pbc-breadcrumb__list {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 8px;
+	align-items: center;
+	gap: 0 8px;
 	margin: 0;
 	padding: 0;
 	list-style: none;
 	color: var(--pbc-ink-2);
 }
 
+.pbc-breadcrumb__item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	min-height: 44px;
+	line-height: 1.4;
+}
+
 .pbc-breadcrumb__item + .pbc-breadcrumb__item::before {
 	content: "/";
-	margin-right: 8px;
 }
 
 .pbc-breadcrumb__link {
-	display: inline-block;
-	padding-block: 6px;
+	display: flex;
+	align-items: center;
+	min-height: 44px;
 }
 
 /* ---------- Cabecera de página ---------- */
