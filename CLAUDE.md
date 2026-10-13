@@ -10,7 +10,9 @@ Redesign of the website for **Párkinson Bahía de Cádiz** (Asociación de Fami
 
 Full research (association data, current-site audit, proposed sitemap, open questions for the client): `docs/investigacion.md`. Read it before writing content, page structure or CPTs.
 
-Current state: stock WordPress 7.1.3 install (default Twenty Twenty-* themes, Akismet, Hello Dolly). Elementor is not installed yet and no custom theme/plugin exists. Custom work belongs in `wp-content/themes/` or `wp-content/plugins/`; never edit WordPress core (`wp-admin/`, `wp-includes/`, root `wp-*.php`).
+Current state: WordPress 7.1.3 with Elementor installed and the custom theme `wp-content/themes/parkinson-bahia/` active. The site plugin (CPTs, Elementor widgets, forms) does not exist yet. Custom work belongs in `wp-content/themes/` or `wp-content/plugins/` (folder names must start with `parkinson-` to be tracked by git); never edit WordPress core (`wp-admin/`, `wp-includes/`, root `wp-*.php`).
+
+**Design source:** the claude.ai/design project "Rediseño Asociación Párkinson Cádiz", file `Parkinson Bahia de Cadiz.dc.html` (project id `9e4553ba-ae3a-407a-9f35-cda41cdbc775`, readable with the DesignSync tool after `/design-login`). It is the visual reference for the theme and for every widget. Where the design's sample copy contradicts confirmed facts (e.g. it says "abierto todo el año, también en agosto"), the canonical data in this file wins until the client confirms otherwise.
 
 ## Requirements that shape the code
 
@@ -26,7 +28,7 @@ Current state: stock WordPress 7.1.3 install (default Twenty Twenty-* themes, Ak
 
 **Editability:** the client will maintain content through Elementor, so layouts should be editable there; structured data goes in CPTs rendered by the theme.
 
-**Suggested CPTs:** Servicio/Terapia (one page per therapy, shared template), Recurso/Descarga (filterable downloads library), Miembro del equipo (team + board), Financiador/Colaborador (logo band — required by many grants: Next Generation EU, Junta de Andalucía, Diputación de Cádiz), Documento de transparencia.
+**CPTs:** see "Data model: CPTs first" below.
 
 **Proposed top-level IA:** Inicio · La asociación · Centro de día · Servicios y terapias · Familias y cuidadores · Actualidad · Colabora (socio, donación, voluntariado, empresas) · Contacto.
 
@@ -45,6 +47,35 @@ The site is built on WordPress with Elementor, and **every section of every page
 - Structured data stays in CPTs and widgets query it; page-specific text and images live in widget controls.
 - Do not depend on Elementor Pro (Theme Builder, Form widget, dynamic tags) unless the client confirms a licence.
 - Widget settings are untrusted input: escape everything in `render()`, validate tag controls with `\Elementor\Utils::validate_html_tag()`, and output URL controls with `add_link_attributes()`.
+
+## Data model: CPTs first
+
+**Anything that can be a CPT must be a CPT**, so the client manages data in one obvious place in wp-admin instead of inside page layouts. Before building any section or widget, review the design and ask: is this a list of similar items, will it grow or change, or is it shown in more than one place? If yes to any, it is a CPT (registered in the plugin, never in the theme) and the widget only *queries and displays* it. Widget controls and repeaters are only for text that belongs to a single section of a single page.
+
+- Register CPTs in the plugin with Spanish labels, a clear menu icon, `show_in_rest`, only the `supports` each one needs, and `public`/`has_archive` only when the item really has its own URL (otherwise `publicly_queryable => false` so no thin pages get indexed).
+- Extra fields are registered post meta with a native meta box (sanitised on save, nonce + capability). No ACF or other field plugin unless agreed.
+- Grouping and filtering use taxonomies, not free-text fields. Manual ordering uses `menu_order` (`page-attributes`).
+- Each list widget lets the editor choose taxonomy term, number of items and order — never retype the items.
+
+CPT inventory from the design review (`Parkinson Bahia de Cadiz.dc.html`; slugs to be fixed when the plugin is created):
+
+| Data in the design | Where it appears | Model |
+|---|---|---|
+| Noticias | Inicio, Actualidad, detalle | Native posts + categories (Institucional, Proyectos, Consejos, Día Mundial) |
+| Terapias (nombre, entradilla, "qué trabajamos", quién la imparte, foto) | Inicio, Terapias | CPT Terapia, with its own page |
+| Preguntas frecuentes | Centro de día | CPT Pregunta + taxonomy Tema |
+| Instalaciones (foto, nombre, alt) | Centro de día, Inicio | CPT Espacio |
+| Recursos descargables (guías y fichas) | Familias | CPT Recurso + taxonomy Tema (Alimentación, Voz y habla, Memoria, Ejercicio, Vida diaria); file as attachment |
+| Vídeos de ejercicios | Familias | CPT Vídeo (or Recurso of type vídeo — decide with the plugin) |
+| En los medios (medio, fecha, titular, enlace) | Actualidad | CPT Aparición en prensa |
+| Equipo y junta directiva | La asociación | CPT Persona + taxonomy Grupo (Equipo, Junta directiva), field Cargo |
+| Historia (año, título, texto) | La asociación | CPT Hito |
+| Documentos de transparencia | La asociación | CPT Documento + taxonomy Tipo, field Año; file as attachment |
+| Redes y federaciones | La asociación, pie | CPT Entidad (or Financiador/Colaborador with a taxonomy Tipo) |
+| Financiadores | Pie de todas las páginas | CPT Financiador (logo, enlace) — rendered through the theme hook `parkinson_bahia/footer_funders` |
+| Mensajes de formularios (contacto, socio, voluntariado, donativo) | Colabora, Contacto | Private CPT or custom table — decide with the forms work (personal data, see the skill's security rules) |
+
+Stays in widget controls/repeaters (page-specific copy): hero texts, "¿En qué podemos ayudarte?" paths, "Así es un día en el centro" timetable, "Cómo solicitar plaza" steps, first steps after diagnosis, volunteering areas. Stays in plugin settings: membership fee and donation amounts, payment methods. Stays in the Customizer: contact data, header button, footer texts.
 
 ## Performance and PageSpeed
 
@@ -91,6 +122,18 @@ Every Elementor widget, template, theme file, plugin feature or third-party addi
 `.claude/skills/parkinson-wp-elementor/SKILL.md` is the single project skill for this build. It covers the architecture above, a widget skeleton and rules, the security checklist (output escaping, requests, forms/personal data/payments, hardening for the nginx stack), the accessible design process, safe Elementor editing through `ddev wp`, and a definition of done per section. Use it for any theme, plugin, widget, design, form or security-review work.
 
 It replaces three generic third-party skills that were installed in `.agents/skills/` (`wordpress-pro`, `wordpress-elementor`, `frontend-design`) and have been removed together with `skills-lock.json`. Do not reinstall them: several of their examples are unsafe or wrong for this project (public REST `permission_callback => '__return_true'`, database backups written under `uploads/` protected only by `.htaccess` on an nginx stack, a CSP with `'unsafe-inline' 'unsafe-eval'`, an unsigned self-hosted plugin updater, site-wide `search-replace` on `wp_postmeta`, typing WordPress passwords into browser automation, and design advice that favours visual risk over accessibility).
+
+## Theme: `wp-content/themes/parkinson-bahia/`
+
+Namespace `DanielLucia\ParkinsonBahia\Theme` (PSR-4 → `src/`), text domain `parkinson-bahia`, CSS/JS prefix `pbc-`. After cloning run `ddev exec -d /var/www/html/wp-content/themes/parkinson-bahia composer install` (`vendor/` is not tracked).
+
+- `src/`: `Theme` (bootstrap), `Setup` (supports, menus, image sizes `pbc-card` / `pbc-feature` / `pbc-wide`), `Menus` (BEM classes for `wp_nav_menu`), `Assets`, `Customizer`, `TemplateTags` (static helpers).
+- Templates: `header.php`, `footer.php`, `index.php` (Actualidad, archives, search), `single.php`, `page.php` (full width when built with Elementor, prose layout otherwise), `404.php`, `searchform.php`, `template-parts/` (`breadcrumb`, `card`, `contact-band`).
+- `assets/css/main.css`: design tokens (`--pbc-*` on `:root`, high-contrast overrides on `html[data-contrast="high"]`), base, `.pbc-button`, `.pbc-container`, header, footer. `assets/css/blog.css` loads only on news views. Widgets must reuse these tokens and blocks instead of redefining colours or buttons.
+- Design tokens come from the design: paper `#FBF8F3`, ink `#1C252B`, sea `#1D5A9E`, sea-dark `#0F3360`, clay `#C2500F`, sand `#F7EFE7`, mist `#E4EDF7`; fonts Atkinson Hyperlegible Next (body) and Young Serif (headings), self-hosted in `assets/fonts/`. Two deliberate deviations for contrast: small accent text uses `--pbc-clay-text` (`#A8430A`) and the focus ring is `#C96F00`.
+- `assets/js/main.js` (deferred, no dependencies): mobile menu, text size (3 steps) and high contrast saved in `localStorage` (`pbc_fs`, `pbc_contrast`), copy link. Everything works without JS except those toggles.
+- Menu locations: `primary`, `footer-asociacion`, `footer-legal`. Contact data, header button, social links and footer texts are edited in Apariencia → Personalizar → "Párkinson Bahía de Cádiz" (defaults = canonical contact data).
+- Hooks for the plugin: action `parkinson_bahia/footer_funders` (funders' logo band in the footer, hidden until something hooks in), action `parkinson_bahia/contact_map` (replaces the decorative map panel), filter `parkinson_bahia/show_contact_band` (hide the common contact block on a given page).
 
 ## Development conventions (custom themes and plugins)
 
