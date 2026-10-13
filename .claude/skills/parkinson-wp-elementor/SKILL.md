@@ -7,7 +7,7 @@ description: Build and maintain the Párkinson Bahía de Cádiz website - WordPr
 
 One skill for the whole build. It replaces three generic skills (`wordpress-pro`, `wordpress-elementor`, `frontend-design`) and resolves their conflicts in favour of this project's rules. `CLAUDE.md` and `docs/investigacion.md` stay the source of truth for content, contact data and open questions; never invent unconfirmed facts, leave a clearly marked placeholder.
 
-Priority when rules collide: **security > accessibility > editability by the client > visual distinctiveness > developer convenience**.
+Priority when rules collide: **security > accessibility > performance > editability by the client > visual distinctiveness > developer convenience**.
 
 ## 1. How the site is built
 
@@ -173,6 +173,7 @@ ddev wp elementor flush-css                     # after any change to Elementor 
 1. A widget in the plugin, PSR-4 class, registered in our category, with Spanish labels and defaults.
 2. BEM stylesheet loaded only with the widget, built on the theme tokens.
 3. Security checklist of section 3 passed.
-4. Keyboard, zoom, contrast and screen-reader check passed; headings in order; meaningful alt text.
-5. Editable in Elementor without breaking: empty fields render nothing instead of empty tags.
-6. `CLAUDE.md` or `docs/` updated if a decision or an open question changed.
+4. Performance rules of `CLAUDE.md` ("Performance and PageSpeed") followed and Lighthouse mobile checked: per-widget assets only, images through `wp_get_attachment_image()`, no layout shift, no new render-blocking resource.
+5. Keyboard, zoom, contrast and screen-reader check passed; headings in order; meaningful alt text.
+6. Editable in Elementor without breaking: empty fields render nothing instead of empty tags.
+7. `CLAUDE.md` or `docs/` updated if a decision or an open question changed.
