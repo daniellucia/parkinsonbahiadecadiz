@@ -81,3 +81,15 @@
 	color: var(--pbc-sea);
 	text-decoration: underline;
 }
+
+/* ---------- Microinteracciones ---------- */
+.pbc-latest-news__link,
+.pbc-latest-news__image {
+	transition:
+		color var(--pbc-speed) var(--pbc-ease),
+		filter var(--pbc-speed) var(--pbc-ease);
+}
+
+.pbc-latest-news__item:hover .pbc-latest-news__image {
+	filter: brightness(1.04);
+}

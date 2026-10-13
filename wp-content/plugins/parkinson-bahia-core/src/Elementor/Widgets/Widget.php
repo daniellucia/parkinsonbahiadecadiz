@@ -114,6 +114,13 @@ abstract class Widget extends Widget_Base {
 			return self::$page_options;
 		}
 
+		// En la web pública Elementor descarta las opciones de los controles: no hace falta consultar las páginas.
+		if ( \Elementor\Core\Frontend\Performance::should_optimize_controls() ) {
+			self::$page_options = [];
+
+			return [];
+		}
+
 		$options = [ '' => esc_html__( '— Sin enlace —', 'parkinson-bahia-core' ) ];
 
 		$pages = get_pages(

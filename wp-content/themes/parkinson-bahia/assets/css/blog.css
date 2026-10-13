@@ -298,3 +298,31 @@
 .pbc-related .pbc-card__image {
 	background: var(--pbc-card);
 }
+
+/* ---------- Microinteracciones ---------- */
+.pbc-chips__link,
+.pbc-card__link,
+.pbc-card__image,
+.pbc-pagination .page-numbers {
+	transition:
+		color var(--pbc-speed) var(--pbc-ease),
+		background-color var(--pbc-speed) var(--pbc-ease),
+		border-color var(--pbc-speed) var(--pbc-ease),
+		filter var(--pbc-speed) var(--pbc-ease),
+		transform var(--pbc-speed) var(--pbc-ease);
+}
+
+.pbc-pagination a.page-numbers:hover {
+	background: var(--pbc-mist);
+}
+
+.pbc-card:hover .pbc-card__image {
+	filter: brightness(1.04);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.pbc-chips__link:active,
+	.pbc-pagination a.page-numbers:active {
+		transform: scale(0.97);
+	}
+}

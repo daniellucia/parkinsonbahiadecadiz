@@ -80,3 +80,25 @@
 .pbc-support :focus-visible {
 	outline-color: var(--pbc-on-dark);
 }
+
+/* ---------- Microinteracciones ---------- */
+.pbc-support__link {
+	transition:
+		background-color var(--pbc-speed) var(--pbc-ease),
+		color var(--pbc-speed) var(--pbc-ease),
+		transform var(--pbc-speed) var(--pbc-ease);
+}
+
+.pbc-support__link::after {
+	transition: transform var(--pbc-speed) var(--pbc-ease);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.pbc-support__link:hover::after {
+		transform: translateX(5px);
+	}
+
+	.pbc-support__link:active {
+		transform: scale(0.99);
+	}
+}

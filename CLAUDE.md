@@ -49,6 +49,17 @@ The site is built on WordPress with Elementor, and **every section of every page
 - **Links in widgets:** every widget link is a select listing the published WordPress pages, with "Enlace personalizado" as the last option; choosing it reveals a URL field. Never add a bare URL control. Use the base class helpers `link_controls( $target, $id, $label )` (works for the widget and for repeaters) and `link_value( $settings, $id )`, then output with `add_link_attributes()`. The page choice is stored as `page-<ID>`, so links survive slug changes; an unpublished or deleted page renders no link.
 - Widget settings are untrusted input: escape everything in `render()`, validate tag controls with `\Elementor\Utils::validate_html_tag()`, and output URL controls with `add_link_attributes()`.
 
+## Micro-interactions
+
+Every interactive element (links, buttons, cards that are links, chips, menu items, form fields, accordions) gets a small, pleasant micro-interaction on hover, focus and click. They must feel kind and calm, never showy — the audience is elderly people with tremor and low vision.
+
+- **Only as feedback to the person's action.** Nothing animates on its own: no entrance or scroll animations, no loops, no parallax, no autoplay (this does not change the "no auto-playing" accessibility rule).
+- **Simple and short:** colour, border, shadow or underline changes; a lift of 1–3 px, an arrow that moves about 5 px, a press that scales to 0.97–0.99. Use the theme tokens `--pbc-speed` (180 ms) and `--pbc-ease`; nothing longer than about 250 ms, no bounce or elastic easing.
+- **Never the only signal and never an obstacle:** the hover state must also be visible without motion (colour/border), focus keeps the visible ring, targets must not move away from the pointer or change the layout (use `transform`, not margins or sizes, so there is no layout shift), and the same feedback applies on `:focus-visible` where it makes sense.
+- **Respect `prefers-reduced-motion`:** put every `transform` inside `@media (prefers-reduced-motion: no-preference)`; colour changes may stay. The theme also has a global reduced-motion rule as a safety net.
+- **CSS only**, animating `transform`, `opacity`, colours and shadows. No animation libraries and no JavaScript for hover effects.
+- Each widget's stylesheet ends with a "Microinteracciones" block; reuse the patterns already in `main.css` (`.pbc-button`) and the home widgets so the whole site responds the same way.
+
 ## Data model: CPTs first
 
 **Anything that can be a CPT must be a CPT**, so the client manages data in one obvious place in wp-admin instead of inside page layouts. Before building any section or widget, review the design and ask: is this a list of similar items, will it grow or change, or is it shown in more than one place? If yes to any, it is a CPT (registered in the plugin, never in the theme) and the widget only *queries and displays* it. Widget controls and repeaters are only for text that belongs to a single section of a single page.

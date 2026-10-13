@@ -67,6 +67,10 @@
 	--pbc-radius: 24px;
 	--pbc-radius-small: 16px;
 	--pbc-radius-pill: 999px;
+
+	/* Microinteracciones: breves y suaves, solo como respuesta a una acción. */
+	--pbc-speed: 180ms;
+	--pbc-ease: cubic-bezier(0.2, 0, 0, 1);
 }
 
 html[data-contrast="high"] {
@@ -899,4 +903,48 @@ img {
 	display: block;
 	width: 100%;
 	border-radius: var(--pbc-radius);
+}
+
+/* ---------- Microinteracciones ----------
+   Respuesta amable al pasar el ratón, enfocar o pulsar. Nada se mueve solo.
+   Los cambios de color valen para todos; el movimiento solo si la persona
+   no ha pedido reducirlo (ver también la regla global de más arriba). */
+a,
+.pbc-button,
+.pbc-utility__button,
+.pbc-nav__link,
+.pbc-footer__link,
+.pbc-search__input {
+	transition:
+		color var(--pbc-speed) var(--pbc-ease),
+		background-color var(--pbc-speed) var(--pbc-ease),
+		border-color var(--pbc-speed) var(--pbc-ease),
+		box-shadow var(--pbc-speed) var(--pbc-ease),
+		text-decoration-color var(--pbc-speed) var(--pbc-ease);
+}
+
+.pbc-utility__button:hover {
+	border-color: var(--pbc-on-dark);
+}
+
+.pbc-search__input:focus {
+	border-color: var(--pbc-sea);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.pbc-button,
+	.pbc-utility__button {
+		transition-property: color, background-color, border-color, box-shadow, transform;
+	}
+
+	.pbc-button:hover {
+		box-shadow: 0 6px 16px -8px rgb(28 37 43 / 0.45);
+		transform: translateY(-1px);
+	}
+
+	.pbc-button:active,
+	.pbc-utility__button:active {
+		box-shadow: none;
+		transform: scale(0.97);
+	}
 }

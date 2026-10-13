@@ -38,6 +38,7 @@ ddev launch
 - **Todo lo que es una lista de datos es un tipo de contenido (CPT)** que se administra desde el escritorio; los widgets solo lo muestran.
 - **Cabecera y pie se hacen en el tema** (`header.php`, `footer.php`, menús de WordPress), no con Elementor.
 - **Los enlaces de los widgets se eligen en un desplegable de páginas**, con «Enlace personalizado» como última opción.
+- **Microinteracciones amables** al pasar el ratón o pulsar (color, sombra, un ligero movimiento), nunca animaciones que empiecen solas; se desactivan si la persona ha pedido reducir el movimiento.
 - Accesibilidad (WCAG 2.2 AA), rendimiento y seguridad son requisitos de cada tarea. El detalle está en `CLAUDE.md`.
 
 ## Funcionalidades

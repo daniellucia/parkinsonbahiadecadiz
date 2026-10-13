@@ -77,3 +77,25 @@ html[data-contrast="high"] .pbc-paths__card {
 	text-decoration-thickness: 2px;
 	text-underline-offset: 3px;
 }
+
+/* ---------- Microinteracciones ---------- */
+.pbc-paths__card {
+	transition:
+		border-color var(--pbc-speed) var(--pbc-ease),
+		box-shadow var(--pbc-speed) var(--pbc-ease),
+		transform var(--pbc-speed) var(--pbc-ease);
+}
+
+.pbc-paths__card:hover {
+	box-shadow: 0 14px 28px -18px rgb(28 37 43 / 0.45);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.pbc-paths__card:hover {
+		transform: translateY(-3px);
+	}
+
+	.pbc-paths__card:active {
+		transform: translateY(0) scale(0.99);
+	}
+}
