@@ -59,6 +59,7 @@ final class Plugin {
 			\WP_CLI::add_command( 'pbc seed-asociacion', [ $seed, 'asociacion' ] );
 			\WP_CLI::add_command( 'pbc seed-centro', [ $seed, 'centro' ] );
 			\WP_CLI::add_command( 'pbc seed-colabora', [ $seed, 'colabora' ] );
+			\WP_CLI::add_command( 'pbc seed-privacidad', [ $seed, 'privacidad' ] );
 		}
 	}
 }

@@ -115,6 +115,26 @@ final class Definitions {
 	}
 
 	/**
+	 * Información básica de protección de datos que acompaña a la casilla de
+	 * aceptación de cada formulario: quién trata los datos, para qué y qué
+	 * derechos hay. El detalle está en la política de privacidad.
+	 */
+	public static function legal_notice( string $type ): string {
+		$purpose = match ( $type ) {
+			self::MEMBER    => __( 'darte de alta como socio y cobrar tu cuota', 'parkinson-bahia-core' ),
+			self::VOLUNTEER => __( 'ponernos en contacto contigo y organizar tu voluntariado', 'parkinson-bahia-core' ),
+			default         => __( 'atender tu solicitud', 'parkinson-bahia-core' ),
+		};
+
+		return sprintf(
+			/* translators: 1: nombre de la entidad, 2: finalidad del tratamiento. */
+			__( '%1$s usará tus datos solo para %2$s. No los cedemos a nadie salvo obligación legal. Puedes consultarlos, corregirlos o pedir que los borremos escribiendo a unidad@parkinsonbahiadecadiz.org o llamando al 956 59 19 28.', 'parkinson-bahia-core' ),
+			wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ),
+			$purpose
+		);
+	}
+
+	/**
 	 * Letra de control de un DNI o NIE.
 	 */
 	public static function is_valid_dni( string $value ): bool {

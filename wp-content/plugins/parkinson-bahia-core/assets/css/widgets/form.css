@@ -112,8 +112,20 @@ html[data-contrast="high"] .pbc-form {
 	font-size: 1.05rem;
 }
 
-.pbc-form__input--short {
-	max-width: 10em;
+/* «Otra cantidad»: el campo solo aparece al elegir esa opción y ocupa todo el ancho. */
+.pbc-form__other {
+	display: none;
+}
+
+.pbc-form__group:has([data-pbc-other-radio]:checked) .pbc-form__other {
+	display: block;
+}
+
+/* Navegadores antiguos sin :has(): el campo se muestra siempre para que nadie se quede sin él. */
+@supports not selector(:has(*)) {
+	.pbc-form__other {
+		display: block;
+	}
 }
 
 .pbc-form__input[aria-invalid="true"] {
@@ -259,4 +271,11 @@ html[data-contrast="high"] .pbc-form {
 .pbc-form__input:focus {
 	border-color: var(--pbc-sea);
 	box-shadow: 0 0 0 3px var(--pbc-mist);
+}
+
+/* Información básica de protección de datos, bajo la casilla de aceptación. */
+.pbc-form__legal {
+	margin: -8px 0 0;
+	color: var(--pbc-ink-2);
+	font-size: 0.95rem;
 }

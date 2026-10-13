@@ -173,9 +173,10 @@ final class Form extends Widget {
 														<?php esc_html_e( 'Otra cantidad', 'parkinson-bahia-core' ); ?>
 													</label>
 												</div>
+												<?php // Solo se ve al elegir «Otra cantidad» (CSS con :has; form.js lleva el foco al campo). ?>
 												<div class="pbc-form__other">
-													<label class="pbc-form__label pbc-form__label--small" for="<?php echo esc_attr( $id . '-otra' ); ?>"><?php esc_html_e( 'Otra cantidad, en euros al mes', 'parkinson-bahia-core' ); ?> <span class="pbc-form__optional"><?php esc_html_e( '(solo si has elegido «Otra cantidad»)', 'parkinson-bahia-core' ); ?></span></label>
-													<input class="pbc-form__input pbc-form__input--short" type="number" inputmode="numeric" min="1" max="1000" step="1" id="<?php echo esc_attr( $id . '-otra' ); ?>" name="pbc[<?php echo esc_attr( $name ); ?>_otra]" data-pbc-other-input>
+													<label class="pbc-form__label pbc-form__label--small" for="<?php echo esc_attr( $id . '-otra' ); ?>"><?php esc_html_e( 'Escribe la cantidad, en euros al mes', 'parkinson-bahia-core' ); ?></label>
+													<input class="pbc-form__input" type="number" inputmode="numeric" min="1" max="1000" step="1" id="<?php echo esc_attr( $id . '-otra' ); ?>" name="pbc[<?php echo esc_attr( $name ); ?>_otra]" data-pbc-other-input>
 												</div>
 											</fieldset>
 										<?php elseif ( 'choices' === $field['type'] ) : ?>
@@ -234,7 +235,8 @@ final class Form extends Widget {
 											printf(
 												/* translators: %s: enlace a la política de privacidad. */
 												esc_html__( 'He leído y acepto la %s.', 'parkinson-bahia-core' ),
-												'<a href="' . esc_url( $privacy ) . '">' . esc_html__( 'política de privacidad', 'parkinson-bahia-core' ) . '</a>'
+												// Se abre en otra pestaña para no perder lo que la persona ya ha escrito; se avisa en el propio enlace.
+												'<a href="' . esc_url( $privacy ) . '" target="_blank" rel="noopener">' . esc_html__( 'política de privacidad', 'parkinson-bahia-core' ) . ' <span class="pbc-form__optional">' . esc_html__( '(se abre en una pestaña nueva)', 'parkinson-bahia-core' ) . '</span></a>'
 											);
 											?>
 										<?php else : ?>
@@ -244,6 +246,15 @@ final class Form extends Widget {
 								</label>
 								<p class="pbc-form__error" id="<?php echo esc_attr( $prefix . '-consent-error' ); ?>" data-pbc-error hidden></p>
 							</div>
+
+							<p class="pbc-form__legal">
+								<?php
+								echo esc_html( Definitions::legal_notice( $type ) );
+								if ( $privacy ) {
+									echo ' ' . esc_html__( 'Tienes toda la información en la política de privacidad.', 'parkinson-bahia-core' );
+								}
+								?>
+							</p>
 
 							<?php if ( Settings::turnstile_active() ) : ?>
 								<div class="pbc-form__turnstile" data-pbc-turnstile-box></div>

@@ -50,13 +50,13 @@
 		// Los mensajes de error los ponemos nosotros, junto a cada campo y en español claro.
 		form.setAttribute( 'novalidate', '' );
 
-		/* «Otra cantidad»: al escribir una cifra se marca sola esa opción. */
+		/* «Otra cantidad»: al elegirla aparece su campo (CSS) y el foco pasa a él para escribir la cifra. */
 		var otherInput = form.querySelector( '[data-pbc-other-input]' );
 		var otherRadio = form.querySelector( '[data-pbc-other-radio]' );
 		if ( otherInput && otherRadio ) {
-			otherInput.addEventListener( 'input', function () {
-				if ( otherInput.value !== '' ) {
-					otherRadio.checked = true;
+			otherRadio.addEventListener( 'change', function () {
+				if ( otherRadio.checked ) {
+					otherInput.focus();
 				}
 			} );
 		}

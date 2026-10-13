@@ -32,12 +32,13 @@ ddev wp pbc seed-home        # crea la portada, las páginas base, las terapias 
 ddev wp pbc seed-asociacion  # crea la página «La asociación» y sus contenidos
 ddev wp pbc seed-centro      # crea la página «Centro de día» y sus contenidos
 ddev wp pbc seed-colabora    # crea la página «Colabora»
+ddev wp pbc seed-privacidad  # crea y publica la política de privacidad y el menú legal del pie
 ddev launch
 ```
 
 Para que el formulario de socios pida DNI e IBAN hace falta una clave de cifrado en `PBC_FORMS_KEY` (se genera con `php -r "echo base64_encode(random_bytes(32));"`). En local va en `.ddev/config.local.yaml`, que no se versiona (después, `ddev restart`); en producción, como constante en `wp-config.php`, con copia guardada fuera del servidor.
 
-Los cuatro comandos se pueden repetir sin duplicar nada. Con `--force` reescriben su página; `seed-home` con `--skip-images` no descarga las fotos de la web actual.
+Los cinco comandos se pueden repetir sin duplicar nada. Con `--force` reescriben su página; `seed-home` con `--skip-images` no descarga las fotos de la web actual.
 
 ## Cómo está construida
 
@@ -64,7 +65,7 @@ Los cuatro comandos se pueden repetir sin duplicar nada. Con `--force` reescribe
 - Buscador en el pie de todas las páginas.
 - Indicador de carga en el botón al enviar cualquier formulario.
 
-### Plugin `parkinson-bahia-core` (versión 1.4.0)
+### Plugin `parkinson-bahia-core` (versión 1.5.0)
 
 - **Tipo de contenido «Terapias»**: una página por terapia, con resumen, foto y orden.
 - **Menú «La asociación» del escritorio**, con los datos que alimentan esa página: Historia (hitos por año), Equipo profesional (puestos y número de personas), Junta directiva (nombre y cargo), Documentos de transparencia (con su archivo) y Redes y federaciones (siglas y web).
@@ -102,6 +103,7 @@ Los cuatro comandos se pueden repetir sin duplicar nada. Con `--force` reescribe
   - Se envían sin recargar la página, con indicador de carga en el botón y errores explicados junto a cada campo; también funcionan sin JavaScript.
   - Protección contra robots sin acertijos: campo trampa, marca de tiempo firmada, comprobación de origen, límite de envíos y, opcionalmente, **Cloudflare Turnstile**.
   - Los envíos se guardan en **Formularios** del escritorio, solo para administradores. DNI e IBAN se validan (letra y dígitos de control) y se guardan **cifrados**; nunca viajan por correo.
+  - Casilla de aceptación con enlace a la política de privacidad (se abre en otra pestaña) y, debajo, la información básica de protección de datos.
   - **Formularios → Ajustes**: correo que recibe los avisos y claves de Turnstile, escritas una sola vez para todos los formularios.
 - «Cabecera de página» admite también fondo naranja y botones de acceso; las secciones admiten un ancla para enlazarlas.
 - «Cabecera de página» admite fondo arena y datos clave; «Pasos» admite fondo azul oscuro y tarjetas de apoyo.
@@ -125,13 +127,14 @@ Genera solo el fichero [`llms.txt`](https://llmstxt.org/), que resume la web par
 - **La asociación**: montada con siete widgets (cabecera, misión, historia, equipo, junta directiva, transparencia y redes). Faltan la foto de cabecera, las fotos del equipo y los archivos de los documentos, que aparecen como «Próximamente».
 - **Centro de día**: montada con siete widgets (cabecera con datos clave, aviso de lista de espera, un día en el centro, cómo solicitar plaza, instalaciones, transporte y preguntas frecuentes). Falta la foto del transporte. El horario y el calendario usan el dato confirmado («cerrado en agosto»), no el del boceto («abierto todo el año»).
 - **Colabora**: montada con cabecera con accesos, formulario de socios, formas de donar, formulario de voluntariado y llamada a empresas. Los donativos todavía no se cobran en línea (solo transferencia y teléfono) y las cuotas de 5, 10 y 20 € son las del boceto, sin confirmar.
+- **Política de privacidad**: publicada y enlazada desde los formularios y el pie. Redactada a partir de los datos conocidos de la asociación y de cómo trata los datos esta web; tiene cuatro puntos marcados «Pendiente de confirmar» (delegado de protección de datos, plazos de conservación, empresa de alojamiento y política de cookies) y **debe revisarla la asociación o su asesoría antes de publicar la web**.
 - Terapias, Familias y cuidadores y Contacto: creadas, con contenido pendiente.
 
 ## Pendiente
 
 - Resto de páginas y sus widgets; tipos de contenido que faltan (recursos, vídeos, prensa, financiadores).
 - Donativos en línea: elegir pasarela (Stripe, Redsys, Bizum) e integrarla. Formulario de contacto.
-- Decidir con la asociación: cuotas de socio, texto del mandato SEPA, cuánto tiempo se conservan los envíos y publicar la política de privacidad (ahora es un borrador, por eso los formularios no la enlazan).
+- Decidir con la asociación: cuotas de socio, texto del mandato SEPA, cuánto tiempo se conservan los envíos y los puntos pendientes de la política de privacidad.
 - Dar de alta Turnstile en Cloudflare y escribir sus claves en Formularios → Ajustes.
 - Mapa, cookies y declaración de accesibilidad.
 - Redirecciones 301 de la web actual.

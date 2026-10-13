@@ -1066,6 +1066,201 @@ final class SeedCommand {
 	}
 
 	/**
+	 * Crea y publica la página «Política de privacidad» y el menú legal del pie.
+	 *
+	 * El texto parte de lo que se sabe de la asociación y de cómo trata los
+	 * datos esta web. Lo que falta por confirmar va marcado como «Pendiente de
+	 * confirmar» y debe revisarse antes de publicar la web.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--force]
+	 * : Reescribe el texto aunque la página ya tenga contenido propio.
+	 *
+	 * @param string[]             $args       Argumentos posicionales.
+	 * @param array<string, mixed> $assoc_args Opciones.
+	 */
+	public function privacidad( array $args, array $assoc_args ): void {
+		$page_id = (int) get_option( 'wp_page_for_privacy_policy' );
+		$page    = $page_id > 0 ? get_post( $page_id ) : null;
+
+		if ( ! $page || 'trash' === $page->post_status ) {
+			$existing = get_page_by_path( 'politica-de-privacidad' );
+			$page_id  = $existing ? (int) $existing->ID : (int) wp_insert_post(
+				[
+					'post_type'   => 'page',
+					'post_status' => 'draft',
+					'post_title'  => 'Política de privacidad',
+					'post_name'   => 'politica-de-privacidad',
+				]
+			);
+			$page     = get_post( $page_id );
+		}
+
+		// Solo se escribe encima del borrador de ejemplo de WordPress o de un texto generado antes por este comando.
+		$is_ours    = (bool) get_post_meta( $page_id, '_pbc_seeded', true );
+		$is_default = 'draft' === $page->post_status || '' === trim( $page->post_content );
+
+		if ( ! $is_ours && ! $is_default && empty( $assoc_args['force'] ) ) {
+			WP_CLI::log( 'La página ya tiene un texto propio; no se toca (usa --force para reescribirla).' );
+		} else {
+			wp_update_post(
+				[
+					'ID'           => $page_id,
+					'post_status'  => 'publish',
+					'post_title'   => 'Política de privacidad',
+					'post_name'    => 'politica-de-privacidad',
+					'post_excerpt' => 'Qué datos personales recoge Párkinson Bahía de Cádiz en esta web, para qué los usa, cuánto tiempo los guarda y cómo ejercer tus derechos.',
+					'post_content' => $this->privacy_content(),
+				]
+			);
+			update_post_meta( $page_id, '_pbc_seeded', 1 );
+			WP_CLI::log( 'Política de privacidad escrita y publicada.' );
+		}
+
+		update_option( 'wp_page_for_privacy_policy', $page_id );
+
+		// Menú legal del pie.
+		$menu    = wp_get_nav_menu_object( 'Legal' );
+		$menu_id = $menu ? (int) $menu->term_id : (int) wp_create_nav_menu( 'Legal' );
+		$items   = (array) wp_get_nav_menu_items( $menu_id );
+
+		if ( ! in_array( $page_id, array_map( static fn ( $item ): int => (int) $item->object_id, $items ), true ) ) {
+			wp_update_nav_menu_item(
+				$menu_id,
+				0,
+				[
+					'menu-item-object-id' => $page_id,
+					'menu-item-object'    => 'page',
+					'menu-item-type'      => 'post_type',
+					'menu-item-status'    => 'publish',
+				]
+			);
+		}
+
+		$locations                 = (array) get_theme_mod( 'nav_menu_locations', [] );
+		$locations['footer-legal'] = $menu_id;
+		set_theme_mod( 'nav_menu_locations', $locations );
+
+		WP_CLI::success( 'Política de privacidad lista: ' . get_permalink( $page_id ) );
+	}
+
+	/**
+	 * Texto de la política de privacidad, en bloques del editor.
+	 */
+	private function privacy_content(): string {
+		$pending = static fn ( string $text ): string => '<strong>Pendiente de confirmar:</strong> ' . $text;
+
+		$sections = [
+			[ 'p', 'En Párkinson Bahía de Cádiz cuidamos tus datos igual que cuidamos a las personas que atendemos. Aquí te explicamos, con palabras sencillas, qué datos recogemos en esta web, para qué los usamos y qué puedes hacer si quieres consultarlos, cambiarlos o borrarlos.' ],
+			[ 'p', 'Última actualización: ' . wp_date( 'j \d\e F \d\e Y' ) . '.' ],
+
+			[ 'h2', 'Quién es responsable de tus datos' ],
+			[ 'ul', [
+				'<strong>Entidad:</strong> Asociación de Familiares y Enfermos de Párkinson Bahía de Cádiz (Párkinson Bahía de Cádiz).',
+				'<strong>CIF:</strong> G-11591302.',
+				'<strong>Registro:</strong> Registro de Asociaciones de Andalucía, nº 6.809.',
+				'<strong>Dirección:</strong> C/ Milongas s/n, 11100 San Fernando (Cádiz).',
+				'<strong>Teléfono:</strong> <a href="tel:+34956591928">956 59 19 28</a>.',
+				'<strong>Correo electrónico:</strong> <a href="mailto:unidad@parkinsonbahiadecadiz.org">unidad@parkinsonbahiadecadiz.org</a>.',
+			] ],
+			[ 'p', $pending( 'si la asociación tiene una persona delegada de protección de datos y, en ese caso, su nombre y su forma de contacto.' ) ],
+
+			[ 'h2', 'Qué datos recogemos y para qué' ],
+			[ 'p', 'Solo te pedimos los datos que hacen falta para lo que tú nos pides. En los formularios de esta web no te pedimos datos de salud.' ],
+			[ 'h3', 'Si te haces socio o socia' ],
+			[ 'ul', [
+				'<strong>Datos:</strong> nombre y apellidos, DNI o NIE, teléfono, correo electrónico (si lo indicas), número de cuenta (IBAN) y la cuota que eliges.',
+				'<strong>Para qué:</strong> darte de alta como socio, cobrar tu cuota por domiciliación bancaria, informarte de la actividad de la asociación y cumplir nuestras obligaciones legales y contables.',
+			] ],
+			[ 'h3', 'Si te ofreces como voluntario o voluntaria' ],
+			[ 'ul', [
+				'<strong>Datos:</strong> nombre, teléfono, correo electrónico (si lo indicas) y las áreas en las que te gustaría ayudar.',
+				'<strong>Para qué:</strong> llamarte, conocerte y organizar tu colaboración.',
+			] ],
+			[ 'h3', 'Si nos llamas o nos escribes' ],
+			[ 'ul', [
+				'<strong>Datos:</strong> los que tú nos des por teléfono o por correo electrónico.',
+				'<strong>Para qué:</strong> responder a tu consulta o tramitar lo que nos pidas, por ejemplo una plaza en el centro de día.',
+			] ],
+			[ 'p', 'Los datos de las personas usuarias del centro de día y de las terapias no se recogen a través de esta web: se tratan en el propio centro, con su documentación específica.' ],
+
+			[ 'h2', 'Por qué podemos tratar tus datos' ],
+			[ 'ul', [
+				'<strong>Porque tú nos lo pides y lo aceptas:</strong> al enviar un formulario marcas la casilla de aceptación de esta política.',
+				'<strong>Porque es necesario para tu relación con la asociación:</strong> por ejemplo, para gestionar tu alta como socio y cobrar la cuota.',
+				'<strong>Porque la ley nos obliga:</strong> por ejemplo, a conservar la documentación contable y fiscal.',
+			] ],
+			[ 'p', 'Puedes retirar tu consentimiento cuando quieras. Eso no afecta a lo que hayamos hecho con tus datos hasta ese momento.' ],
+
+			[ 'h2', 'Cuánto tiempo guardamos tus datos' ],
+			[ 'ul', [
+				'<strong>Socios:</strong> mientras sigas siendo socio. Después, solo el tiempo que la ley obliga a conservar la documentación.',
+				'<strong>Voluntariado y consultas:</strong> el tiempo necesario para atender tu solicitud.',
+			] ],
+			[ 'p', $pending( 'los plazos concretos de conservación de cada tipo de dato y el momento en que se borran los formularios recibidos por la web.' ) ],
+
+			[ 'h2', 'A quién comunicamos tus datos' ],
+			[ 'p', 'No vendemos ni cedemos tus datos. Solo los comunicamos cuando es imprescindible:' ],
+			[ 'ul', [
+				'A <strong>nuestro banco</strong>, para cobrar las cuotas de los socios por domiciliación.',
+				'A las <strong>administraciones públicas</strong>, cuando una ley nos obliga a ello.',
+				'A las <strong>empresas que nos prestan servicios</strong> necesarios para que la web funcione, como el alojamiento. Trabajan siguiendo nuestras instrucciones y con un contrato que les obliga a proteger tus datos.',
+			] ],
+			[ 'p', $pending( 'el nombre de la empresa de alojamiento de la web y si guarda los datos dentro de la Unión Europea.' ) ],
+			[ 'p', 'Para evitar envíos automáticos de robots, los formularios pueden usar el servicio Turnstile de Cloudflare, que comprueba que quien envía es una persona. Para ello Cloudflare recibe datos técnicos de tu navegador, como la dirección IP. Puedes consultar su <a href="https://www.cloudflare.com/es-es/privacypolicy/">política de privacidad</a>.' ],
+
+			[ 'h2', 'Cómo protegemos tus datos' ],
+			[ 'ul', [
+				'El DNI y el número de cuenta se guardan cifrados.',
+				'Solo las personas autorizadas de la asociación pueden ver los formularios recibidos.',
+				'Los avisos que recibimos por correo cuando alguien envía un formulario no incluyen el DNI ni el número de cuenta.',
+				'La web funciona con conexión segura (https).',
+			] ],
+
+			[ 'h2', 'Tus derechos' ],
+			[ 'p', 'Puedes pedirnos en cualquier momento:' ],
+			[ 'ul', [
+				'<strong>Saber</strong> qué datos tuyos tenemos y recibir una copia.',
+				'<strong>Corregir</strong> los datos que estén mal o incompletos.',
+				'<strong>Borrar</strong> tus datos cuando ya no sean necesarios.',
+				'<strong>Oponerte</strong> a que los usemos o pedir que <strong>limitemos</strong> su uso.',
+				'<strong>Llevarte</strong> tus datos a otra entidad (portabilidad).',
+				'<strong>Retirar</strong> el consentimiento que nos diste.',
+			] ],
+			[ 'p', 'Para hacerlo, escríbenos a <a href="mailto:unidad@parkinsonbahiadecadiz.org">unidad@parkinsonbahiadecadiz.org</a>, llámanos al <a href="tel:+34956591928">956 59 19 28</a> o envíanos una carta a C/ Milongas s/n, 11100 San Fernando (Cádiz). Es posible que te pidamos algún dato para comprobar que eres tú. Te responderemos en el plazo máximo de un mes.' ],
+			[ 'p', 'Si crees que no hemos atendido bien tu solicitud, puedes presentar una reclamación ante la Agencia Española de Protección de Datos, en <a href="https://www.aepd.es/">www.aepd.es</a>.' ],
+
+			[ 'h2', 'Cookies y preferencias de lectura' ],
+			[ 'p', 'Esta web guarda en tu propio navegador dos preferencias, solo si las usas: el tamaño del texto y el modo de alto contraste. Sirven para que la web se vea como tú la has elegido la próxima vez. No te identifican ni se envían a nadie.' ],
+			[ 'p', 'Ahora mismo la web no usa cookies de publicidad ni de medición de visitas.' ],
+			[ 'p', $pending( 'la política de cookies definitiva, cuando se decida si la web tendrá mapa, vídeos o medición de visitas.' ) ],
+
+			[ 'h2', 'Cambios en esta política' ],
+			[ 'p', 'Si cambiamos la forma de tratar tus datos, actualizaremos esta página e indicaremos la fecha arriba. Si el cambio es importante y tenemos tu contacto, te avisaremos.' ],
+		];
+
+		$html = '';
+
+		foreach ( $sections as [ $type, $content ] ) {
+			if ( 'h2' === $type || 'h3' === $type ) {
+				$level = 'h3' === $type ? ' {"level":3}' : '';
+				$html .= '<!-- wp:heading' . $level . ' --><' . $type . ' class="wp-block-heading">' . $content . '</' . $type . '><!-- /wp:heading -->' . "\n\n";
+			} elseif ( 'ul' === $type ) {
+				$items = '';
+				foreach ( $content as $item ) {
+					$items .= '<!-- wp:list-item --><li>' . $item . '</li><!-- /wp:list-item -->';
+				}
+				$html .= '<!-- wp:list --><ul class="wp-block-list">' . $items . '</ul><!-- /wp:list -->' . "\n\n";
+			} else {
+				$html .= '<!-- wp:paragraph --><p>' . $content . '</p><!-- /wp:paragraph -->' . "\n\n";
+			}
+		}
+
+		return $html;
+	}
+
+	/**
 	 * Crea elementos de un tipo de contenido si todavía no existen (por título).
 	 *
 	 * @param array<int, array{0:string, 1:string, 2:array<string, mixed>}> $items Título, extracto y campos.
