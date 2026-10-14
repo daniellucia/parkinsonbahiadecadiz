@@ -84,7 +84,7 @@ Los comandos se pueden repetir sin duplicar nada. Con `--force` reescriben su p�
 - Datos de contacto, botón de cabecera, redes y textos del pie editables en Apariencia → Personalizar.
 - Indicador de carga en el botón al enviar cualquier formulario.
 
-### Plugin `parkinson-bahia-core` (versión 1.18.0)
+### Plugin `parkinson-bahia-core` (versión 1.18.1)
 
 - **Tipo de contenido «Terapias»**: una página por terapia, con resumen, foto, orden, «Qué trabajamos» (un punto por línea) y «Quién la hace».
 - **Menú «La asociación» del escritorio**, con los datos que alimentan esa página: Historia (hitos por año), Equipo profesional (puestos y número de personas), Junta directiva (nombre y cargo), Documentos de transparencia (con su archivo) y Redes y federaciones (siglas y web).
@@ -210,7 +210,7 @@ Ayuda a cumplir el RGPD y la LOPDGDD. Todo está en **Ajustes → Protección de
 - Donativos en línea: elegir pasarela (Stripe, Redsys, Bizum) e integrarla.
 - Decidir con la asociación: cuotas de socio, texto del mandato SEPA, cuánto tiempo se conservan los envíos y los puntos pendientes de la política de privacidad.
 - Dar de alta Turnstile en Cloudflare y escribir sus claves en Formularios → Ajustes.
-- Cookies: comprobar antes de publicar los nombres y la duración de las cookies de YouTube, OpenStreetMap y Cloudflare (la política los toma de la información de cada proveedor) y que la asesoría revise la política. La prueba del consentimiento de cookies es la propia cookie del navegador; no se guarda un registro en el servidor (decidir con la asociación si lo quiere).
+- Cookies: los nombres y la duración de lo que guardan YouTube, OpenStreetMap y Cloudflare Turnstile se comprobaron el 14-10-2026 con Chrome 151: YouTube (modo de privacidad mejorada) no pone cookies ni al reproducir, pero guarda datos del reproductor en el almacenamiento local; el mapa de OpenStreetMap no guarda nada; Turnstile guarda `cf.turnstile.u` en el almacenamiento local. Turnstile se midió con la clave de pruebas de Cloudflare: repetir la comprobación con las claves reales cuando se den de alta. Falta que la asesoría revise la política. La prueba del consentimiento de cookies es la propia cookie del navegador; no se guarda un registro en el servidor (decidir con la asociación si lo quiere).
 - Protección de datos: que la asociación confirme los plazos de conservación (los configurados son una propuesta), si tiene delegado de protección de datos, la empresa de alojamiento (encargada del tratamiento: firmar el contrato del art. 28) y que su asesoría revise la política de privacidad. El registro de tratamientos solo cubre la web; los tratamientos del centro (usuarios, historias, personal) van en el registro propio de la asociación. Los envíos sin cerrar no se borran solos: hay que revisarlos de vez en cuando.
 - Redirecciones 301: revisar con la asociación qué noticias antiguas merece la pena recuperar (ahora llevan a Actualidad; las de ejercicios y consejos, a Familias y cuidadores) y subir los documentos de transparencia, para que los PDF antiguos (memorias, cuentas, código ético…) lleven al archivo y no a la sección. En el alojamiento: `www` → sin `www`, `http` → `https`, dominio `.com` → `.org`, y que nginx pase a WordPress los PDF que no existen. Tras publicar, mirar cada semana Herramientas → Redirecciones → No encontradas.
 - Datos por confirmar con la asociación (ver «Preguntas pendientes» en `docs/investigacion.md`) y fotos originales a mayor resolución: las de la web actual miden 800 px de ancho.

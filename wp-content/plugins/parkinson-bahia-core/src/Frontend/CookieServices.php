@@ -8,6 +8,12 @@
  * El vídeo y el mapa solo se cargan con permiso: sus scripts preguntan con
  * pbcCookies.require( 'externos', … ) cuando el plugin está activo.
  *
+ * Nombres y duraciones medidos el 14-10-2026 con Chrome 151, en una página de
+ * prueba y en la web (cookies de todos los dominios, localStorage,
+ * sessionStorage e IndexedDB de cada marco): YouTube con el vídeo
+ * reproduciéndose, el mapa de OpenStreetMap y Turnstile con la clave de
+ * pruebas de Cloudflare. Hay que repetirlo si cambia un servicio.
+ *
  * @package ParkinsonBahiaCore
  */
 
@@ -35,9 +41,9 @@ final class CookieServices {
 			'category' => 'externos',
 			'name'     => 'YouTube',
 			'provider' => 'Google Ireland Limited',
-			'purpose'  => __( 'Muestra los vídeos de ejercicios dentro de esta web. Usamos su modo de privacidad mejorada: no guarda cookies hasta que se reproduce un vídeo.', 'parkinson-bahia-core' ),
-			'cookies'  => 'VISITOR_INFO1_LIVE, VISITOR_PRIVACY_METADATA, YSC, yt-* (almacenamiento local)',
-			'duration' => __( 'De la sesión hasta 6 meses, según YouTube', 'parkinson-bahia-core' ),
+			'purpose'  => __( 'Muestra los vídeos de ejercicios dentro de esta web. Usamos su modo de privacidad mejorada (youtube-nocookie.com): en nuestras pruebas no guardó cookies, ni siquiera al reproducir, pero el reproductor guarda datos técnicos en tu navegador y se conecta con servidores de Google, que reciben tu dirección IP.', 'parkinson-bahia-core' ),
+			'cookies'  => __( 'Ninguna cookie. Almacenamiento local de youtube-nocookie.com: ytidb::LAST_RESULT_ENTRY_KEY, yt-player-caption-persistence, yt-icons-last-purged y la base de datos YtIdbMeta', 'parkinson-bahia-core' ),
+			'duration' => __( 'Hasta que borres los datos del navegador', 'parkinson-bahia-core' ),
 			'policy'   => 'https://policies.google.com/privacy?hl=es',
 		];
 
@@ -46,9 +52,9 @@ final class CookieServices {
 			'category' => 'externos',
 			'name'     => 'OpenStreetMap',
 			'provider' => 'OpenStreetMap Foundation',
-			'purpose'  => __( 'Muestra el mapa con la situación del centro en el bloque «Ven a conocernos».', 'parkinson-bahia-core' ),
-			'cookies'  => __( 'Las cookies técnicas que use openstreetmap.org para servir el mapa', 'parkinson-bahia-core' ),
-			'duration' => __( 'Según OpenStreetMap', 'parkinson-bahia-core' ),
+			'purpose'  => __( 'Muestra el mapa interactivo con la situación del centro en el bloque «Ven a conocernos». No guarda nada en tu navegador; solo se conecta con openstreetmap.org para descargar el mapa, que recibe tu dirección IP.', 'parkinson-bahia-core' ),
+			'cookies'  => __( 'Ninguna (ni cookies ni almacenamiento local)', 'parkinson-bahia-core' ),
+			'duration' => __( 'No guarda nada', 'parkinson-bahia-core' ),
 			'policy'   => 'https://osmfoundation.org/wiki/Privacy_Policy',
 		];
 
@@ -59,8 +65,8 @@ final class CookieServices {
 				'name'     => 'Cloudflare Turnstile',
 				'provider' => 'Cloudflare, Inc.',
 				'purpose'  => __( 'Comprueba que quien envía un formulario es una persona y no un programa automático. Solo se carga cuando empiezas a rellenar un formulario.', 'parkinson-bahia-core' ),
-				'cookies'  => __( 'Datos técnicos de seguridad de challenges.cloudflare.com', 'parkinson-bahia-core' ),
-				'duration' => __( 'Según Cloudflare', 'parkinson-bahia-core' ),
+				'cookies'  => __( 'Ninguna cookie. Almacenamiento local de challenges.cloudflare.com: cf.turnstile.u', 'parkinson-bahia-core' ),
+				'duration' => __( 'Hasta que borres los datos del navegador', 'parkinson-bahia-core' ),
 				'policy'   => 'https://www.cloudflare.com/es-es/privacypolicy/',
 			];
 		}
