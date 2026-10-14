@@ -70,6 +70,7 @@ final class Paths extends Widget {
 				'default'     => [],
 			]
 		);
+		$this->anchor_control();
 		$this->end_controls_section();
 	}
 
@@ -78,7 +79,7 @@ final class Paths extends Widget {
 		$items    = is_array( $settings['items'] ?? null ) ? $settings['items'] : [];
 		$title_id = $this->title_id();
 		?>
-		<section class="pbc-paths" aria-labelledby="<?php echo esc_attr( $title_id ); ?>">
+		<section class="pbc-paths"<?php echo $this->anchor_attr( $settings ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escapado en anchor_attr(). ?> aria-labelledby="<?php echo esc_attr( $title_id ); ?>">
 			<div class="pbc-paths__inner">
 				<?php $this->render_heading( $this->heading_tag( $settings ), (string) $settings['title'], 'pbc-paths__title', $title_id ); ?>
 				<?php $this->render_text( (string) $settings['intro'], 'pbc-paths__intro' ); ?>

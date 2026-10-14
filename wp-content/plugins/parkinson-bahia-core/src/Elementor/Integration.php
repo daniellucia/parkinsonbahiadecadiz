@@ -23,6 +23,7 @@ final class Integration {
 	private const WIDGETS = [
 		'hero'        => Widgets\Hero::class,
 		'paths'       => Widgets\Paths::class,
+		'key-points'  => Widgets\KeyPoints::class,
 		'feature'     => Widgets\Feature::class,
 		'therapies'   => Widgets\Therapies::class,
 		'steps'       => Widgets\Steps::class,

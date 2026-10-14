@@ -72,6 +72,7 @@ final class Steps extends Widget {
 				'default' => '',
 			]
 		);
+		$this->anchor_control();
 		$this->end_controls_section();
 
 		$this->start_controls_section( 'notes_section', [ 'label' => esc_html__( 'Tarjetas de apoyo (opcional)', 'parkinson-bahia-core' ) ] );
@@ -117,12 +118,13 @@ final class Steps extends Widget {
 			static fn ( $note ): bool => '' !== trim( (string) ( $note['title'] ?? '' ) )
 		);
 		?>
-		<section class="pbc-steps<?php echo 'dark' === ( $settings['variant'] ?? '' ) ? ' pbc-steps--dark' : ''; ?>" aria-labelledby="<?php echo esc_attr( $title_id ); ?>">
+		<section class="pbc-steps<?php echo 'dark' === ( $settings['variant'] ?? '' ) ? ' pbc-steps--dark' : ''; ?>"<?php echo $this->anchor_attr( $settings ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escapado en anchor_attr(). ?> aria-labelledby="<?php echo esc_attr( $title_id ); ?>">
 			<div class="pbc-steps__inner">
 				<?php $this->render_heading( $tag, (string) $settings['title'], 'pbc-steps__title', $title_id ); ?>
 				<?php $this->render_text( (string) $settings['intro'], 'pbc-steps__intro' ); ?>
 				<?php if ( $items ) : ?>
-					<ol class="pbc-steps__list">
+					<?php // Con 3, 6 o 9 pasos (y no 4 u 8) van de tres en tres, para que ninguna fila quede coja. ?>
+					<ol class="pbc-steps__list<?php echo 0 === count( $items ) % 3 && 0 !== count( $items ) % 4 ? ' pbc-steps__list--thirds' : ''; ?>">
 						<?php foreach ( $items as $item ) : ?>
 							<?php
 							if ( '' === trim( (string) ( $item['title'] ?? '' ) ) ) {

@@ -100,6 +100,8 @@ final class SeedCommand {
 			'actualidad'            => 'Actualidad',
 			'colabora'              => 'Colabora',
 			'contacto'              => 'Contacto',
+			// Fuera del menú: se llega desde la portada y desde Familias.
+			'me-acaban-de-diagnosticar' => 'Me acaban de diagnosticar',
 		];
 
 		$ids = [];
@@ -362,6 +364,7 @@ final class SeedCommand {
 				'note_title'      => 'Nuestro nuevo centro',
 				'note_text'       => 'Abierto en Camposoto. Inaugurado el 15 de enero de 2026.',
 			],
+			'pbc-notice'      => $this->diagnosis_notice( $pages ),
 			'pbc-paths'       => [
 				'title'     => '¿En qué podemos ayudarte?',
 				'title_tag' => 'h2',
@@ -372,7 +375,7 @@ final class SeedCommand {
 							'title' => 'Me acaban de diagnosticar',
 							'text'  => 'Qué es el párkinson, qué puedes esperar y por dónde empezar.',
 							'cta'   => 'Primeros pasos',
-							'link_page'  => $page( 'familias-y-cuidadores' ),
+							'link_page'  => $page( 'me-acaban-de-diagnosticar' ),
 						],
 						[
 							'title' => 'Busco plaza en el centro de día',
@@ -488,6 +491,441 @@ final class SeedCommand {
 		$this->save_page( $home_id, $widgets, 'home' );
 	}
 
+
+	/**
+	 * Aviso de la portada que lleva a «Me acaban de diagnosticar».
+	 *
+	 * @param array<string, int> $pages slug => ID.
+	 * @return array<string, mixed>
+	 */
+	private function diagnosis_notice( array $pages ): array {
+		return [
+			'lead'             => '¿Te acaban de diagnosticar párkinson?',
+			'text'             => 'Te ayudamos a dar los primeros pasos: qué es, qué hacer las primeras semanas y qué preguntar al neurólogo.',
+			'button_label'     => 'Por dónde empezar',
+			'button_link_page' => 'page-' . $pages['me-acaban-de-diagnosticar'],
+		];
+	}
+
+	/**
+	 * Monta la página «Me acaban de diagnosticar» (fuera del menú), sube sus
+	 * dos PDF (guía de bienvenida y preguntas para el neurólogo) como guías del
+	 * tema «Primeros pasos» y la enlaza desde la portada: la primera tarjeta de
+	 * «¿En qué podemos ayudarte?» y un aviso bajo la portada.
+	 *
+	 * Los PDF se generan desde docs/guias/ con «node docs/guias/generar-pdf.mjs».
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--force]
+	 * : Reescribe el contenido de la página aunque ya tenga widgets.
+	 *
+	 * @param string[]             $args       Argumentos posicionales.
+	 * @param array<string, mixed> $assoc_args Opciones.
+	 */
+	public function diagnostico( array $args, array $assoc_args ): void {
+		$this->start();
+
+		$pages   = $this->seed_pages();
+		$page_id = $pages['me-acaban-de-diagnosticar'];
+		$page    = static fn ( string $slug ): string => 'page-' . $pages[ $slug ];
+
+		// Guías del tema «Primeros pasos»: las dos nuevas y el registro de síntomas que ya estaba en Familias.
+		$term = term_exists( 'Primeros pasos', PostTypes\Recurso::TAXONOMY );
+		if ( ! $term ) {
+			$term = wp_insert_term( 'Primeros pasos', PostTypes\Recurso::TAXONOMY );
+		}
+		$term_id = is_array( $term ) ? (int) $term['term_id'] : 0;
+		$files   = [];
+
+		foreach ( [
+			'guia-de-bienvenida'          => 'Guía de bienvenida',
+			'preguntas-para-mi-neurologo' => 'Preguntas para mi neurólogo',
+		] as $name => $title ) {
+			$found    = get_posts(
+				[
+					'post_type'      => PostTypes\Recurso::POST_TYPE,
+					'post_status'    => 'any',
+					'title'          => $title,
+					'posts_per_page' => 1,
+					'fields'         => 'ids',
+				]
+			);
+			$guide_id = $found ? (int) $found[0] : (int) wp_insert_post(
+				[
+					'post_type'   => PostTypes\Recurso::POST_TYPE,
+					'post_status' => 'publish',
+					'post_title'  => $title,
+					'menu_order'  => 0,
+				]
+			);
+			$file_id  = $this->local_file( PBC_CORE_DIR . 'assets/seed/' . $name . '.pdf', $title );
+			if ( $file_id > 0 ) {
+				update_post_meta( $guide_id, PostTypes\Recurso::META_FILE, $file_id );
+				$files[ $name ] = (string) wp_get_attachment_url( $file_id );
+			}
+			if ( $term_id > 0 ) {
+				wp_set_object_terms( $guide_id, [ $term_id ], PostTypes\Recurso::TAXONOMY, true );
+			}
+		}
+
+		$symptoms = '';
+		foreach ( [ 'Registro de mis síntomas' ] as $title ) {
+			$found = get_posts(
+				[
+					'post_type'      => PostTypes\Recurso::POST_TYPE,
+					'title'          => $title,
+					'posts_per_page' => 1,
+					'fields'         => 'ids',
+				]
+			);
+			if ( ! $found ) {
+				WP_CLI::warning( "No está la guía «{$title}»: ejecuta antes «wp pbc seed-familias»." );
+				continue;
+			}
+			if ( $term_id > 0 ) {
+				wp_set_object_terms( (int) $found[0], [ $term_id ], PostTypes\Recurso::TAXONOMY, true );
+			}
+			if ( 'Registro de mis síntomas' === $title ) {
+				$file_id  = absint( get_post_meta( (int) $found[0], PostTypes\Recurso::META_FILE, true ) );
+				$symptoms = $file_id > 0 ? (string) wp_get_attachment_url( $file_id ) : '';
+			}
+		}
+		WP_CLI::log( 'Guías de «Primeros pasos» listas.' );
+
+		if ( $this->may_write( $page_id, $assoc_args ) ) {
+			$jumps = [];
+			if ( isset( $files['guia-de-bienvenida'] ) ) {
+				$jumps[] = [
+					'label'     => 'Descargar la guía de bienvenida (PDF)',
+					'link_page' => 'custom',
+					'link'      => $this->custom_link( $files['guia-de-bienvenida'] ),
+				];
+			}
+			foreach ( [
+				'que-es'            => 'Qué es el párkinson',
+				'primeras-semanas'  => 'Las primeras semanas',
+				'como-te-ayudamos'  => 'Cómo te ayudamos',
+				'neurologo'         => 'Preguntas para el neurólogo',
+			] as $anchor => $label ) {
+				$jumps[] = [
+					'label'     => $label,
+					'link_page' => 'custom',
+					'link'      => $this->custom_link( '#' . $anchor ),
+				];
+			}
+
+			$checklist = [
+				'title'         => 'Preguntas para tu neurólogo',
+				'title_tag'     => 'h2',
+				'intro'         => 'En la consulta el tiempo pasa rápido. Lleva tus dudas escritas y, si puedes, ve con alguien que te acompañe y tome notas. Estas preguntas suelen ayudar:',
+				'items'         => $this->rows(
+					array_map(
+						static fn ( string $question ): array => [ 'title' => $question ],
+						[
+							'¿Qué tipo de párkinson tengo y cómo puede avanzar en mi caso?',
+							'¿Para qué sirve cada medicamento y a qué hora debo tomarlo?',
+							'¿Qué efectos secundarios puedo notar y qué hago si aparecen?',
+							'¿Puedo tomar mis otros medicamentos, suplementos o infusiones?',
+							'¿Qué ejercicio me conviene? ¿Me ayudaría la fisioterapia o la logopedia?',
+							'¿Puedo seguir conduciendo y trabajando?',
+							'¿Qué síntomas debo vigilar y cuándo debo llamar antes de la próxima cita?',
+							'¿Cada cuánto tendré revisión y con quién hablo si tengo dudas entre citas?',
+						]
+					)
+				),
+				'layout'        => 'checklist',
+				'variant'       => 'mist',
+				'note'          => 'Lleva también la lista de todos tus medicamentos, aunque no sean para el párkinson, y tu registro de síntomas.',
+				'anchor'        => 'neurologo',
+			];
+			if ( isset( $files['preguntas-para-mi-neurologo'] ) ) {
+				$checklist['button_label']     = 'Descargar la ficha para imprimir (PDF)';
+				$checklist['button_link_page'] = 'custom';
+				$checklist['button_link']      = $this->custom_link( $files['preguntas-para-mi-neurologo'] );
+			}
+			if ( '' !== $symptoms ) {
+				$checklist['button2_label']     = 'Registro de mis síntomas (PDF)';
+				$checklist['button2_link_page'] = 'custom';
+				$checklist['button2_link']      = $this->custom_link( $symptoms );
+			}
+
+			$this->save_page(
+				$page_id,
+				[
+					'pbc-page-header'   => [
+						'eyebrow'   => 'Primeros pasos',
+						'title'     => 'Me acaban de diagnosticar',
+						'title_tag' => 'h1',
+						'text'      => 'Si te acaban de decir que tienes párkinson, o se lo han dicho a alguien que quieres, esta página es para ti. Te contamos qué es, qué hacer las primeras semanas y cómo podemos ayudarte. Con calma: no tienes que entenderlo todo hoy.',
+						'variant'   => 'sand',
+						'jumps'     => $this->rows( $jumps ),
+					],
+					'pbc-key-points'    => [
+						'title'     => 'El párkinson, en pocas palabras',
+						'title_tag' => 'h2',
+						'intro'     => 'Es una enfermedad del sistema nervioso. Algunas neuronas del cerebro dejan de producir suficiente dopamina, una sustancia que ayuda a que los movimientos sean suaves y controlados.',
+						'items'     => $this->rows(
+							[
+								[
+									'title' => 'Afecta sobre todo al movimiento',
+									'text'  => 'Temblor (no todas las personas lo tienen), lentitud, rigidez y problemas de equilibrio.',
+								],
+								[
+									'title' => 'Y también a otras cosas',
+									'text'  => 'El sueño, el olfato, el estreñimiento, el cansancio, el ánimo o los nervios. Cuéntaselo a tu médico: también se tratan.',
+								],
+								[
+									'title' => 'Avanza despacio',
+									'text'  => 'Normalmente a lo largo de muchos años, y de forma distinta en cada persona. No compares tu caso con el de otros.',
+								],
+								[
+									'title' => 'Hay tratamiento',
+									'text'  => 'No cura, pero los medicamentos, el ejercicio y las terapias ayudan mucho a seguir haciendo lo que te importa.',
+								],
+								[
+									'title' => 'No es contagioso',
+									'text'  => 'Y en la mayoría de los casos tampoco es hereditario.',
+								],
+								[
+									'title' => 'No estás solo',
+									'text'  => 'En la provincia de Cádiz hay unas 5.000 personas con párkinson. Desde 2003 acompañamos a muchas de ellas y a sus familias.',
+								],
+							]
+						),
+						'layout'    => 'columns',
+						'note'      => 'Esta información es general y no sustituye a tu médico. Si tienes dudas sobre tu caso, pregúntale a tu neurólogo.',
+						'anchor'    => 'que-es',
+					],
+					'pbc-steps'         => [
+						'title'     => 'Qué hacer las primeras semanas',
+						'title_tag' => 'h2',
+						'intro'     => 'Sin prisas. Son las cosas que, según nos cuentan las familias, más les ayudaron al principio.',
+						'anchor'    => 'primeras-semanas',
+						'items'     => $this->rows(
+							[
+								[
+									'title' => 'Date tiempo',
+									'text'  => 'Es normal sentir miedo, rabia o tristeza. No tienes que tomar decisiones importantes hoy.',
+								],
+								[
+									'title' => 'Sigue el tratamiento',
+									'text'  => 'Toma la medicación a sus horas. No la cambies ni la dejes sin hablar antes con tu médico.',
+								],
+								[
+									'title' => 'Apunta lo que notas',
+									'text'  => 'Qué síntomas tienes, a qué hora y cuándo mejoran o empeoran. Te ayudará mucho en la consulta.',
+								],
+								[
+									'title' => 'Muévete cada día',
+									'text'  => 'Caminar, estirarse o bailar. Mejor un poco cada día que mucho de vez en cuando.',
+								],
+								[
+									'title' => 'Cuéntalo cuando quieras',
+									'text'  => 'Tú decides a quién y cuándo. Hablarlo con la familia y con otras personas que viven lo mismo alivia.',
+								],
+								[
+									'title' => 'Llámanos',
+									'text'  => 'Aunque todavía no necesites nada. Te escuchamos y te contamos qué recursos tienes cerca.',
+								],
+							]
+						),
+					],
+					'pbc-paths'         => [
+						'title'     => 'Cómo te ayudamos, aunque no necesites el centro de día',
+						'title_tag' => 'h2',
+						'intro'     => 'Puedes contar con nosotros desde el primer día. Llámanos y vemos juntos qué te encaja.',
+						'anchor'    => 'como-te-ayudamos',
+						'items'     => $this->rows(
+							[
+								[
+									'title'     => 'Orientación y papeles',
+									'text'      => 'Nuestra trabajadora social te explica tus derechos, la dependencia y los recursos que tienes cerca, y te ayuda con los trámites.',
+									'cta'       => 'Pedir una cita',
+									'link_page' => $page( 'contacto' ),
+								],
+								[
+									'title'     => 'Apoyo psicológico y terapias',
+									'text'      => 'Psicología para ti y tu familia, fisioterapia, logopedia y estimulación cognitiva. Pregúntanos cuáles puedes hacer.',
+									'cta'       => 'Ver las terapias',
+									'link_page' => $page( 'terapias' ),
+								],
+								[
+									'title'     => 'Guías y ejercicios para casa',
+									'text'      => 'Fichas para imprimir, vídeos de ejercicios y apoyo para quien cuida, también en grupo.',
+									'cta'       => 'Ver recursos para familias',
+									'link_page' => $page( 'familias-y-cuidadores' ),
+								],
+								[
+									'title'     => 'Hacerte socio o socia',
+									'text'      => 'Te da acceso a nuestros servicios y actividades, y ayuda a que podamos atender a más familias.',
+									'cta'       => 'Hacerme socio',
+									'link_page' => 'custom',
+									'link'      => $this->custom_link( get_permalink( $pages['colabora'] ) . '#socio' ),
+								],
+							]
+						),
+					],
+					'pbc-key-points#2'  => $checklist,
+					'pbc-resources'     => [
+						'title'       => 'Para leer con calma e imprimir',
+						'title_tag'   => 'h2',
+						'text'        => 'La guía de bienvenida recoge todo lo de esta página en siete hojas. Si prefieres una copia en papel, pídenosla.',
+						'topic'       => 'primeros-pasos',
+						'show_filter' => '',
+						'anchor'      => 'guias',
+					],
+					'pbc-cta'           => [
+						'title'             => 'No tienes que pasar por esto solo',
+						'title_tag'         => 'h2',
+						'text'              => 'Llámanos aunque todavía no sepas qué preguntar. Te escuchamos y te contamos, sin compromiso, qué podemos hacer por ti y por tu familia.',
+						'button_label'      => 'Llamar al 956 59 19 28',
+						'button_link_page'  => 'custom',
+						'button_link'       => $this->custom_link( 'tel:+34956591928' ),
+						'button2_label'     => 'Conocer el centro de día',
+						'button2_link_page' => $page( 'centro-de-dia' ),
+						'variant'           => 'mist',
+					],
+				],
+				'diagnostico'
+			);
+			update_post_meta( $page_id, '_pbc_seeded', 1 );
+			wp_update_post(
+				[
+					'ID'           => $page_id,
+					'post_excerpt' => 'Qué es el párkinson, qué hacer las primeras semanas, qué preguntar al neurólogo y cómo te ayuda Párkinson Bahía de Cádiz, con una guía de bienvenida para imprimir.',
+				]
+			);
+			WP_CLI::log( 'Página «Me acaban de diagnosticar» montada con sus widgets.' );
+		}
+
+		$this->link_home_to_diagnosis( $pages );
+
+		WP_CLI::success( 'Me acaban de diagnosticar lista: ' . get_permalink( $page_id ) );
+	}
+
+	/**
+	 * En la portada ya montada: la tarjeta «Me acaban de diagnosticar» apunta a
+	 * la página nueva y bajo la portada aparece el aviso. Solo toca esos dos
+	 * puntos, sin rehacer el resto de la página.
+	 *
+	 * @param array<string, int> $pages slug => ID.
+	 */
+	private function link_home_to_diagnosis( array $pages ): void {
+		$home_id  = (int) get_option( 'page_on_front' );
+		$document = $home_id > 0 ? \Elementor\Plugin::$instance->documents->get( $home_id, false ) : null;
+
+		if ( ! $document ) {
+			WP_CLI::warning( 'No hay portada de Elementor: ejecuta «wp pbc seed-home».' );
+			return;
+		}
+
+		$data    = $document->get_elements_data();
+		$target  = 'page-' . $pages['me-acaban-de-diagnosticar'];
+		$changed = false;
+
+		foreach ( $data as &$container ) {
+			$elements = $container['elements'] ?? [];
+			$types    = array_column( $elements, 'widgetType' );
+
+			foreach ( $elements as &$element ) {
+				if ( 'pbc-paths' !== ( $element['widgetType'] ?? '' ) ) {
+					continue;
+				}
+				foreach ( $element['settings']['items'] ?? [] as $index => $item ) {
+					if ( 'Me acaban de diagnosticar' === ( $item['title'] ?? '' ) && $target !== ( $item['link_page'] ?? '' ) ) {
+						$element['settings']['items'][ $index ]['link_page'] = $target;
+						$changed = true;
+					}
+				}
+			}
+			unset( $element );
+
+			$hero = array_search( 'pbc-hero', $types, true );
+			if ( false !== $hero && ! in_array( 'pbc-notice', $types, true ) ) {
+				array_splice(
+					$elements,
+					(int) $hero + 1,
+					0,
+					[
+						[
+							'id'         => substr( md5( 'home-pbc-notice' ), 0, 7 ),
+							'elType'     => 'widget',
+							'widgetType' => 'pbc-notice',
+							'settings'   => $this->diagnosis_notice( $pages ),
+							'elements'   => [],
+						],
+					]
+				);
+				$changed = true;
+			}
+
+			$container['elements'] = $elements;
+		}
+		unset( $container );
+
+		if ( ! $changed ) {
+			WP_CLI::log( 'La portada ya enlaza con «Me acaban de diagnosticar».' );
+			return;
+		}
+
+		$document->save( [ 'elements' => $data ] );
+		\Elementor\Plugin::$instance->files_manager->clear_cache();
+		WP_CLI::log( 'Portada enlazada con «Me acaban de diagnosticar» (tarjeta y aviso).' );
+	}
+
+	/**
+	 * Sube a la biblioteca un archivo que viene con el plugin (una sola vez).
+	 */
+	private function local_file( string $path, string $title ): int {
+		$source = 'seed:' . wp_basename( $path );
+		$found  = get_posts(
+			[
+				'post_type'      => 'attachment',
+				'post_status'    => 'inherit',
+				'posts_per_page' => 1,
+				'fields'         => 'ids',
+				'meta_key'       => self::SOURCE_META, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Comando puntual.
+				'meta_value'     => $source, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Comando puntual.
+			]
+		);
+
+		if ( $found ) {
+			return (int) $found[0];
+		}
+
+		if ( ! is_readable( $path ) ) {
+			WP_CLI::warning( "Falta el archivo {$path}: genéralo con «node docs/guias/generar-pdf.mjs»." );
+			return 0;
+		}
+
+		require_once ABSPATH . 'wp-admin/includes/media.php';
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		require_once ABSPATH . 'wp-admin/includes/image.php';
+
+		$tmp = wp_tempnam( wp_basename( $path ) );
+		copy( $path, $tmp );
+
+		$id = media_handle_sideload(
+			[
+				'name'     => wp_basename( $path ),
+				'tmp_name' => $tmp,
+			],
+			0,
+			$title
+		);
+
+		if ( is_wp_error( $id ) ) {
+			wp_delete_file( $tmp );
+			WP_CLI::warning( "No se pudo guardar {$path}: " . $id->get_error_message() );
+			return 0;
+		}
+
+		update_post_meta( (int) $id, self::SOURCE_META, $source );
+		WP_CLI::log( "Archivo subido: {$title}" );
+
+		return (int) $id;
+	}
 
 	/**
 	 * Crea la página «La asociación» con sus widgets y sus contenidos.

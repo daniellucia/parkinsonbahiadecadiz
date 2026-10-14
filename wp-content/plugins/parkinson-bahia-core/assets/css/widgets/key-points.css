@@ -1,0 +1,134 @@
+/* Widget «Ideas clave»: ideas en columnas o lista para llevar (con casillas). */
+.pbc-key-points--mist {
+	background: var(--pbc-mist);
+}
+
+.pbc-key-points__inner {
+	display: flex;
+	flex-direction: column;
+	gap: 32px;
+	max-width: var(--pbc-width);
+	margin-inline: auto;
+	padding: clamp(48px, 7vw, 88px) var(--pbc-gutter);
+}
+
+.pbc-key-points__header {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	max-width: 44em;
+}
+
+.pbc-key-points__title {
+	margin: 0;
+	font-family: var(--pbc-font-display);
+	font-size: clamp(1.8rem, 3.4vw, 2.5rem);
+	font-weight: 400;
+	line-height: 1.15;
+}
+
+.pbc-key-points__intro {
+	margin: 0;
+	color: var(--pbc-ink-2);
+	font-size: 1.1rem;
+}
+
+.pbc-key-points__list {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+	gap: 28px 48px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.pbc-key-points__item {
+	display: flex;
+	gap: 16px;
+	min-width: 0;
+}
+
+/* Ideas en columnas: una raya corta encima de cada idea. */
+.pbc-key-points:not(.pbc-key-points--checklist) .pbc-key-points__item {
+	padding-top: 18px;
+	border-top: 3px solid var(--pbc-sea);
+}
+
+.pbc-key-points__body {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	min-width: 0;
+}
+
+.pbc-key-points__name {
+	font-size: 1.15rem;
+	font-weight: 700;
+	line-height: 1.35;
+}
+
+.pbc-key-points__text {
+	color: var(--pbc-ink-2);
+}
+
+/* Lista para llevar: una hoja blanca con casillas, como la ficha impresa. */
+.pbc-key-points--checklist .pbc-key-points__list {
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+	max-width: 52em;
+	padding: clamp(8px, 2vw, 16px) clamp(20px, 4vw, 40px);
+	border: 1px solid var(--pbc-line);
+	border-radius: var(--pbc-radius);
+	background: var(--pbc-card);
+}
+
+.pbc-key-points--checklist .pbc-key-points__item {
+	padding-block: 18px;
+	border-bottom: 1px solid var(--pbc-line);
+}
+
+.pbc-key-points--checklist .pbc-key-points__item:last-child {
+	border-bottom: 0;
+}
+
+.pbc-key-points__box {
+	flex: none;
+	width: 26px;
+	height: 26px;
+	margin-top: 1px;
+	border: 2px solid var(--pbc-ink-2);
+	border-radius: 6px;
+}
+
+.pbc-key-points--checklist .pbc-key-points__name {
+	font-weight: 500;
+}
+
+.pbc-key-points__footer {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.pbc-key-points__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+}
+
+.pbc-key-points__note {
+	max-width: 44em;
+	margin: 0;
+	color: var(--pbc-ink-2);
+	font-size: 0.95rem;
+}
+
+@media (max-width: 479px) {
+	.pbc-key-points__actions > .pbc-button {
+		flex: 1 1 100%;
+	}
+}
+
+/* ---------- Microinteracciones ----------
+   Los botones usan .pbc-button del tema, que ya responde al pasar y pulsar. */

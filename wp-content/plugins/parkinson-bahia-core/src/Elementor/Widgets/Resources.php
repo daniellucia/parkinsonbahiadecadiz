@@ -43,6 +43,22 @@ final class Resources extends Widget {
 		$this->text_control( 'title', esc_html__( 'Título', 'parkinson-bahia-core' ), esc_html__( 'Guías y fichas para descargar', 'parkinson-bahia-core' ), true );
 		$this->heading_tag_control();
 		$this->text_control( 'text', esc_html__( 'Texto', 'parkinson-bahia-core' ), '', true );
+		$topics = get_terms(
+			[
+				'taxonomy'   => Recurso::TAXONOMY,
+				'hide_empty' => false,
+			]
+		);
+		$this->add_control(
+			'topic',
+			[
+				'label'       => esc_html__( 'Qué guías mostrar', 'parkinson-bahia-core' ),
+				'description' => esc_html__( 'Todas, o solo las de un tema.', 'parkinson-bahia-core' ),
+				'type'        => Controls_Manager::SELECT,
+				'options'     => [ '' => esc_html__( 'Todas', 'parkinson-bahia-core' ) ] + ( is_array( $topics ) ? wp_list_pluck( $topics, 'name', 'slug' ) : [] ),
+				'default'     => '',
+			]
+		);
 		$this->add_control(
 			'show_filter',
 			[
@@ -60,6 +76,7 @@ final class Resources extends Widget {
 	protected function render(): void {
 		$settings = $this->get_settings_for_display();
 		$title_id = $this->title_id();
+		$topic    = sanitize_title( (string) ( $settings['topic'] ?? '' ) );
 		$query    = new \WP_Query(
 			[
 				'post_type'      => Recurso::POST_TYPE,
@@ -71,6 +88,13 @@ final class Resources extends Widget {
 					'title'      => 'ASC',
 				],
 				'no_found_rows'  => true,
+				'tax_query'      => '' !== $topic ? [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- Una sola taxonomía, con pocas guías.
+					[
+						'taxonomy' => Recurso::TAXONOMY,
+						'field'    => 'slug',
+						'terms'    => $topic,
+					],
+				] : [],
 			]
 		);
 		$items    = $query->posts;
@@ -79,7 +103,10 @@ final class Resources extends Widget {
 
 		foreach ( $items as $item ) {
 			$terms   = get_the_terms( $item, Recurso::TAXONOMY );
-			$term    = is_array( $terms ) && $terms ? $terms[0] : null;
+			$terms   = is_array( $terms ) ? $terms : [];
+			// Con un tema elegido se muestra ese; si no, el primero de la guía.
+			$chosen  = '' !== $topic ? array_values( wp_list_filter( $terms, [ 'slug' => $topic ] ) ) : [];
+			$term    = $chosen ? $chosen[0] : ( $terms ? $terms[0] : null );
 			$file_id = absint( get_post_meta( $item->ID, Recurso::META_FILE, true ) );
 			$path    = $file_id > 0 ? (string) get_attached_file( $file_id ) : '';
 
@@ -97,7 +124,7 @@ final class Resources extends Widget {
 			];
 		}
 
-		$filter = 'yes' === ( $settings['show_filter'] ?? '' ) && count( $topics ) > 1;
+		$filter = '' === $topic && 'yes' === ( $settings['show_filter'] ?? '' ) && count( $topics ) > 1;
 		?>
 		<section class="pbc-resources"<?php echo $this->anchor_attr( $settings ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escapado en anchor_attr(). ?> aria-labelledby="<?php echo esc_attr( $title_id ); ?>">
 			<div class="pbc-resources__inner">

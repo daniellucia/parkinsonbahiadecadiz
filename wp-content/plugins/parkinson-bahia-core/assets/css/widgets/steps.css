@@ -71,6 +71,12 @@ html[data-contrast="high"] .pbc-steps__item::before {
 	overflow-wrap: anywhere;
 }
 
+@media (min-width: 1000px) {
+	.pbc-steps__list--thirds {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+}
+
 /* ---------- Tarjetas de apoyo ---------- */
 .pbc-steps__notes {
 	display: grid;
