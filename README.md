@@ -44,6 +44,7 @@ ddev wp pbc seed-actualidad  # apariciones en prensa y financiadores del pie
 ddev wp pbc seed-pie         # logotipos de los financiadores, accesibilidad, aviso legal y menús del pie
 ddev wp pbc seed-cookies     # política de cookies, su enlace en el plugin y el menú legal con «Cookies» y «Configurar cookies»
 ddev wp pbc seed-diagnostico # página «Me acaban de diagnosticar», sus PDF y el aviso de la portada
+ddev wp pbc seed-mapa        # mapa estático del bloque de contacto (12 teselas de OpenStreetMap, una sola vez)
 ddev launch
 ```
 
@@ -65,7 +66,7 @@ Los comandos se pueden repetir sin duplicar nada. Con `--force` reescriben su p�
 
 ## Funcionalidades
 
-### Tema `parkinson-bahia` (versión 1.7.1)
+### Tema `parkinson-bahia` (versión 1.7.2)
 
 - Diseño tomado del proyecto de claude.ai/design «Rediseño Asociación Párkinson Cádiz»: colores, tipografías (Atkinson Hyperlegible Next y Young Serif, alojadas en el tema) y componentes.
 - Barra superior con teléfono, horario, tres tamaños de texto y alto contraste (se recuerdan en el navegador). En móvil solo muestra el teléfono; el horario y las opciones de lectura pasan al menú.
@@ -77,7 +78,7 @@ Los comandos se pueden repetir sin duplicar nada. Con `--force` reescriben su p�
 - Datos de contacto, botón de cabecera, redes y textos del pie editables en Apariencia → Personalizar.
 - Indicador de carga en el botón al enviar cualquier formulario.
 
-### Plugin `parkinson-bahia-core` (versión 1.16.2)
+### Plugin `parkinson-bahia-core` (versión 1.17.0)
 
 - **Tipo de contenido «Terapias»**: una página por terapia, con resumen, foto, orden, «Qué trabajamos» (un punto por línea) y «Quién la hace».
 - **Menú «La asociación» del escritorio**, con los datos que alimentan esa página: Historia (hitos por año), Equipo profesional (puestos y número de personas), Junta directiva (nombre y cargo), Documentos de transparencia (con su archivo) y Redes y federaciones (siglas y web).
@@ -116,7 +117,7 @@ Los comandos se pueden repetir sin duplicar nada. Con `--force` reescriben su p�
 | Fichas de terapias | Una sección por terapia: foto, resumen, qué trabajamos y quién la hace | Tipo de contenido Terapias |
 
 - Elementor no carga Google Fonts: las fuentes las sirve el tema.
-- **Mapa en el bloque de contacto** de todas las páginas: un botón «Ver el mapa» carga OpenStreetMap solo cuando se pulsa; hasta entonces la web no se conecta con nadie.
+- **Mapa en el bloque de contacto** de todas las páginas, visible sin pulsar nada: una imagen del plano servida por la propia web (teselas de OpenStreetMap unidas por `wp pbc seed-mapa`, con el centro marcado y la atribución «© colaboradores de OpenStreetMap»), que no conecta con terceros. Si la persona ya ha permitido el contenido de otras webs, el mapa interactivo de OpenStreetMap la sustituye solo; si no, el botón «Mover y ampliar el mapa» lo carga pidiendo permiso.
 - «Preguntas frecuentes» añade datos estructurados (FAQPage de schema.org) para los buscadores, un único bloque por página.
 - **Formularios** (hacerse socio, voluntariado y contacto):
   - Se envían sin recargar la página, con indicador de carga en el botón y errores explicados junto a cada campo; también funcionan sin JavaScript.
@@ -173,7 +174,7 @@ Ayuda a cumplir el RGPD y la LOPDGDD. Todo está en **Ajustes → Protección de
 - **La asociación**: montada con siete widgets (cabecera, misión, historia, equipo, junta directiva, transparencia y redes). Faltan la foto de cabecera, las fotos del equipo y los archivos de los documentos, que aparecen como «Próximamente».
 - **Centro de día**: montada con siete widgets (cabecera con datos clave, aviso de lista de espera, un día en el centro, cómo solicitar plaza, instalaciones, transporte y preguntas frecuentes). Falta la foto del transporte. El horario y el calendario usan el dato confirmado («cerrado en agosto»), no el del boceto («abierto todo el año»).
 - **Colabora**: montada con cabecera con accesos, formulario de socios, formas de donar, formulario de voluntariado y llamada a empresas. En escritorio, el título y el texto de «Hazte socio o socia», «Haz un donativo» y «Hazte voluntario» se quedan fijos mientras se baja por el formulario (opción «Texto fijo al bajar» de los widgets Formulario y Formas de donar; solo con dos columnas y pantalla de 640 px de alto o más). Los donativos todavía no se cobran en línea (solo transferencia y teléfono) y las cuotas de 5, 10 y 20 € son las del boceto, sin confirmar.
-- **Política de privacidad**: publicada y enlazada desde los formularios y el pie. Redactada a partir de los datos conocidos de la asociación y de cómo trata los datos esta web; incluye el formulario de contacto, el mapa y los vídeos (que solo conectan con OpenStreetMap o YouTube al pulsarlos); tiene cuatro puntos marcados «Pendiente de confirmar» (delegado de protección de datos, plazos de conservación, empresa de alojamiento y empresa de alojamiento). Muestra los plazos de conservación configurados y remite a la política de cookies y **debe revisarla la asociación o su asesoría antes de publicar la web**.
+- **Política de privacidad**: publicada y enlazada desde los formularios y el pie. Redactada a partir de los datos conocidos de la asociación y de cómo trata los datos esta web; incluye el formulario de contacto, el mapa y los vídeos; muestra los plazos de conservación configurados y remite a la política de cookies. Tiene puntos marcados «Pendiente de confirmar» (delegado de protección de datos, plazos de conservación definitivos y empresa de alojamiento) y **debe revisarla la asociación o su asesoría antes de publicar la web**.
 - **Terapias**: montada con cabecera azul con accesos a cada terapia, fichas de las ocho terapias y llamada final. Faltan las fotos de musicoterapia y apoyo a familias (sin foto la ficha ocupa todo el ancho).
 - **Familias y cuidadores**: montada con cabecera, primeros pasos tras el diagnóstico, las 13 guías que ya publicaba la web actual (con sus PDF), tres vídeos del canal de YouTube y el apoyo a cuidadores. Faltan las fotos de cabecera y de cuidadores, y revisar si los PDF cumplen accesibilidad (vienen de la web actual y de la FEP).
 - **Declaración de accesibilidad** y **Aviso legal**: páginas de texto enlazadas desde el pie. La declaración explica qué hace la web para ser fácil de usar y qué no es accesible todavía (PDF de otras entidades, subtítulos de los vídeos, el mapa); dice «parcialmente conforme» con WCAG 2.2 AA y tiene dos puntos «Pendiente de confirmar» (revisión manual completa y plazo de respuesta). El aviso legal recoge los datos de la LSSI (CIF, domicilio, registros) y aclara que la información no sustituye al médico.

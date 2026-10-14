@@ -77,6 +77,7 @@ final class Plugin {
 			\WP_CLI::add_command( 'pbc seed-pie', [ $seed, 'pie' ] );
 			\WP_CLI::add_command( 'pbc seed-cookies', [ $seed, 'cookies' ] );
 			\WP_CLI::add_command( 'pbc seed-diagnostico', [ $seed, 'diagnostico' ] );
+			\WP_CLI::add_command( 'pbc seed-mapa', [ $seed, 'mapa' ] );
 		}
 	}
 }

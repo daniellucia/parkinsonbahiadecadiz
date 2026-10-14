@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace DanielLucia\ParkinsonBahia\Core\Cli;
 
+use DanielLucia\ParkinsonBahia\Core\Frontend;
 use DanielLucia\ParkinsonBahia\Core\PostTypes;
 use DanielLucia\ParkinsonBahia\Core\PostTypes\Terapia;
 use WP_CLI;
@@ -491,6 +492,120 @@ final class SeedCommand {
 		$this->save_page( $home_id, $widgets, 'home' );
 	}
 
+
+	/**
+	 * Genera el mapa estático del bloque de contacto: une unas pocas teselas de
+	 * OpenStreetMap alrededor del centro, marca su situación y lo guarda en la
+	 * biblioteca como WebP. Así el mapa se ve sin pulsar nada y sin conectar
+	 * con terceros; el mapa interactivo solo se carga con permiso.
+	 *
+	 * Se descargan 12 teselas una sola vez, con un User-Agent propio, como pide
+	 * la política de uso de OpenStreetMap. La atribución se muestra junto al mapa.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--force]
+	 * : Vuelve a generar la imagen aunque ya exista.
+	 *
+	 * [--zoom=<zoom>]
+	 * : Nivel de zoom (15 a 18).
+	 * ---
+	 * default: 16
+	 * ---
+	 *
+	 * @param string[]             $args       Argumentos posicionales.
+	 * @param array<string, mixed> $assoc_args Opciones.
+	 */
+	public function mapa( array $args, array $assoc_args ): void {
+		$existing = absint( get_option( Frontend\ContactMap::IMAGE_OPTION ) );
+		if ( $existing > 0 && wp_attachment_is_image( $existing ) && empty( $assoc_args['force'] ) ) {
+			WP_CLI::success( 'El mapa estático ya existe (usa --force para rehacerlo).' );
+			return;
+		}
+
+		if ( ! function_exists( 'imagecreatetruecolor' ) || ! function_exists( 'imagewebp' ) ) {
+			WP_CLI::error( 'PHP no tiene GD con WebP.' );
+		}
+
+		[ $lat, $lon ] = Frontend\ContactMap::coords();
+		$zoom          = min( 18, max( 15, absint( $assoc_args['zoom'] ?? 16 ) ) );
+		$width         = 960;
+		$height        = 600;
+		$n             = 2 ** $zoom;
+
+		// Posición del centro en píxeles del mapa del mundo a ese zoom.
+		$px = ( $lon + 180 ) / 360 * $n * 256;
+		$py = ( 1 - log( tan( deg2rad( $lat ) ) + 1 / cos( deg2rad( $lat ) ) ) / M_PI ) / 2 * $n * 256;
+
+		$left   = (int) floor( $px - $width / 2 );
+		$top    = (int) floor( $py - $height / 2 );
+		$canvas = imagecreatetruecolor( $width, $height );
+
+		for ( $tx = intdiv( $left, 256 ); $tx <= intdiv( $left + $width - 1, 256 ); $tx++ ) {
+			for ( $ty = intdiv( $top, 256 ); $ty <= intdiv( $top + $height - 1, 256 ); $ty++ ) {
+				$response = wp_remote_get(
+					"https://tile.openstreetmap.org/{$zoom}/{$tx}/{$ty}.png",
+					[
+						'timeout'    => 20,
+						'user-agent' => 'ParkinsonBahiaDeCadiz-web/1.0 (+https://parkinsonbahiadecadiz.org; unidad@parkinsonbahiadecadiz.org)',
+					]
+				);
+				$body     = wp_remote_retrieve_body( $response );
+				$tile     = '' !== $body ? @imagecreatefromstring( $body ) : false; // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- Una tesela rota no debe parar el comando.
+				if ( ! $tile ) {
+					imagedestroy( $canvas );
+					WP_CLI::error( "No se pudo descargar la tesela {$zoom}/{$tx}/{$ty}." );
+				}
+				imagecopy( $canvas, $tile, $tx * 256 - $left, $ty * 256 - $top, 0, 0, 256, 256 );
+				imagedestroy( $tile );
+			}
+		}
+
+		// Marca del centro: círculo naranja con borde blanco y contorno oscuro, para verse sobre cualquier calle.
+		imageantialias( $canvas, true );
+		$cx = (int) round( $px - $left );
+		$cy = (int) round( $py - $top );
+		// Grande a propósito: en el móvil la imagen se ve a un tercio de su tamaño.
+		imagefilledellipse( $canvas, $cx, $cy, 76, 76, imagecolorallocate( $canvas, 28, 37, 43 ) );
+		imagefilledellipse( $canvas, $cx, $cy, 66, 66, imagecolorallocate( $canvas, 255, 255, 255 ) );
+		imagefilledellipse( $canvas, $cx, $cy, 46, 46, imagecolorallocate( $canvas, 194, 80, 15 ) );
+
+		$tmp = wp_tempnam( 'mapa-centro.webp' );
+		imagewebp( $canvas, $tmp, 82 );
+		imagedestroy( $canvas );
+
+		require_once ABSPATH . 'wp-admin/includes/media.php';
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		require_once ABSPATH . 'wp-admin/includes/image.php';
+
+		$id = media_handle_sideload(
+			[
+				'name'     => 'mapa-centro-de-dia.webp',
+				'tmp_name' => $tmp,
+			],
+			0,
+			'Mapa del centro de día'
+		);
+
+		if ( is_wp_error( $id ) ) {
+			wp_delete_file( $tmp );
+			WP_CLI::error( 'No se pudo guardar el mapa: ' . $id->get_error_message() );
+		}
+
+		update_post_meta( (int) $id, '_wp_attachment_image_alt', 'Plano de Camposoto (San Fernando) con la situación del centro de día marcada con un círculo naranja.' );
+		wp_update_post(
+			[
+				'ID'           => (int) $id,
+				'post_excerpt' => '© colaboradores de OpenStreetMap',
+			]
+		);
+		if ( $existing > 0 && $existing !== (int) $id ) {
+			wp_delete_attachment( $existing, true );
+		}
+		update_option( Frontend\ContactMap::IMAGE_OPTION, (int) $id, false );
+
+		WP_CLI::success( 'Mapa estático listo: ' . wp_get_attachment_url( (int) $id ) );
+	}
 
 	/**
 	 * Aviso de la portada que lleva a «Me acaban de diagnosticar».
