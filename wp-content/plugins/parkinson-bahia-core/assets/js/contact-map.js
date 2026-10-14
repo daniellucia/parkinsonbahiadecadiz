@@ -1,6 +1,7 @@
 /**
  * Mapa del bloque de contacto: se carga solo al pulsar «Ver el mapa».
- * Sin JavaScript, el enlace abre el mapa en OpenStreetMap.
+ * Sin JavaScript, el enlace abre el mapa en OpenStreetMap. Con el plugin de
+ * cookies activo, antes se pide permiso para el contenido de otras webs.
  */
 ( function () {
 	'use strict';
@@ -18,16 +19,27 @@
 		}
 		event.preventDefault();
 
+		if ( window.pbcCookies ) {
+			window.pbcCookies.require( 'externos', function () {
+				load( panel, src );
+			}, 'OpenStreetMap' );
+		} else {
+			load( panel, src );
+		}
+	} );
+
+	function load( panel, src ) {
 		var iframe = document.createElement( 'iframe' );
 		iframe.className = 'pbc-contact__map-frame';
 		iframe.src = src;
 		iframe.title = panel.dataset.pbcMapTitle || '';
 		iframe.loading = 'lazy';
 		iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+		iframe.setAttribute( 'data-pbc-cookies-loaded', 'externos' );
 
 		panel.classList.remove( 'pbc-contact__map--facade' );
 		panel.classList.add( 'pbc-contact__map--loaded' );
 		panel.replaceChildren( iframe );
 		iframe.focus();
-	} );
+	}
 }() );

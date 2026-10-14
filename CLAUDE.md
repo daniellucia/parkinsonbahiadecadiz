@@ -10,7 +10,7 @@ Redesign of the website for **Párkinson Bahía de Cádiz** (Asociación de Fami
 
 Full research (association data, current-site audit, proposed sitemap, open questions for the client): `docs/investigacion.md`. Read it before writing content, page structure or CPTs.
 
-Current state: WordPress 7.1.3 with Elementor (free) and our three packages active: the theme `wp-content/themes/parkinson-bahia/` and the plugins `wp-content/plugins/parkinson-bahia-core/` and `wp-content/plugins/parkinson-llms-txt/`. Inicio (front page), La asociación, Centro de día, Terapias, Familias y cuidadores, Colabora and Contacto are built with Elementor; Actualidad is the theme's posts template with «En los medios». `README.md` lists what is done and what is pending. Custom work belongs in `wp-content/themes/` or `wp-content/plugins/` (folder names must start with `parkinson-` to be tracked by git); never edit WordPress core (`wp-admin/`, `wp-includes/`, root `wp-*.php`).
+Current state: WordPress 7.1.3 with Elementor (free) and our four packages active: the theme `wp-content/themes/parkinson-bahia/` and the plugins `wp-content/plugins/parkinson-bahia-core/`, `wp-content/plugins/parkinson-llms-txt/` and `wp-content/plugins/parkinson-cookies/`. Inicio (front page), La asociación, Centro de día, Terapias, Familias y cuidadores, Colabora and Contacto are built with Elementor; Actualidad is the theme's posts template with «En los medios». `README.md` lists what is done and what is pending. Custom work belongs in `wp-content/themes/` or `wp-content/plugins/` (folder names must start with `parkinson-` to be tracked by git); never edit WordPress core (`wp-admin/`, `wp-includes/`, root `wp-*.php`).
 
 **Design source:** the claude.ai/design project "Rediseño Asociación Párkinson Cádiz", file `Parkinson Bahia de Cadiz.dc.html` (project id `9e4553ba-ae3a-407a-9f35-cda41cdbc775`, readable with the DesignSync tool after `/design-login`). It is the visual reference for the theme and for every widget. Where the design's sample copy contradicts confirmed facts (e.g. it says "abierto todo el año, también en agosto"), the canonical data in this file wins until the client confirms otherwise.
 
@@ -32,7 +32,7 @@ Current state: WordPress 7.1.3 with Elementor (free) and our three packages acti
 
 **Proposed top-level IA:** Inicio · La asociación · Centro de día · Servicios y terapias · Familias y cuidadores · Actualidad · Colabora (socio, donación, voluntariado, empresas) · Contacto.
 
-**Planned features:** online membership (form + SEPA direct debit), online donations (Stripe/Redsys, Bizum), volunteer form, map of the centre, properly configured cookie consent, accessibility statement.
+**Planned features:** online membership (form + SEPA direct debit), online donations (Stripe/Redsys, Bizum), volunteer form, map of the centre, cookie consent (done: `parkinson-cookies`), accessibility statement.
 
 **Migration/SEO:** Google is the main traffic source. Every old URL needs a 301 (`/terapias/…`, `/category/…` incl. slugs like `c54-talleres`, `/archivos/*.pdf`). Canonical domain: `https://parkinsonbahiadecadiz.org` (no www).
 
@@ -217,6 +217,15 @@ Generates and serves `/llms.txt` (https://llmstxt.org) automatically. It is gene
 - `SettingsPage`: Ajustes → llms.txt (enable, name, summary, important information, per-type section title / limit / secondary, Markdown pages, full file, extra sections, live preview). `PostFields`: side meta box on every public type.
 - Filters: `parkinson_llms_txt/content`, `parkinson_llms_txt/exclude_post`.
 - When a new public CPT is added it appears in llms.txt by itself; give its items a good excerpt, because that is the description shown.
+
+## Plugin: `wp-content/plugins/parkinson-cookies/`
+
+Cookie consent (LSSI 22.2 + AEPD 2023 guide). Generic like `parkinson-llms-txt`, styled with the theme tokens (with fallbacks). Namespace `DanielLucia\Cookies` (PSR-4 → `src/`), text domain `parkinson-cookies`, option `pck_settings` (`policy_page`, `revision`), constant prefix `PCK_`, CSS blocks `.pbc-cookies`, `.pbc-cookies-dialog`, `.pbc-cookies-list`. Run `composer install` in its folder after cloning.
+
+- **Every service that stores anything in the visitor's browser or loads a third party must be declared** with the filter `parkinson_cookies/services` (`id`, `category` = `necesarias` | `externos` | `analiticas`, `name`, `provider`, `purpose`, `cookies`, `duration`, `policy`). The banner, the settings dialog and the policy list (`[pbc_cookies_tabla]`) are built from it. The theme declares its reading preferences (`Theme\CookieServices`); the core plugin declares YouTube, OpenStreetMap and, when active, Turnstile (`Frontend\CookieServices`). Adding or removing an optional service changes the consent version and asks everyone again.
+- **Nothing optional loads without consent.** Front-end code that loads a third party wraps it in `window.pbcCookies.require( 'externos', load, 'Nombre' )` (falls back to loading directly when the plugin is off) and marks what it inserts with `data-pbc-cookies-loaded` (so revoking reloads the page). Other API: `pbcCookies.allowed( cat )`, `pbcCookies.open()`, event `pbc-cookies:change`.
+- UI lives in a `<template>` printed in `wp_footer` and cloned by `assets/js/cookies.js` (cache-friendly, invisible to crawlers and to llms.txt). Choice stored 12 months in the cookie `pbc_cookies` = `version|categories|timestamp`. Links ending in `#configurar-cookies` open the dialog. Not shown in the admin or the Elementor preview.
+- `ddev wp pbc seed-cookies [--force]` (core) writes the «Política de cookies» page, sets it in `pck_settings` and rebuilds the footer «Legal» menu (Accesibilidad, Aviso legal, Privacidad, Cookies, Configurar cookies); `seed-pie` builds the same menu.
 
 ## Checking the admin
 

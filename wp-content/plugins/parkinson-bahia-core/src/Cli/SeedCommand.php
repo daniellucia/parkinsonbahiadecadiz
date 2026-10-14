@@ -1609,14 +1609,14 @@ final class SeedCommand {
 
 		$this->asociacion_anchors();
 
-		$accesibilidad = $this->prose_page(
+		$this->prose_page(
 			'declaracion-de-accesibilidad',
 			'Declaración de accesibilidad',
 			'Qué hemos hecho para que esta web sea fácil de usar, qué partes todavía no lo son y cómo avisarnos si encuentras un problema.',
 			$this->blocks( $this->accessibility_sections() ),
 			$assoc_args
 		);
-		$aviso = $this->prose_page(
+		$this->prose_page(
 			'aviso-legal',
 			'Aviso legal',
 			'Quién es el titular de esta web, para qué sirve y las condiciones para usarla.',
@@ -1625,19 +1625,10 @@ final class SeedCommand {
 		);
 		$privacy = (int) get_option( 'wp_page_for_privacy_policy' );
 
-		$legal = [
-			[ 'page' => $accesibilidad ],
-			[ 'page' => $aviso ],
-		];
-		if ( $privacy > 0 && 'publish' === get_post_status( $privacy ) ) {
-			$legal[] = [
-				'page'  => $privacy,
-				'title' => 'Privacidad y cookies',
-			];
-		} else {
+		if ( $privacy <= 0 || 'publish' !== get_post_status( $privacy ) ) {
 			WP_CLI::warning( 'Falta la política de privacidad: ejecuta «wp pbc seed-privacidad» y vuelve a lanzar este comando.' );
 		}
-		$this->footer_menu( 'Legal', 'footer-legal', $legal, $assoc_args );
+		$this->footer_menu( 'Legal', 'footer-legal', $this->legal_menu_items(), $assoc_args );
 
 		$asociacion = get_page_by_path( 'la-asociacion' );
 		if ( $asociacion ) {
@@ -2033,6 +2024,132 @@ final class SeedCommand {
 	}
 
 	/**
+	 * Crea y publica la página «Política de cookies», la enlaza en los ajustes
+	 * del plugin «Cookies accesibles» y rehace el menú legal del pie con
+	 * «Cookies» y «Configurar cookies».
+	 *
+	 * La lista de cookies no se escribe a mano: la pinta el atajo
+	 * [pbc_cookies_tabla] a partir de los servicios que declaran el tema y los
+	 * plugins, así que siempre coincide con lo que se carga.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--force]
+	 * : Reescribe el texto y el menú aunque se hayan cambiado a mano.
+	 *
+	 * @param string[]             $args       Argumentos posicionales.
+	 * @param array<string, mixed> $assoc_args Opciones.
+	 */
+	public function cookies( array $args, array $assoc_args ): void {
+		$this->start();
+
+		if ( ! shortcode_exists( 'pbc_cookies_tabla' ) ) {
+			WP_CLI::warning( 'El plugin «Cookies accesibles» (parkinson-cookies) no está activo: la página se crea, pero la lista de cookies no se verá hasta activarlo.' );
+		}
+
+		$page_id = $this->prose_page(
+			'politica-de-cookies',
+			'Política de cookies',
+			'Qué guarda esta web en tu navegador, para qué, quién lo pone y cómo aceptarlo, rechazarlo o cambiar de opinión.',
+			$this->blocks( $this->cookie_sections() ),
+			$assoc_args
+		);
+
+		$settings                = (array) get_option( 'pck_settings', [] );
+		$settings['policy_page'] = $page_id;
+		update_option( 'pck_settings', $settings, true );
+
+		$this->footer_menu( 'Legal', 'footer-legal', $this->legal_menu_items(), $assoc_args );
+
+		WP_CLI::success( 'Política de cookies lista: ' . get_permalink( $page_id ) );
+	}
+
+	/**
+	 * Elementos del menú legal del pie, solo con las páginas que existen.
+	 *
+	 * @return array<int, array{page?:int, url?:string, title?:string}>
+	 */
+	private function legal_menu_items(): array {
+		$items = [];
+
+		foreach ( [ 'declaracion-de-accesibilidad', 'aviso-legal' ] as $slug ) {
+			$page = get_page_by_path( $slug );
+			if ( $page && 'publish' === $page->post_status ) {
+				$items[] = [ 'page' => (int) $page->ID ];
+			}
+		}
+
+		$privacy = (int) get_option( 'wp_page_for_privacy_policy' );
+		if ( $privacy > 0 && 'publish' === get_post_status( $privacy ) ) {
+			$items[] = [
+				'page'  => $privacy,
+				'title' => 'Privacidad',
+			];
+		}
+
+		$cookies = get_page_by_path( 'politica-de-cookies' );
+		if ( $cookies && 'publish' === $cookies->post_status ) {
+			$items[] = [
+				'page'  => (int) $cookies->ID,
+				'title' => 'Cookies',
+			];
+			$items[] = [
+				'url'   => get_permalink( $cookies ) . '#configurar-cookies',
+				'title' => 'Configurar cookies',
+			];
+		}
+
+		return $items;
+	}
+
+	/**
+	 * Texto de la política de cookies.
+	 *
+	 * @return array<int, array{0:string, 1:string|string[]}>
+	 */
+	private function cookie_sections(): array {
+		return [
+			[ 'p', 'Última revisión: ' . wp_date( 'j \d\e F \d\e Y' ) . '.' ],
+
+			[ 'h2', 'Qué son las cookies' ],
+			[ 'p', 'Las cookies son pequeños archivos que una web guarda en tu navegador (en el ordenador, la tableta o el móvil) para recordar algo, por ejemplo una preferencia. Hay otras formas parecidas de guardar datos, como el almacenamiento local del navegador. En esta página las llamamos a todas «cookies».' ],
+
+			[ 'h2', 'Qué cookies usa esta web' ],
+			[ 'p', 'La web de Párkinson Bahía de Cádiz (Asociación de Familiares y Enfermos de Párkinson Bahía de Cádiz, CIF G‑11591302, C/ Milongas s/n, 11100 San Fernando, Cádiz) usa muy pocas:' ],
+			[ 'ul', [
+				'<strong>Necesarias.</strong> Hacen que la web funcione y recuerdan lo que tú eliges, como el tamaño del texto o tu decisión sobre las cookies. No necesitan tu permiso porque sin ellas la web no podría darte lo que pides.',
+				'<strong>Contenido de otras webs.</strong> Los vídeos de ejercicios (YouTube) y el mapa del centro (OpenStreetMap). Solo se cargan si das permiso. Hasta entonces la web no se conecta con esos servicios.',
+			] ],
+			[ 'p', 'No usamos cookies de publicidad ni para hacer un perfil de ti. Ahora mismo tampoco medimos las visitas. Si un día lo hacemos, se añadirá aquí y te volveremos a preguntar.' ],
+			[ 'p', 'Esta es la lista completa, con quién pone cada una, para qué sirve y cuánto dura:' ],
+			[ 'shortcode', '[pbc_cookies_tabla nivel="3"]' ],
+
+			[ 'h2', 'Cómo aceptar, rechazar o cambiar de opinión' ],
+			[ 'p', 'La primera vez que entras te preguntamos en un aviso abajo de la pantalla. Puedes pulsar «Aceptar», «Rechazar» o «Elegir» para decidir por tipos. Rechazar es igual de fácil que aceptar, y puedes seguir usando la web aunque no aceptes.' ],
+			[ 'p', 'Si no has dado permiso y pulsas un vídeo o el mapa, te preguntaremos antes de cargarlo.' ],
+			[ 'p', 'Puedes cambiar tu elección cuando quieras con el enlace «Configurar cookies», al final de cada página, o con este botón:' ],
+			[ 'shortcode', '[pbc_cookies_ajustes]' ],
+			[ 'p', 'Guardamos tu elección durante 12 meses. Después, o si cambiamos las cookies que usamos, te volveremos a preguntar.' ],
+
+			[ 'h2', 'Cómo borrar las cookies de tu navegador' ],
+			[ 'p', 'También puedes ver y borrar las cookies desde tu navegador. Así se hace en los más usados:' ],
+			[ 'ul', [
+				'<a href="https://support.google.com/chrome/answer/95647?hl=es">Google Chrome</a>',
+				'<a href="https://support.mozilla.org/es/kb/borrar-cookies-y-datos-del-sitio-en-firefox">Mozilla Firefox</a>',
+				'<a href="https://support.apple.com/es-es/105082">Safari (iPhone y iPad)</a>',
+				'<a href="https://support.microsoft.com/es-es/microsoft-edge/eliminar-las-cookies-en-microsoft-edge-63947406-40ac-c3b8-57b9-2a946a29ae09">Microsoft Edge</a>',
+			] ],
+			[ 'p', 'Si borras todas las cookies, la web volverá a preguntarte y olvidará el tamaño de texto que hubieras elegido.' ],
+
+			[ 'h2', 'Datos fuera de la Unión Europea' ],
+			[ 'p', 'Google (YouTube) y Cloudflare (que protege los formularios contra envíos automáticos) pueden tratar datos en Estados Unidos. Lo hacen bajo el Marco de Privacidad de Datos entre la Unión Europea y Estados Unidos, que la Comisión Europea considera una protección adecuada.' ],
+
+			[ 'h2', 'Más información' ],
+			[ 'p', 'Para saber cómo tratamos tus datos personales y cómo ejercer tus derechos, lee la <a href="' . esc_url( (string) get_privacy_policy_url() ) . '">política de privacidad</a>. Si tienes cualquier duda, escríbenos a <a href="mailto:unidad@parkinsonbahiadecadiz.org">unidad@parkinsonbahiadecadiz.org</a> o llámanos al <a href="tel:+34956591928">956 59 19 28</a>.' ],
+		];
+	}
+
+	/**
 	 * Crea y publica la página «Política de privacidad» y el menú legal del pie.
 	 *
 	 * El texto parte de lo que se sabe de la asociación y de cómo trata los
@@ -2203,11 +2320,8 @@ final class SeedCommand {
 			[ 'p', 'Para hacerlo, escríbenos a <a href="mailto:unidad@parkinsonbahiadecadiz.org">unidad@parkinsonbahiadecadiz.org</a>, llámanos al <a href="tel:+34956591928">956 59 19 28</a> o envíanos una carta a C/ Milongas s/n, 11100 San Fernando (Cádiz). Es posible que te pidamos algún dato para comprobar que eres tú. Te responderemos en el plazo máximo de un mes.' ],
 			[ 'p', 'Si crees que no hemos atendido bien tu solicitud, puedes presentar una reclamación ante la Agencia Española de Protección de Datos, en <a href="https://www.aepd.es/">www.aepd.es</a>.' ],
 
-			[ 'h2', 'Cookies y preferencias de lectura' ],
-			[ 'p', 'Esta web guarda en tu propio navegador dos preferencias, solo si las usas: el tamaño del texto y el modo de alto contraste. Sirven para que la web se vea como tú la has elegido la próxima vez. No te identifican ni se envían a nadie.' ],
-			[ 'p', 'Ahora mismo la web no usa cookies de publicidad ni de medición de visitas.' ],
-			[ 'p', 'El mapa de la sección de contacto y los vídeos de ejercicios vienen de otros servicios, pero <strong>solo se cargan si tú los pides</strong> pulsando «Ver el mapa» o «Ver el vídeo». Hasta entonces la web no se conecta con ellos. Al pulsar, tu navegador se conecta con OpenStreetMap (el mapa) o con YouTube, de Google (los vídeos, en su modo de privacidad mejorada), que reciben datos técnicos como tu dirección IP y, en el caso de YouTube, pueden guardar cookies. Puedes consultar la <a href="https://osmfoundation.org/wiki/Privacy_Policy">política de privacidad de OpenStreetMap</a> y la <a href="https://policies.google.com/privacy?hl=es">de Google</a>.' ],
-			[ 'p', $pending( 'la política de cookies definitiva, si más adelante se añade medición de visitas u otro servicio externo.' ) ],
+			[ 'h2', 'Cookies' ],
+			[ 'p', 'Esta web no usa cookies de publicidad ni de medición de visitas. El mapa y los vídeos de ejercicios, que vienen de OpenStreetMap y de YouTube, solo se cargan si das permiso. Todo lo que guarda la web en tu navegador, y cómo cambiar tu elección, está en la <a href="' . esc_url( home_url( '/politica-de-cookies/' ) ) . '">política de cookies</a>.' ],
 
 			[ 'h2', 'Cambios en esta política' ],
 			[ 'p', 'Si cambiamos la forma de tratar tus datos, actualizaremos esta página e indicaremos la fecha arriba. Si el cambio es importante y tenemos tu contacto, te avisaremos.' ],
@@ -2218,7 +2332,7 @@ final class SeedCommand {
 
 	/**
 	 * Convierte una lista de secciones ([ tipo, contenido ]) en bloques del editor.
-	 * Tipos: p, h2, h3 y ul (contenido = lista de elementos).
+	 * Tipos: p, h2, h3, ul (contenido = lista de elementos) y shortcode.
 	 *
 	 * @param array<int, array{0:string, 1:string|string[]}> $sections Secciones.
 	 */
@@ -2235,6 +2349,8 @@ final class SeedCommand {
 					$items .= '<!-- wp:list-item --><li>' . $item . '</li><!-- /wp:list-item -->';
 				}
 				$html .= '<!-- wp:list --><ul class="wp-block-list">' . $items . '</ul><!-- /wp:list -->' . "\n\n";
+			} elseif ( 'shortcode' === $type ) {
+				$html .= '<!-- wp:shortcode -->' . $content . '<!-- /wp:shortcode -->' . "\n\n";
 			} else {
 				$html .= '<!-- wp:paragraph --><p>' . $content . '</p><!-- /wp:paragraph -->' . "\n\n";
 			}

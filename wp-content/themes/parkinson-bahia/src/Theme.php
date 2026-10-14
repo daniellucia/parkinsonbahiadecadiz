@@ -13,12 +13,13 @@ defined( 'ABSPATH' ) || exit;
 
 final class Theme {
 
-	public const VERSION = '1.5.0';
+	public const VERSION = '1.6.0';
 
 	public function register(): void {
 		( new Setup() )->register();
 		( new Menus() )->register();
 		( new Assets() )->register();
 		( new Customizer() )->register();
+		( new CookieServices() )->register();
 	}
 }

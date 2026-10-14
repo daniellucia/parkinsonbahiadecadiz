@@ -51,6 +51,7 @@ final class Plugin {
 		( new Frontend\ContactMap() )->register();
 		( new Frontend\Press() )->register();
 		( new Frontend\Funders() )->register();
+		( new Frontend\CookieServices() )->register();
 
 		if ( is_admin() ) {
 			( new Forms\Settings() )->register();
@@ -73,6 +74,7 @@ final class Plugin {
 			\WP_CLI::add_command( 'pbc seed-contacto', [ $seed, 'contacto' ] );
 			\WP_CLI::add_command( 'pbc seed-actualidad', [ $seed, 'actualidad' ] );
 			\WP_CLI::add_command( 'pbc seed-pie', [ $seed, 'pie' ] );
+			\WP_CLI::add_command( 'pbc seed-cookies', [ $seed, 'cookies' ] );
 		}
 	}
 }

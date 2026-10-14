@@ -1,0 +1,421 @@
+/* ==========================================================================
+   Cookies accesibles · aviso, ventanas y lista de la política
+   Usa los tokens del tema (--pbc-*) cuando existen, con valores de reserva
+   para que funcione con cualquier tema. BEM con los bloques .pbc-cookies,
+   .pbc-cookies-dialog y .pbc-cookies-list.
+   ========================================================================== */
+
+/* Lo que queda debajo del aviso fijo: se reserva su alto (lo calcula el script). */
+html {
+	scroll-padding-bottom: calc(var(--pbc-cookies-h, 0px) + 16px);
+}
+
+body {
+	padding-bottom: var(--pbc-cookies-h, 0px);
+}
+
+/* ---------- Botones ---------- */
+.pbc-cookies__button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 52px;
+	padding: 0 24px;
+	border: 2px solid var(--pbc-sea, #1D5A9E);
+	border-radius: var(--pbc-radius-pill, 999px);
+	background: var(--pbc-sea, #1D5A9E);
+	color: var(--pbc-on-dark, #FFFFFF);
+	font-family: inherit;
+	font-size: 1rem;
+	font-weight: 700;
+	line-height: 1.2;
+	text-align: center;
+	cursor: pointer;
+}
+
+.pbc-cookies__button:hover {
+	border-color: var(--pbc-ink, #1C252B);
+	background: var(--pbc-ink, #1C252B);
+	color: var(--pbc-on-dark, #FFFFFF);
+}
+
+.pbc-cookies__button--outline {
+	background: transparent;
+	color: var(--pbc-sea, #1D5A9E);
+}
+
+.pbc-cookies__button--outline:hover {
+	border-color: var(--pbc-sea, #1D5A9E);
+	background: var(--pbc-mist, #E4EDF7);
+	color: var(--pbc-sea, #1D5A9E);
+}
+
+.pbc-cookies__button--small {
+	min-height: 48px;
+	padding: 0 18px;
+}
+
+.pbc-cookies__button:focus-visible,
+.pbc-cookies a:focus-visible,
+.pbc-cookies-dialog :focus-visible {
+	outline: 3px solid var(--pbc-focus, #C96F00);
+	outline-offset: 3px;
+}
+
+/* ---------- Aviso ----------
+   Fijo abajo, sin tapar la página ni bloquearla: se puede seguir leyendo y
+   navegando. Aceptar y Rechazar tienen el mismo aspecto y el mismo tamaño. */
+.pbc-cookies {
+	position: fixed;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	z-index: 90;
+	border-top: 4px solid var(--pbc-sea, #1D5A9E);
+	background: var(--pbc-card, #FFFFFF);
+	box-shadow: 0 -16px 40px -20px rgb(28 37 43 / 0.45);
+	color: var(--pbc-ink, #1C252B);
+}
+
+.pbc-cookies__inner {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 16px 40px;
+	max-width: var(--pbc-width, 1240px);
+	margin-inline: auto;
+	padding: 20px var(--pbc-gutter, 24px) calc(20px + env(safe-area-inset-bottom, 0px));
+}
+
+.pbc-cookies__body {
+	display: flex;
+	flex: 1 1 28em;
+	flex-direction: column;
+	gap: 4px;
+	min-width: 0;
+}
+
+.pbc-cookies__title {
+	margin: 0;
+	font-family: var(--pbc-font-display, Georgia, serif);
+	font-size: 1.3rem;
+	line-height: 1.25;
+}
+
+.pbc-cookies__text {
+	max-width: 46em;
+	margin: 0;
+	color: var(--pbc-ink-2, #47535A);
+	font-size: 0.95rem;
+	line-height: 1.55;
+}
+
+.pbc-cookies__link {
+	color: var(--pbc-sea, #1D5A9E);
+	font-weight: 700;
+	white-space: nowrap;
+}
+
+.pbc-cookies__actions {
+	display: grid;
+	flex: 0 1 auto;
+	grid-template-columns: 1fr 1fr 1fr;
+	gap: 10px;
+}
+
+/* Móvil: Aceptar y Rechazar lado a lado, Elegir debajo a todo el ancho. */
+@media (max-width: 639px) {
+	.pbc-cookies__inner {
+		padding-block: 16px calc(16px + env(safe-area-inset-bottom, 0px));
+	}
+
+	.pbc-cookies__actions {
+		flex-basis: 100%;
+		grid-template-columns: 1fr 1fr;
+	}
+
+	.pbc-cookies__actions > :last-child {
+		grid-column: 1 / -1;
+	}
+
+	.pbc-cookies__button {
+		padding-inline: 12px;
+	}
+}
+
+/* Pantalla muy baja (móvil en horizontal o zoom grande): el aviso deja de ser
+   fijo y se queda arriba del todo, para no ocupar media pantalla. */
+@media (max-height: 520px) {
+	.pbc-cookies {
+		position: static;
+		border-top: 0;
+		border-bottom: 4px solid var(--pbc-sea, #1D5A9E);
+		box-shadow: none;
+	}
+
+	html {
+		scroll-padding-bottom: 0;
+	}
+
+	body {
+		padding-bottom: 0;
+	}
+}
+
+/* ---------- Ventanas (configurar y permiso al momento) ---------- */
+.pbc-cookies-dialog {
+	width: min(40rem, calc(100% - 32px));
+	max-height: calc(100dvh - 32px);
+	padding: 0;
+	border: 0;
+	border-radius: var(--pbc-radius, 24px);
+	background: var(--pbc-paper, #FBF8F3);
+	box-shadow: 0 24px 60px -20px rgb(28 37 43 / 0.5);
+	color: var(--pbc-ink, #1C252B);
+	overflow-y: auto;
+	overscroll-behavior: contain;
+}
+
+.pbc-cookies-dialog::backdrop {
+	background: rgb(28 37 43 / 0.55);
+}
+
+.pbc-cookies-dialog--ask {
+	width: min(32rem, calc(100% - 32px));
+}
+
+.pbc-cookies-dialog__form {
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+	padding: clamp(20px, 4vw, 32px);
+}
+
+.pbc-cookies-dialog__head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.pbc-cookies-dialog__title {
+	margin: 0;
+	font-family: var(--pbc-font-display, Georgia, serif);
+	font-size: clamp(1.5rem, 1.2rem + 1vw, 1.9rem);
+	font-weight: 400;
+	line-height: 1.15;
+}
+
+.pbc-cookies-dialog__text,
+.pbc-cookies-dialog__note,
+.pbc-cookies-dialog__more {
+	margin: 0;
+}
+
+.pbc-cookies-dialog__note {
+	color: var(--pbc-ink-2, #47535A);
+	font-size: 0.95rem;
+}
+
+.pbc-cookies-dialog__category {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	padding: 16px 18px;
+	border: 1px solid var(--pbc-line, #DCD1BF);
+	border-radius: var(--pbc-radius-small, 16px);
+	background: var(--pbc-card, #FFFFFF);
+}
+
+.pbc-cookies-dialog__row {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+}
+
+.pbc-cookies-dialog__check {
+	flex: none;
+	width: 28px;
+	height: 28px;
+	margin: 0;
+	accent-color: var(--pbc-sea, #1D5A9E);
+	cursor: pointer;
+}
+
+.pbc-cookies-dialog__check:disabled {
+	cursor: default;
+}
+
+.pbc-cookies-dialog__label {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 0 8px;
+	min-height: 44px;
+	padding-block: 8px;
+	font-size: 1.1rem;
+	font-weight: 700;
+	line-height: 1.35;
+	cursor: pointer;
+}
+
+.pbc-cookies-dialog__always {
+	color: var(--pbc-ink-2, #47535A);
+	font-size: 0.95rem;
+	font-weight: 400;
+}
+
+.pbc-cookies-dialog__description {
+	margin: 0;
+	color: var(--pbc-ink-2, #47535A);
+	font-size: 0.95rem;
+}
+
+.pbc-cookies-dialog__summary {
+	display: flex;
+	align-items: center;
+	min-height: 44px;
+	color: var(--pbc-sea, #1D5A9E);
+	font-weight: 700;
+	cursor: pointer;
+}
+
+.pbc-cookies-dialog__services {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	margin: 4px 0 0;
+	padding-left: 1.2em;
+	font-size: 0.95rem;
+}
+
+.pbc-cookies-dialog__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+}
+
+@media (max-width: 479px) {
+	.pbc-cookies-dialog__actions > .pbc-cookies__button {
+		flex: 1 1 100%;
+	}
+}
+
+.pbc-cookies-status {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+
+/* ---------- Lista de la política de cookies ---------- */
+.pbc-cookies-list {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	margin-block: 32px;
+}
+
+.pbc-cookies-list .pbc-cookies-list__title {
+	margin: 0;
+}
+
+.pbc-cookies-list .pbc-cookies-list__description {
+	margin: 0;
+	color: var(--pbc-ink-2, #47535A);
+}
+
+.pbc-cookies-list .pbc-cookies-list__items {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.pbc-cookies-list .pbc-cookies-list__item {
+	margin: 0;
+	padding: 18px 20px;
+	border: 1px solid var(--pbc-line, #DCD1BF);
+	border-radius: var(--pbc-radius-small, 16px);
+	background: var(--pbc-card, #FFFFFF);
+}
+
+.pbc-cookies-list .pbc-cookies-list__name {
+	margin: 0 0 8px;
+	font-weight: 700;
+}
+
+.pbc-cookies-list__facts {
+	display: grid;
+	gap: 8px;
+	margin: 0;
+	font-size: 1rem;
+	line-height: 1.5;
+}
+
+.pbc-cookies-list__fact {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: 0 16px;
+}
+
+@media (min-width: 640px) {
+	.pbc-cookies-list__fact {
+		grid-template-columns: 9.5em minmax(0, 1fr);
+	}
+}
+
+.pbc-cookies-list__fact dt {
+	color: var(--pbc-ink-2, #47535A);
+	font-size: 0.95rem;
+}
+
+.pbc-cookies-list__fact dd {
+	min-width: 0;
+	margin: 0;
+	overflow-wrap: anywhere;
+}
+
+.pbc-cookies-list__new {
+	font-size: 0.9em;
+}
+
+.pbc-cookies-settings {
+	margin-block: 24px;
+}
+
+/* ---------- Microinteracciones ---------- */
+.pbc-cookies__button,
+.pbc-cookies-dialog__summary {
+	transition:
+		color var(--pbc-speed, 180ms) var(--pbc-ease, ease),
+		background-color var(--pbc-speed, 180ms) var(--pbc-ease, ease),
+		border-color var(--pbc-speed, 180ms) var(--pbc-ease, ease),
+		box-shadow var(--pbc-speed, 180ms) var(--pbc-ease, ease);
+}
+
+.pbc-cookies-dialog__summary:hover {
+	color: var(--pbc-ink, #1C252B);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.pbc-cookies__button {
+		transition-property: color, background-color, border-color, box-shadow, transform;
+	}
+
+	.pbc-cookies__button:hover {
+		box-shadow: 0 6px 16px -8px rgb(28 37 43 / 0.45);
+		transform: translateY(-1px);
+	}
+
+	.pbc-cookies__button:active {
+		box-shadow: none;
+		transform: scale(0.97);
+	}
+}

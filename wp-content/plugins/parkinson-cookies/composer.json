@@ -1,0 +1,24 @@
+{
+    "name": "daniellucia/parkinson-cookies",
+    "description": "Aviso y configuración de cookies sencillo y accesible, con política generada a partir de los servicios declarados.",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Daniel Lucia",
+            "homepage": "https://daniellucia.es"
+        }
+    ],
+    "require": {
+        "php": ">=8.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "DanielLucia\\Cookies\\": "src/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    }
+}
