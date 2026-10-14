@@ -122,6 +122,37 @@ html[data-contrast="high"] .pbc-form {
 	grid-column: 1 / -1;
 }
 
+/* Campos en la misma fila: cada uno ocupa cuatro filas de la rejilla
+   (etiqueta, campo, ayuda y error) que comparte con su vecino. Así, si una
+   etiqueta ocupa dos líneas (por ejemplo «Correo electrónico (opcional)»),
+   las dos cajas siguen alineadas. La etiqueta corta se apoya abajo, junto a
+   su caja. Sin subgrid (navegadores antiguos) se ve como antes. */
+@supports (grid-template-rows: subgrid) {
+	/* La separación entre campos pasa a ser un margen: el hueco de la rejilla
+	   también se pondría entre las filas vacías de ayuda y error. */
+	.pbc-form__grid {
+		row-gap: 0;
+		/* Compensa el margen de la última fila: lo que viene después queda igual que antes. */
+		margin-bottom: -22px;
+	}
+
+	.pbc-form__grid > .pbc-form__field {
+		margin-bottom: 22px;
+	}
+
+	.pbc-form__grid > .pbc-form__field:not(.pbc-form__field--wide) {
+		display: grid;
+		grid-row: span 4;
+		grid-template-rows: subgrid;
+		row-gap: 0;
+		align-content: start;
+	}
+
+	.pbc-form__grid > .pbc-form__field:not(.pbc-form__field--wide) > .pbc-form__label {
+		align-self: end;
+	}
+}
+
 .pbc-form__group {
 	display: flex;
 	flex-direction: column;

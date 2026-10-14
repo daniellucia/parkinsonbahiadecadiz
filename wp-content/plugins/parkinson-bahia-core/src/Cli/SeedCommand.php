@@ -1048,6 +1048,7 @@ final class SeedCommand {
 					'title_tag'     => 'h2',
 					'text'          => 'Unas horas al mes pueden cambiarle el día a alguien. No hace falta experiencia: te formamos y te acompañamos desde el primer día.',
 					'anchor'        => 'voluntariado',
+					'sticky'        => 'yes',
 					'areas'         => "Acompañamiento y ocio\nEventos y sensibilización\nComunicación y redes sociales\nJunta directiva",
 					'submit_label'  => 'Quiero ser voluntario',
 					'success_title' => '¡Gracias por ofrecerte!',
