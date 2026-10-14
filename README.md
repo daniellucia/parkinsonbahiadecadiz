@@ -77,7 +77,7 @@ Los comandos se pueden repetir sin duplicar nada. Con `--force` reescriben su p�
 - Datos de contacto, botón de cabecera, redes y textos del pie editables en Apariencia → Personalizar.
 - Indicador de carga en el botón al enviar cualquier formulario.
 
-### Plugin `parkinson-bahia-core` (versión 1.16.1)
+### Plugin `parkinson-bahia-core` (versión 1.16.2)
 
 - **Tipo de contenido «Terapias»**: una página por terapia, con resumen, foto, orden, «Qué trabajamos» (un punto por línea) y «Quién la hace».
 - **Menú «La asociación» del escritorio**, con los datos que alimentan esa página: Historia (hitos por año), Equipo profesional (puestos y número de personas), Junta directiva (nombre y cargo), Documentos de transparencia (con su archivo) y Redes y federaciones (siglas y web).

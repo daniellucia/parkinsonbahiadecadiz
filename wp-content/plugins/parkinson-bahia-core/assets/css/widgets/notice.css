@@ -2,6 +2,8 @@
 .pbc-notice {
 	max-width: var(--pbc-width);
 	margin-inline: auto;
+	/* Separación también por abajo: en la portada va justo antes de una franja de color. */
+	margin-bottom: clamp(32px, 5vw, 56px);
 	padding: clamp(32px, 5vw, 56px) var(--pbc-gutter) 0;
 }
 
