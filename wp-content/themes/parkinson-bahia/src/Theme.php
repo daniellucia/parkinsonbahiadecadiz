@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
 
 final class Theme {
 
-	public const VERSION = '1.4.0';
+	public const VERSION = '1.4.1';
 
 	public function register(): void {
 		( new Setup() )->register();

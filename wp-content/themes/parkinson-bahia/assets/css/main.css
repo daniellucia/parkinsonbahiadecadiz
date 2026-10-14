@@ -916,16 +916,18 @@ html[data-contrast="high"] .pbc-contact__map--facade {
 	text-decoration: none;
 }
 
+/* Logotipo dentro del recuadro de 64 px: 52 px de alto para que los verticales (escudos) se distingan. */
 .pbc-footer .pbc-footer__funder-logo {
 	box-sizing: border-box;
 	width: auto;
 	max-width: 180px;
 	height: 64px;
+	padding: 6px 16px;
 	object-fit: contain;
 }
 
 .pbc-footer__funder-link .pbc-footer__funder-logo {
-	height: 48px;
+	height: 52px;
 	min-height: 0;
 	padding: 0;
 }

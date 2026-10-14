@@ -604,6 +604,7 @@ final class SeedCommand {
 					'pbc-team'        => [
 						'title'     => 'Las personas que te atienden',
 						'title_tag' => 'h2',
+						'anchor'    => 'equipo',
 						'text'      => 'Un equipo de 19 profesionales, dirigido por Lola Garzón, que lleva con la asociación desde sus primeros años.',
 					],
 					'pbc-board'       => [
@@ -614,6 +615,7 @@ final class SeedCommand {
 					'pbc-documents'   => [
 						'title'     => 'Transparencia',
 						'title_tag' => 'h2',
+						'anchor'    => 'transparencia',
 						'text'      => 'Rendimos cuentas a nuestros socios, a las administraciones que nos apoyan y a cualquier persona que quiera saber cómo trabajamos.',
 						'facts'     => $rows(
 							[
@@ -1459,7 +1461,7 @@ final class SeedCommand {
 	/**
 	 * Descarga un archivo a la biblioteca de medios (una sola vez por dirección de origen).
 	 */
-	private function file( string $url, string $title, string $name = '' ): int {
+	private function file( string $url, string $title, string $name = '', ?callable $prepare = null ): int {
 		$found = get_posts(
 			[
 				'post_type'      => 'attachment',
@@ -1484,6 +1486,10 @@ final class SeedCommand {
 		if ( is_wp_error( $tmp ) ) {
 			WP_CLI::warning( "No se pudo descargar {$url}: " . $tmp->get_error_message() );
 			return 0;
+		}
+
+		if ( $prepare ) {
+			$tmp = $prepare( $tmp );
 		}
 
 		$id = media_handle_sideload(
@@ -1568,6 +1574,459 @@ final class SeedCommand {
 		}
 
 		return $items;
+	}
+
+	/**
+	 * Completa el pie de todas las páginas como en el diseño: logotipos de los
+	 * financiadores, páginas «Declaración de accesibilidad» y «Aviso legal», y
+	 * los menús «La asociación» e «Información legal».
+	 *
+	 * Los logotipos salen de la web actual de la asociación y, los que no están
+	 * allí, de Wikimedia Commons. Solo se ponen a los financiadores que todavía
+	 * no tienen logotipo. Se recortan los márgenes blancos para que todos se vean
+	 * del mismo tamaño dentro de su recuadro.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--force]
+	 * : Reescribe las páginas legales y los menús del pie aunque se hayan cambiado a mano.
+	 *
+	 * [--skip-images]
+	 * : No descarga los logotipos.
+	 *
+	 * @param string[]             $args       Argumentos posicionales.
+	 * @param array<string, mixed> $assoc_args Opciones.
+	 */
+	public function pie( array $args, array $assoc_args ): void {
+		$this->start();
+
+		if ( empty( $assoc_args['skip-images'] ) ) {
+			$this->funder_logos();
+		}
+
+		$this->asociacion_anchors();
+
+		$accesibilidad = $this->prose_page(
+			'declaracion-de-accesibilidad',
+			'Declaración de accesibilidad',
+			'Qué hemos hecho para que esta web sea fácil de usar, qué partes todavía no lo son y cómo avisarnos si encuentras un problema.',
+			$this->blocks( $this->accessibility_sections() ),
+			$assoc_args
+		);
+		$aviso = $this->prose_page(
+			'aviso-legal',
+			'Aviso legal',
+			'Quién es el titular de esta web, para qué sirve y las condiciones para usarla.',
+			$this->blocks( $this->legal_notice_sections() ),
+			$assoc_args
+		);
+		$privacy = (int) get_option( 'wp_page_for_privacy_policy' );
+
+		$legal = [
+			[ 'page' => $accesibilidad ],
+			[ 'page' => $aviso ],
+		];
+		if ( $privacy > 0 && 'publish' === get_post_status( $privacy ) ) {
+			$legal[] = [
+				'page'  => $privacy,
+				'title' => 'Privacidad y cookies',
+			];
+		} else {
+			WP_CLI::warning( 'Falta la política de privacidad: ejecuta «wp pbc seed-privacidad» y vuelve a lanzar este comando.' );
+		}
+		$this->footer_menu( 'Legal', 'footer-legal', $legal, $assoc_args );
+
+		$asociacion = get_page_by_path( 'la-asociacion' );
+		if ( $asociacion ) {
+			$url = (string) get_permalink( $asociacion );
+			$this->footer_menu(
+				'Pie: La asociación',
+				'footer-asociacion',
+				[
+					[
+						'page'  => (int) $asociacion->ID,
+						'title' => 'Quiénes somos',
+					],
+					[
+						'url'   => $url . '#equipo',
+						'title' => 'Equipo y junta directiva',
+					],
+					[
+						'url'   => $url . '#transparencia',
+						'title' => 'Transparencia',
+					],
+				],
+				$assoc_args
+			);
+		} else {
+			WP_CLI::warning( 'Falta la página «La asociación»: ejecuta «wp pbc seed-asociacion» y vuelve a lanzar este comando.' );
+		}
+
+		WP_CLI::success( 'Pie listo.' );
+	}
+
+	/**
+	 * Pone el logotipo a cada financiador que todavía no lo tiene.
+	 */
+	private function funder_logos(): void {
+		$commons = 'https://upload.wikimedia.org/wikipedia/commons/';
+		$logos   = [
+			'Junta de Andalucía'           => $commons . 'thumb/0/0c/Logotipo_de_la_Junta_de_Andaluc%C3%ADa_2020.svg/960px-Logotipo_de_la_Junta_de_Andaluc%C3%ADa_2020.svg.png',
+			'Next Generation EU'           => $commons . '4/48/ES_Financiado_por_la_Union_Europea.webp',
+			'Diputación de Cádiz'          => self::UPLOADS . '2022/05/logo_color_tintasplanas.png',
+			'Ayuntamiento de San Fernando' => self::UPLOADS . '2026/04/548b3cf2-a7ee-45f6-97cd-08e13e61d413_16-9-aspect-ratio_850w_0.webp',
+			'Ayuntamiento de Chiclana'     => self::UPLOADS . '2022/05/ayto_chiclana_vertical.jpg',
+			'Fundación «la Caixa»'         => self::UPLOADS . '2026/04/fundacionlacaixa.jpeg',
+			'Fundación Bidafarma'          => self::UPLOADS . '2026/04/logocabecera.png',
+			'FANDEP'                       => 'https://parkinsonbahiadecadiz.org/FAN.jpg',
+		];
+
+		foreach ( $logos as $name => $url ) {
+			$funder = get_posts(
+				[
+					'post_type'      => PostTypes\Financiador::POST_TYPE,
+					'post_status'    => 'any',
+					'title'          => $name,
+					'posts_per_page' => 1,
+				]
+			);
+
+			if ( ! $funder ) {
+				WP_CLI::warning( "No existe el financiador «{$name}» (ejecuta «wp pbc seed-actualidad»)." );
+				continue;
+			}
+
+			if ( has_post_thumbnail( $funder[0] ) ) {
+				continue;
+			}
+
+			$id = $this->file( $url, 'Logotipo: ' . $name, 'logo-' . sanitize_title( $name ) . '.webp', [ $this, 'trim_logo' ] );
+
+			if ( $id > 0 ) {
+				update_post_meta( $id, '_wp_attachment_image_alt', $name );
+				set_post_thumbnail( $funder[0], $id );
+			}
+		}
+
+		delete_transient( 'pbc_funders_html' );
+	}
+
+	/**
+	 * Recorta el margen blanco o transparente de un logotipo y lo guarda en WebP.
+	 *
+	 * Si la imagen no se puede leer, devuelve el archivo tal cual.
+	 */
+	public function trim_logo( string $path ): string {
+		$data  = (string) file_get_contents( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Archivo temporal local.
+		$image = '' !== $data ? @imagecreatefromstring( $data ) : false; // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- Formato no reconocido: se usa el original.
+
+		if ( ! $image || ! function_exists( 'imagewebp' ) ) {
+			return $path;
+		}
+
+		imagepalettetotruecolor( $image );
+		$width  = imagesx( $image );
+		$height = imagesy( $image );
+		$left   = $width;
+		$top    = $height;
+		$right  = -1;
+		$bottom = -1;
+
+		imagealphablending( $image, false );
+		$white = imagecolorallocatealpha( $image, 255, 255, 255, 0 );
+
+		// Fondo = casi blanco o casi transparente. Los casi blancos se pasan a
+		// blanco puro: algunos logotipos son fotos con el fondo gris o con ruido.
+		for ( $y = 0; $y < $height; $y++ ) {
+			for ( $x = 0; $x < $width; $x++ ) {
+				$color = imagecolorat( $image, $x, $y );
+				$alpha = ( $color >> 24 ) & 0x7F;
+				$light = min( ( $color >> 16 ) & 0xFF, ( $color >> 8 ) & 0xFF, $color & 0xFF );
+
+				if ( $alpha < 100 && $light >= 225 ) {
+					imagesetpixel( $image, $x, $y, $white );
+				} elseif ( $alpha < 100 ) {
+					$left   = min( $left, $x );
+					$right  = max( $right, $x );
+					$top    = min( $top, $y );
+					$bottom = max( $bottom, $y );
+				}
+			}
+		}
+
+		if ( $right < 0 ) {
+			return $path;
+		}
+
+		$margin = (int) round( max( $right - $left, $bottom - $top ) * 0.02 );
+		$left   = max( 0, $left - $margin );
+		$top    = max( 0, $top - $margin );
+		$crop   = imagecrop(
+			$image,
+			[
+				'x'      => $left,
+				'y'      => $top,
+				'width'  => min( $width - 1, $right + $margin ) - $left + 1,
+				'height' => min( $height - 1, $bottom + $margin ) - $top + 1,
+			]
+		);
+
+		if ( ! $crop ) {
+			return $path;
+		}
+
+		imagealphablending( $crop, false );
+		imagesavealpha( $crop, true );
+		$target = $path . '.webp';
+
+		if ( ! imagewebp( $crop, $target, 90 ) ) {
+			return $path;
+		}
+
+		wp_delete_file( $path );
+
+		return $target;
+	}
+
+	/**
+	 * Anclas #equipo y #transparencia en «La asociación», para los enlaces del pie.
+	 * Solo se rellenan si el widget no tiene ya un ancla.
+	 */
+	private function asociacion_anchors(): void {
+		$page = get_page_by_path( 'la-asociacion' );
+		$data = $page ? json_decode( (string) get_post_meta( $page->ID, '_elementor_data', true ), true ) : null;
+
+		if ( ! is_array( $data ) ) {
+			return;
+		}
+
+		$anchors = [
+			'pbc-team'      => 'equipo',
+			'pbc-documents' => 'transparencia',
+		];
+		$changed = false;
+
+		$walk = static function ( array $elements ) use ( &$walk, $anchors, &$changed ): array {
+			foreach ( $elements as $index => $element ) {
+				$type = (string) ( $element['widgetType'] ?? '' );
+
+				if ( isset( $anchors[ $type ] ) && '' === (string) ( $element['settings']['anchor'] ?? '' ) ) {
+					$elements[ $index ]['settings']['anchor'] = $anchors[ $type ];
+					$changed                                  = true;
+				}
+
+				if ( ! empty( $element['elements'] ) ) {
+					$elements[ $index ]['elements'] = $walk( $element['elements'] );
+				}
+			}
+
+			return $elements;
+		};
+
+		$data = $walk( $data );
+
+		if ( $changed ) {
+			update_post_meta( $page->ID, '_elementor_data', wp_slash( (string) wp_json_encode( $data ) ) );
+			\Elementor\Plugin::$instance->files_manager->clear_cache();
+			WP_CLI::log( 'Anclas #equipo y #transparencia añadidas a «La asociación».' );
+		}
+	}
+
+	/**
+	 * Crea o actualiza una página de texto (sin Elementor). No escribe encima de
+	 * un texto cambiado a mano salvo con --force.
+	 *
+	 * @param array<string, mixed> $assoc_args Opciones del comando.
+	 */
+	private function prose_page( string $slug, string $title, string $excerpt, string $content, array $assoc_args ): int {
+		$page    = get_page_by_path( $slug );
+		$page_id = $page ? (int) $page->ID : 0;
+
+		if ( $page_id > 0 && ! get_post_meta( $page_id, '_pbc_seeded', true ) && '' !== trim( $page->post_content ) && empty( $assoc_args['force'] ) ) {
+			WP_CLI::log( "«{$title}» ya tiene un texto propio; no se toca (usa --force para reescribirla)." );
+			return $page_id;
+		}
+
+		$page_id = (int) wp_insert_post(
+			[
+				'ID'             => $page_id,
+				'post_type'      => 'page',
+				'post_status'    => 'publish',
+				'post_title'     => $title,
+				'post_name'      => $slug,
+				'post_excerpt'   => $excerpt,
+				'post_content'   => $content,
+				'comment_status' => 'closed',
+			]
+		);
+		update_post_meta( $page_id, '_pbc_seeded', 1 );
+		WP_CLI::log( "«{$title}» escrita y publicada." );
+
+		return $page_id;
+	}
+
+	/**
+	 * Monta un menú del pie y lo asigna a su ubicación. Solo lo rehace si está
+	 * vacío o si todos sus elementos son de los que pone este comando (o con --force).
+	 *
+	 * @param array<int, array{page?:int, url?:string, title?:string}> $items      Elementos.
+	 * @param array<string, mixed>                                     $assoc_args Opciones del comando.
+	 */
+	private function footer_menu( string $name, string $location, array $items, array $assoc_args ): void {
+		$menu    = wp_get_nav_menu_object( $name );
+		$menu_id = $menu ? (int) $menu->term_id : (int) wp_create_nav_menu( $name );
+		$current = (array) wp_get_nav_menu_items( $menu_id );
+		$pages   = array_filter( array_column( $items, 'page' ) );
+		$urls    = array_filter( array_column( $items, 'url' ) );
+		$ours    = (int) get_option( 'wp_page_for_privacy_policy' );
+		$foreign = array_filter(
+			$current,
+			static fn ( $item ): bool => 'custom' === $item->type
+				? ! in_array( $item->url, $urls, true )
+				: ! in_array( (int) $item->object_id, array_merge( $pages, [ $ours ] ), true )
+		);
+
+		if ( $foreign && empty( $assoc_args['force'] ) ) {
+			WP_CLI::log( "El menú «{$name}» tiene enlaces añadidos a mano; no se toca (usa --force para rehacerlo)." );
+		} else {
+			foreach ( $current as $item ) {
+				wp_delete_post( (int) $item->ID, true );
+			}
+
+			foreach ( $items as $position => $item ) {
+				$fields = [
+					'menu-item-position' => $position + 1,
+					'menu-item-status'   => 'publish',
+				];
+
+				if ( ! empty( $item['page'] ) ) {
+					$fields += [
+						'menu-item-object-id' => (int) $item['page'],
+						'menu-item-object'    => 'page',
+						'menu-item-type'      => 'post_type',
+					];
+				} else {
+					$fields += [
+						'menu-item-url'  => (string) $item['url'],
+						'menu-item-type' => 'custom',
+					];
+				}
+
+				if ( ! empty( $item['title'] ) ) {
+					$fields['menu-item-title'] = $item['title'];
+				}
+
+				wp_update_nav_menu_item( $menu_id, 0, $fields );
+			}
+
+			WP_CLI::log( "Menú «{$name}» montado." );
+		}
+
+		$locations              = (array) get_theme_mod( 'nav_menu_locations', [] );
+		$locations[ $location ] = $menu_id;
+		set_theme_mod( 'nav_menu_locations', $locations );
+	}
+
+	/**
+	 * Texto de la declaración de accesibilidad.
+	 *
+	 * @return array<int, array{0:string, 1:string|string[]}>
+	 */
+	private function accessibility_sections(): array {
+		$pending = static fn ( string $text ): string => '<strong>Pendiente de confirmar:</strong> ' . $text;
+
+		return [
+			[ 'p', 'Queremos que cualquier persona pueda usar esta web sin ayuda, también quien tiene temblor, rigidez, poca visión o le cuesta concentrarse. Muchas de las personas que nos visitan son mayores, y la hemos pensado para ellas desde el principio.' ],
+			[ 'p', 'Última revisión: ' . wp_date( 'j \d\e F \d\e Y' ) . '.' ],
+
+			[ 'h2', 'Qué hemos hecho para que la web sea fácil de usar' ],
+			[ 'ul', [
+				'<strong>Letra grande y clara</strong>, con mucho contraste entre el texto y el fondo.',
+				'Arriba de cada página puedes <strong>agrandar la letra</strong> (botones «A») y activar el <strong>alto contraste</strong>. La web lo recuerda la próxima vez.',
+				'<strong>Botones y enlaces grandes</strong>, separados entre sí, para pulsarlos aunque te tiemble la mano.',
+				'Todo se puede usar <strong>solo con el teclado</strong>, y siempre se ve dónde estás. El primer enlace de cada página, «Saltar al contenido», lleva directamente a lo importante.',
+				'<strong>Nada se mueve solo</strong>: no hay carruseles, animaciones ni vídeos que empiecen sin que los pulses, y no hay tiempo límite para nada.',
+				'El <strong>teléfono</strong> está siempre a la vista, arriba, y se puede llamar con un toque desde el móvil.',
+				'Los <strong>formularios</strong> tienen el nombre de cada casilla escrito encima, piden pocos datos y, si algo falta, te dicen qué y dónde con palabras sencillas. No hay pruebas para demostrar que no eres un robot.',
+				'Las páginas se ven bien en el móvil y con la pantalla ampliada, sin tener que mover la página de lado a lado.',
+				'Las imágenes que dan información tienen un texto que las describe para quien usa un lector de pantalla.',
+			] ],
+
+			[ 'h2', 'Hasta qué punto cumplimos las normas' ],
+			[ 'p', 'Esta web se ha hecho para cumplir el nivel AA de las Pautas de Accesibilidad para el Contenido Web (WCAG) 2.2, que es la referencia europea (norma UNE-EN 301 549). Hoy es <strong>parcialmente conforme</strong>: casi todo lo cumple, salvo los contenidos que se indican a continuación.' ],
+
+			[ 'h2', 'Contenidos que todavía no son accesibles' ],
+			[ 'ul', [
+				'<strong>Guías en PDF</strong> de la página «Familias y cuidadores»: algunas las han hecho otras entidades, como la Federación Española de Párkinson, y no hemos podido revisar si se leen bien con un lector de pantalla. Si necesitas alguna en otro formato, pídenosla y te la daremos.',
+				'<strong>Vídeos de ejercicios</strong>: puede que algunos no tengan subtítulos o tengan solo los automáticos de YouTube. Estamos revisándolos.',
+				'<strong>Mapa</strong> de la sección de contacto: el mapa de OpenStreetMap no se puede usar bien con un lector de pantalla. La dirección está siempre escrita al lado y el enlace «Cómo llegar en el mapa» abre la ruta.',
+			] ],
+
+			[ 'h2', 'Cómo hemos preparado esta declaración' ],
+			[ 'p', 'La ha preparado la propia asociación a partir de una revisión de la web con herramientas automáticas de accesibilidad (axe-core) en todas las plantillas, con la pantalla a 320 píxeles de ancho y en modo de alto contraste, y de comprobaciones a mano de los formularios, el buscador de guías y los vídeos.' ],
+			[ 'p', $pending( 'una revisión a mano completa (solo con teclado, con la pantalla ampliada al 200 % y con un lector de pantalla) antes de publicar la web, y la fecha de esa revisión.' ) ],
+
+			[ 'h2', 'Si encuentras un problema' ],
+			[ 'p', 'Si algo de esta web no te funciona o te cuesta usarlo, cuéntanoslo. Nos ayuda a mejorarla y buscaremos la manera de darte la información que necesitas:' ],
+			[ 'ul', [
+				'Por teléfono: <a href="tel:+34956591928">956 59 19 28</a>, de lunes a viernes de 9:00 a 17:00.',
+				'Por correo electrónico: <a href="mailto:unidad@parkinsonbahiadecadiz.org">unidad@parkinsonbahiadecadiz.org</a>.',
+				'En persona: C/ Milongas s/n, 11100 San Fernando (Cádiz), mejor con cita previa.',
+			] ],
+			[ 'p', 'Dinos en qué página estabas y qué querías hacer. Te responderemos lo antes posible.' ],
+			[ 'p', $pending( 'el plazo máximo de respuesta que se compromete a cumplir la asociación (el modelo oficial usa 20 días hábiles).' ) ],
+		];
+	}
+
+	/**
+	 * Texto del aviso legal (datos que pide la Ley 34/2002, LSSI).
+	 *
+	 * @return array<int, array{0:string, 1:string|string[]}>
+	 */
+	private function legal_notice_sections(): array {
+		$privacy = get_privacy_policy_url();
+		$privacy = '' !== $privacy ? '<a href="' . esc_url( $privacy ) . '">política de privacidad</a>' : 'política de privacidad';
+
+		return [
+			[ 'p', 'Aquí tienes los datos de quién está detrás de esta web y las condiciones para usarla.' ],
+
+			[ 'h2', 'Quién es el titular de la web' ],
+			[ 'ul', [
+				'<strong>Entidad:</strong> Asociación de Familiares y Enfermos de Párkinson Bahía de Cádiz (Párkinson Bahía de Cádiz), entidad sin ánimo de lucro.',
+				'<strong>CIF:</strong> G-11591302.',
+				'<strong>Domicilio:</strong> C/ Milongas s/n, 11100 San Fernando (Cádiz).',
+				'<strong>Teléfono:</strong> <a href="tel:+34956591928">956 59 19 28</a>.',
+				'<strong>Correo electrónico:</strong> <a href="mailto:unidad@parkinsonbahiadecadiz.org">unidad@parkinsonbahiadecadiz.org</a>.',
+				'<strong>Registro de Asociaciones de Andalucía:</strong> nº 6.809, inscrita el 23 de junio de 2003.',
+				'<strong>Registro de Entidades de Voluntariado de Andalucía:</strong> nº 1198.',
+			] ],
+
+			[ 'h2', 'Para qué sirve esta web' ],
+			[ 'p', 'Para dar a conocer la asociación, su centro de día y sus terapias, ofrecer información y recursos a las personas con párkinson y a sus familias, y facilitar que cualquiera pueda hacerse socio, colaborar o ponerse en contacto con nosotros.' ],
+
+			[ 'h2', 'La información de la web no sustituye al médico' ],
+			[ 'p', 'Los textos, guías y vídeos de esta web son orientativos y generales. No sustituyen el diagnóstico ni el consejo de tu neurólogo, de tu médico de familia o de los profesionales que te atienden. Antes de cambiar tu tratamiento o de empezar un ejercicio nuevo, consúltalo con ellos.' ],
+
+			[ 'h2', 'Cómo usar la web' ],
+			[ 'ul', [
+				'Puedes usar la web libremente y sin registrarte.',
+				'Si envías un formulario, los datos que escribas deben ser ciertos y tuyos, o de una persona que te haya dado permiso.',
+				'No está permitido usar la web para fines ilegales, para dañarla o para enviar mensajes en masa.',
+			] ],
+
+			[ 'h2', 'Textos, fotos y logotipos' ],
+			[ 'p', 'Los textos y las fotos de esta web son de la asociación o se publican con permiso de sus autores. Puedes compartir los textos citando a Párkinson Bahía de Cádiz y enlazando a esta web. Las fotos de personas no se pueden usar fuera de esta web sin nuestro permiso, para proteger su intimidad.' ],
+			[ 'p', 'Los logotipos de las administraciones, fundaciones y empresas que nos apoyan son de sus titulares y aparecen aquí para agradecer su colaboración. Las guías de otras entidades son de sus autores.' ],
+
+			[ 'h2', 'Enlaces a otras webs' ],
+			[ 'p', 'Algunos enlaces llevan a webs de otras entidades, como medios de comunicación, federaciones o YouTube. No somos responsables de su contenido ni de cómo tratan tus datos: te recomendamos leer sus condiciones.' ],
+
+			[ 'h2', 'Tus datos personales' ],
+			[ 'p', 'Cómo tratamos los datos que nos das en esta web se explica en la ' . $privacy . '.' ],
+
+			[ 'h2', 'Ley aplicable' ],
+			[ 'p', 'Esta web y estas condiciones se rigen por la legislación española.' ],
+		];
 	}
 
 	/**
@@ -1751,6 +2210,16 @@ final class SeedCommand {
 			[ 'p', 'Si cambiamos la forma de tratar tus datos, actualizaremos esta página e indicaremos la fecha arriba. Si el cambio es importante y tenemos tu contacto, te avisaremos.' ],
 		];
 
+		return $this->blocks( $sections );
+	}
+
+	/**
+	 * Convierte una lista de secciones ([ tipo, contenido ]) en bloques del editor.
+	 * Tipos: p, h2, h3 y ul (contenido = lista de elementos).
+	 *
+	 * @param array<int, array{0:string, 1:string|string[]}> $sections Secciones.
+	 */
+	private function blocks( array $sections ): string {
 		$html = '';
 
 		foreach ( $sections as [ $type, $content ] ) {

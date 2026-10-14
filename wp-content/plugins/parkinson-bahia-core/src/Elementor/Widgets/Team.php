@@ -37,6 +37,7 @@ final class Team extends Widget {
 		$this->text_control( 'title', esc_html__( 'Título', 'parkinson-bahia-core' ), esc_html__( 'Nuestro equipo', 'parkinson-bahia-core' ), true );
 		$this->heading_tag_control();
 		$this->text_control( 'text', esc_html__( 'Texto', 'parkinson-bahia-core' ), '', true );
+		$this->anchor_control();
 		$this->end_controls_section();
 
 		$this->start_controls_section( 'media', [ 'label' => esc_html__( 'Fotos (opcional)', 'parkinson-bahia-core' ) ] );
@@ -68,7 +69,7 @@ final class Team extends Widget {
 			}
 		}
 		?>
-		<section class="pbc-team" aria-labelledby="<?php echo esc_attr( $title_id ); ?>">
+		<section class="pbc-team"<?php echo $this->anchor_attr( $settings ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escapado en anchor_attr(). ?> aria-labelledby="<?php echo esc_attr( $title_id ); ?>">
 			<div class="pbc-team__inner">
 				<div class="pbc-team__body">
 					<?php $this->render_heading( $this->heading_tag( $settings ), (string) $settings['title'], 'pbc-team__title', $title_id ); ?>

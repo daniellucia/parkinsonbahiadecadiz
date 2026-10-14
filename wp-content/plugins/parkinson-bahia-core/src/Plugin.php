@@ -71,6 +71,7 @@ final class Plugin {
 			\WP_CLI::add_command( 'pbc seed-familias', [ $seed, 'familias' ] );
 			\WP_CLI::add_command( 'pbc seed-contacto', [ $seed, 'contacto' ] );
 			\WP_CLI::add_command( 'pbc seed-actualidad', [ $seed, 'actualidad' ] );
+			\WP_CLI::add_command( 'pbc seed-pie', [ $seed, 'pie' ] );
 		}
 	}
 }

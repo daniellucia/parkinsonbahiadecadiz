@@ -67,6 +67,7 @@ final class Documents extends Widget {
 				'default'     => [],
 			]
 		);
+		$this->anchor_control();
 		$this->end_controls_section();
 	}
 
@@ -76,7 +77,7 @@ final class Documents extends Widget {
 		$facts    = is_array( $settings['facts'] ?? null ) ? $settings['facts'] : [];
 		$items    = $this->items( Documento::POST_TYPE );
 		?>
-		<section class="pbc-documents" aria-labelledby="<?php echo esc_attr( $title_id ); ?>">
+		<section class="pbc-documents"<?php echo $this->anchor_attr( $settings ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escapado en anchor_attr(). ?> aria-labelledby="<?php echo esc_attr( $title_id ); ?>">
 			<div class="pbc-documents__inner">
 				<div class="pbc-documents__body">
 					<?php $this->render_heading( $this->heading_tag( $settings ), (string) $settings['title'], 'pbc-documents__title', $title_id ); ?>

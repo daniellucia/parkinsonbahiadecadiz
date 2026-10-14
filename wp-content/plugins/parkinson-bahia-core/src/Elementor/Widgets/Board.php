@@ -37,6 +37,7 @@ final class Board extends Widget {
 		$this->text_control( 'title', esc_html__( 'Título', 'parkinson-bahia-core' ), esc_html__( 'Junta directiva', 'parkinson-bahia-core' ) );
 		$this->heading_tag_control();
 		$this->text_control( 'text', esc_html__( 'Texto', 'parkinson-bahia-core' ), '', true );
+		$this->anchor_control();
 		$this->end_controls_section();
 	}
 
@@ -50,7 +51,7 @@ final class Board extends Widget {
 			return;
 		}
 		?>
-		<section class="pbc-board" aria-labelledby="<?php echo esc_attr( $title_id ); ?>">
+		<section class="pbc-board"<?php echo $this->anchor_attr( $settings ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escapado en anchor_attr(). ?> aria-labelledby="<?php echo esc_attr( $title_id ); ?>">
 			<div class="pbc-board__inner">
 				<div class="pbc-board__header">
 					<?php $this->render_heading( $this->heading_tag( $settings ), (string) $settings['title'], 'pbc-board__title', $title_id ); ?>
