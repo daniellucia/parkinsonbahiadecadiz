@@ -24,6 +24,18 @@ $pbc_legal_name = TemplateTags::mod( 'pbc_legal_name' );
 $pbc_note       = TemplateTags::mod( 'pbc_footer_note' );
 
 /**
+ * Línea de protección de datos al final del pie (la rellena el plugin de RGPD).
+ *
+ * @param array{text?: string, links?: array<int, array{label: string, url: string}>} $privacy Texto y enlaces.
+ */
+$pbc_privacy       = (array) apply_filters( 'parkinson_bahia/footer_privacy', [] );
+$pbc_privacy_text  = trim( (string) ( $pbc_privacy['text'] ?? '' ) );
+$pbc_privacy_links = array_filter(
+	(array) ( $pbc_privacy['links'] ?? [] ),
+	static fn ( $link ): bool => is_array( $link ) && ! empty( $link['label'] ) && ! empty( $link['url'] )
+);
+
+/**
  * Permite ocultar el bloque de contacto común (por ejemplo, en la página de contacto).
  */
 if ( apply_filters( 'parkinson_bahia/show_contact_band', ! is_404() ) ) {
@@ -116,6 +128,15 @@ if ( apply_filters( 'parkinson_bahia/show_contact_band', ! is_404() ) ) {
 			echo ' ' . esc_html( $pbc_note );
 		}
 		?>
+		<?php if ( '' !== $pbc_privacy_text || $pbc_privacy_links ) : ?>
+			<span class="pbc-footer__privacy">
+				<?php echo esc_html( $pbc_privacy_text ); ?>
+				<?php foreach ( array_values( $pbc_privacy_links ) as $pbc_index => $pbc_link ) : ?>
+					<?php echo $pbc_index > 0 ? '<span aria-hidden="true">·</span>' : ''; ?>
+					<a class="pbc-footer__link pbc-footer__link--inline" href="<?php echo esc_url( (string) $pbc_link['url'], [ 'http', 'https', 'mailto' ] ); ?>"><?php echo esc_html( (string) $pbc_link['label'] ); ?></a>
+				<?php endforeach; ?>
+			</span>
+		<?php endif; ?>
 		<span class="pbc-footer__credit">
 			<?php
 			printf(

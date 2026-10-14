@@ -165,24 +165,63 @@ final class Definitions {
 	}
 
 	/**
-	 * Información básica de protección de datos que acompaña a la casilla de
-	 * aceptación de cada formulario: quién trata los datos, para qué y qué
-	 * derechos hay. El detalle está en la política de privacidad.
+	 * Información básica de protección de datos (primera capa, art. 13 RGPD)
+	 * que acompaña a la casilla de aceptación de cada formulario: quién trata
+	 * los datos, para qué, con qué base, a quién se comunican y qué derechos
+	 * hay. El detalle está en la política de privacidad, enlazada en la casilla.
 	 */
 	public static function legal_notice( string $type ): string {
-		$purpose = match ( $type ) {
-			self::MEMBER    => __( 'darte de alta como socio y cobrar tu cuota', 'parkinson-bahia-core' ),
-			self::VOLUNTEER => __( 'ponernos en contacto contigo y organizar tu voluntariado', 'parkinson-bahia-core' ),
-			self::CONTACT   => __( 'llamarte y responder a tu consulta', 'parkinson-bahia-core' ),
-			default         => __( 'atender tu solicitud', 'parkinson-bahia-core' ),
+		$controller = self::controller();
+
+		[ $purpose, $basis, $recipients ] = match ( $type ) {
+			self::MEMBER    => [
+				__( 'darte de alta como socio y cobrar tu cuota', 'parkinson-bahia-core' ),
+				__( 'porque nos pides hacerte socio', 'parkinson-bahia-core' ),
+				__( 'Solo los comunicamos a nuestro banco, para cobrar la cuota, y cuando la ley nos obliga.', 'parkinson-bahia-core' ),
+			],
+			self::VOLUNTEER => [
+				__( 'ponernos en contacto contigo y organizar tu voluntariado', 'parkinson-bahia-core' ),
+				__( 'con tu consentimiento', 'parkinson-bahia-core' ),
+				__( 'No los cedemos a nadie salvo obligación legal.', 'parkinson-bahia-core' ),
+			],
+			self::CONTACT   => [
+				__( 'llamarte y responder a tu consulta', 'parkinson-bahia-core' ),
+				__( 'con tu consentimiento', 'parkinson-bahia-core' ),
+				__( 'No los cedemos a nadie salvo obligación legal.', 'parkinson-bahia-core' ),
+			],
+			default         => [
+				__( 'atender tu solicitud', 'parkinson-bahia-core' ),
+				__( 'con tu consentimiento', 'parkinson-bahia-core' ),
+				__( 'No los cedemos a nadie salvo obligación legal.', 'parkinson-bahia-core' ),
+			],
 		};
 
 		return sprintf(
-			/* translators: 1: nombre de la entidad, 2: finalidad del tratamiento. */
-			__( '%1$s usará tus datos solo para %2$s. No los cedemos a nadie salvo obligación legal. Puedes consultarlos, corregirlos o pedir que los borremos escribiendo a unidad@parkinsonbahiadecadiz.org o llamando al 956 59 19 28.', 'parkinson-bahia-core' ),
-			wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ),
-			$purpose
+			/* translators: 1: responsable, 2: finalidad, 3: base jurídica, 4: destinatarios, 5: correo, 6: teléfono. */
+			__( '%1$s usará tus datos solo para %2$s, %3$s. %4$s Puedes consultarlos, corregirlos, pedir que los borremos y ejercer el resto de tus derechos escribiendo a %5$s o llamando al %6$s. Si crees que no los tratamos bien, puedes reclamar ante la Agencia Española de Protección de Datos.', 'parkinson-bahia-core' ),
+			$controller['name'],
+			$purpose,
+			$basis,
+			$recipients,
+			$controller['email'],
+			$controller['phone']
 		);
+	}
+
+	/**
+	 * Responsable del tratamiento: el del plugin de RGPD si está activo; si no,
+	 * los datos de contacto confirmados.
+	 *
+	 * @return array{name: string, email: string, phone: string}
+	 */
+	public static function controller(): array {
+		$controller = class_exists( \DanielLucia\Rgpd\Settings::class ) ? ( new \DanielLucia\Rgpd\Settings() )->controller() : [];
+
+		return [
+			'name'  => (string) ( $controller['name'] ?? '' ) ?: wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ),
+			'email' => (string) ( $controller['email'] ?? '' ) ?: 'unidad@parkinsonbahiadecadiz.org',
+			'phone' => (string) ( $controller['phone'] ?? '' ) ?: '956 59 19 28',
+		];
 	}
 
 	/**

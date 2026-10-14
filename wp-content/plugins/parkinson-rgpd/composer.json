@@ -1,0 +1,24 @@
+{
+    "name": "daniellucia/parkinson-rgpd",
+    "description": "Cumplimiento del RGPD: registro de tratamientos, plazos de conservación con borrado automático, menos exposición de datos personales y ayuda para atender derechos.",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Daniel Lucia",
+            "homepage": "https://daniellucia.es"
+        }
+    ],
+    "require": {
+        "php": ">=8.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "DanielLucia\\Rgpd\\": "src/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    }
+}

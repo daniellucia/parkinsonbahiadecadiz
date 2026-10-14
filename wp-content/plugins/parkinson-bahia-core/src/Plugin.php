@@ -48,6 +48,7 @@ final class Plugin {
 		( new Integration() )->register();
 		( new Forms\Submissions() )->register();
 		( new Forms\Handler() )->register();
+		( new Forms\Privacy() )->register();
 		( new Frontend\ContactMap() )->register();
 		( new Frontend\Press() )->register();
 		( new Frontend\Funders() )->register();

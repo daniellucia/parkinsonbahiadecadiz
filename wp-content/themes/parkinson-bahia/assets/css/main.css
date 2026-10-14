@@ -1345,6 +1345,7 @@ html[data-contrast="high"] .pbc-contact__map--facade {
 	font-size: 0.9rem;
 }
 
+.pbc-footer__privacy,
 .pbc-footer__credit {
 	display: block;
 	margin-top: 8px;

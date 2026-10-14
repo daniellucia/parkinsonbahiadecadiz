@@ -23,7 +23,8 @@ final class Submissions {
 	public const META_DATA    = '_pbc_data';
 	public const META_STATUS  = '_pbc_status';
 	public const META_NOTES   = '_pbc_notes';
-	private const META_SECRET = '_pbc_secret_';
+	public const META_CONSENT = '_pbc_consent';
+	public const META_SECRET  = '_pbc_secret_';
 
 	public function register(): void {
 		add_action( 'init', [ $this, 'register_post_type' ] );
@@ -104,12 +105,48 @@ final class Submissions {
 		update_post_meta( $post_id, self::META_TYPE, $type );
 		update_post_meta( $post_id, self::META_DATA, $data );
 		update_post_meta( $post_id, self::META_STATUS, Crm::DEFAULT_STATUS );
+		update_post_meta( $post_id, self::META_CONSENT, self::consent_proof( $type ) );
 
 		foreach ( $encrypted as $name => $cipher ) {
 			update_post_meta( $post_id, self::META_SECRET . $name, $cipher );
 		}
 
 		return (int) $post_id;
+	}
+
+	/**
+	 * Prueba del consentimiento (art. 7.1 RGPD): cuándo se aceptó, qué versión
+	 * de la política de privacidad estaba publicada y el aviso que se mostró.
+	 *
+	 * @return array{time: int, policy_url: string, policy_version: string, notice: string}
+	 */
+	private static function consent_proof( string $type ): array {
+		$policy = (int) get_option( 'wp_page_for_privacy_policy' );
+
+		return [
+			'time'           => time(),
+			'policy_url'     => $policy > 0 ? (string) get_permalink( $policy ) : '',
+			'policy_version' => $policy > 0 ? (string) get_post_field( 'post_modified_gmt', $policy ) : '',
+			'notice'         => Definitions::legal_notice( $type ),
+		];
+	}
+
+	/**
+	 * Valores sensibles descifrados de un envío (vacío si falta la clave).
+	 *
+	 * @return array<string, string|null> Campo => valor, o null si no se puede descifrar.
+	 */
+	public static function secrets( int $post_id ): array {
+		$secrets = [];
+
+		foreach ( array_keys( self::labels() ) as $name ) {
+			$stored = (string) get_post_meta( $post_id, self::META_SECRET . $name, true );
+			if ( '' !== $stored ) {
+				$secrets[ $name ] = Crypto::decrypt( $stored );
+			}
+		}
+
+		return $secrets;
 	}
 
 	/**
@@ -180,7 +217,33 @@ final class Submissions {
 				<?php endforeach; ?>
 			</tbody>
 		</table>
-		<p class="description"><?php esc_html_e( 'La persona aceptó la política de privacidad al enviar el formulario. Borra el envío cuando ya no haga falta conservarlo.', 'parkinson-bahia-core' ); ?></p>
+		<?php $consent = get_post_meta( $post->ID, self::META_CONSENT, true ); ?>
+		<?php if ( is_array( $consent ) && ! empty( $consent['time'] ) ) : ?>
+			<p>
+				<strong><?php esc_html_e( 'Consentimiento:', 'parkinson-bahia-core' ); ?></strong>
+				<?php
+				printf(
+					/* translators: 1: fecha y hora, 2: fecha de la versión de la política. */
+					esc_html__( 'aceptó la política de privacidad el %1$s (versión de la política del %2$s).', 'parkinson-bahia-core' ),
+					esc_html( wp_date( 'j/m/Y H:i', (int) $consent['time'] ) ),
+					esc_html( '' !== (string) ( $consent['policy_version'] ?? '' ) ? wp_date( 'j/m/Y', (int) strtotime( $consent['policy_version'] . ' UTC' ) ) : '—' )
+				);
+				?>
+			</p>
+			<?php if ( ! empty( $consent['notice'] ) ) : ?>
+				<details>
+					<summary><?php esc_html_e( 'Aviso que vio al aceptar', 'parkinson-bahia-core' ); ?></summary>
+					<p><?php echo esc_html( (string) $consent['notice'] ); ?></p>
+				</details>
+			<?php endif; ?>
+		<?php else : ?>
+			<p class="description"><?php esc_html_e( 'La persona aceptó la política de privacidad al enviar el formulario (envío anterior a que se guardara la fecha exacta).', 'parkinson-bahia-core' ); ?></p>
+		<?php endif; ?>
+		<p>
+			<a class="button" href="<?php echo esc_url( Privacy::download_url( $post->ID ) ); ?>"><?php esc_html_e( 'Descargar sus datos', 'parkinson-bahia-core' ); ?></a>
+			<span class="description"><?php esc_html_e( 'Para atender una petición de acceso o portabilidad. Incluye el DNI y el número de cuenta: guárdalo con cuidado y bórralo cuando lo hayas entregado.', 'parkinson-bahia-core' ); ?></span>
+		</p>
+		<p class="description"><?php esc_html_e( 'Borra el envío cuando ya no haga falta conservarlo (Mover a la papelera y vaciarla). Los envíos cerrados se borran solos cuando pasa su plazo de conservación (Ajustes → Protección de datos).', 'parkinson-bahia-core' ); ?></p>
 		<?php
 	}
 }

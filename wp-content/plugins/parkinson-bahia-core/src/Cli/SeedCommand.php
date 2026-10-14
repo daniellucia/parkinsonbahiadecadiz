@@ -2276,7 +2276,7 @@ final class SeedCommand {
 
 			[ 'h2', 'Por qué podemos tratar tus datos' ],
 			[ 'ul', [
-				'<strong>Porque tú nos lo pides y lo aceptas:</strong> al enviar un formulario marcas la casilla de aceptación de esta política.',
+				'<strong>Porque tú nos lo pides y lo aceptas:</strong> al enviar un formulario marcas la casilla de aceptación de esta política. Guardamos la fecha y la hora en que lo aceptaste para poder demostrarlo si hace falta.',
 				'<strong>Porque es necesario para tu relación con la asociación:</strong> por ejemplo, para gestionar tu alta como socio y cobrar la cuota.',
 				'<strong>Porque la ley nos obliga:</strong> por ejemplo, a conservar la documentación contable y fiscal.',
 			] ],
@@ -2287,7 +2287,9 @@ final class SeedCommand {
 				'<strong>Socios:</strong> mientras sigas siendo socio. Después, solo el tiempo que la ley obliga a conservar la documentación.',
 				'<strong>Voluntariado y consultas (también las del formulario de contacto):</strong> el tiempo necesario para atender tu solicitud.',
 			] ],
-			[ 'p', $pending( 'los plazos concretos de conservación de cada tipo de dato y el momento en que se borran los formularios recibidos por la web.' ) ],
+			[ 'p', 'Los formularios que recibimos por la web se borran para siempre, sin que nadie tenga que acordarse, cuando pasa su plazo:' ],
+			[ 'shortcode', '[pbc_rgpd_plazos]' ],
+			[ 'p', $pending( 'los plazos de conservación definitivos de cada formulario (los de arriba son una propuesta).' ) ],
 
 			[ 'h2', 'A quién comunicamos tus datos' ],
 			[ 'p', 'No vendemos ni cedemos tus datos. Solo los comunicamos cuando es imprescindible:' ],
