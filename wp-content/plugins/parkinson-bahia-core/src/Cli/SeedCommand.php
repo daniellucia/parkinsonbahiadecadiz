@@ -1009,6 +1009,7 @@ final class SeedCommand {
 					'title_tag'     => 'h2',
 					'text'          => "Tu cuota ayuda a mantener las terapias, el transporte y el apoyo a las familias. Ser socio también te da acceso a todos nuestros servicios y actividades.\n\nRellena el formulario en unos minutos. Si prefieres hacerlo por teléfono, llámanos al 956 59 19 28 y lo hacemos contigo.",
 					'anchor'        => 'socio',
+					'sticky'        => 'yes',
 					// Cuotas del boceto: pendientes de confirmar con la asociación.
 					'amounts'       => '5, 10, 20',
 					'submit_label'  => 'Quiero hacerme socio',
@@ -1020,6 +1021,7 @@ final class SeedCommand {
 					'title_tag' => 'h2',
 					'text'      => 'Un donativo puntual también ayuda. Lo destinamos a lo que más falta haga en cada momento: terapias, transporte o equipamiento del centro.',
 					'anchor'    => 'dona',
+					'sticky'    => 'yes',
 					// Bizum y tarjeta se añadirán cuando la asociación decida la pasarela de pago.
 					'methods'   => $rows(
 						[

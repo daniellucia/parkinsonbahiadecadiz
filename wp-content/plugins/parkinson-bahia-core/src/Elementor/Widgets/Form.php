@@ -89,6 +89,7 @@ final class Form extends Widget {
 				'type'        => Controls_Manager::SWITCHER,
 			]
 		);
+		$this->sticky_control();
 		$this->anchor_control();
 		$this->end_controls_section();
 
@@ -144,7 +145,7 @@ final class Form extends Widget {
 		$variant  = 'sand' === ( $settings['variant'] ?? '' ) ? ' pbc-form-block--sand' : '';
 		$crumbs   = 'yes' === ( $settings['breadcrumb'] ?? '' );
 		?>
-		<section class="pbc-form-block<?php echo esc_attr( $variant . ( $crumbs ? ' pbc-form-block--page' : '' ) ); ?>"<?php echo $this->anchor_attr( $settings ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escapado en anchor_attr(). ?> aria-labelledby="<?php echo esc_attr( $title_id ); ?>">
+		<section class="pbc-form-block<?php echo esc_attr( $variant . ( $crumbs ? ' pbc-form-block--page' : '' ) . ( $this->is_sticky( $settings ) ? ' pbc-form-block--sticky' : '' ) ); ?>"<?php echo $this->anchor_attr( $settings ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escapado en anchor_attr(). ?> aria-labelledby="<?php echo esc_attr( $title_id ); ?>">
 			<?php if ( $crumbs ) : ?>
 				<div class="pbc-form-block__crumbs"><?php $this->render_breadcrumb(); ?></div>
 			<?php endif; ?>

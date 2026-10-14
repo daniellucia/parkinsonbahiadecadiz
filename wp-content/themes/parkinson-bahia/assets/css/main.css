@@ -71,6 +71,8 @@
 	--pbc-radius-pill: 999px;
 
 	/* Microinteracciones: breves y suaves, solo como respuesta a una acción. */
+	/* Distancia al borde de arriba de lo que se queda fijo al bajar (más la cabecera cuando es fija). */
+	--pbc-sticky-top: 2rem;
 	--pbc-speed: 180ms;
 	--pbc-ease: cubic-bezier(0.2, 0, 0, 1);
 }
@@ -504,6 +506,10 @@ img {
 		position: sticky;
 		top: 0;
 		z-index: 50;
+	}
+
+	html:not([data-nav="compact"]) {
+		--pbc-sticky-top: calc(4.3rem + 32px);
 	}
 
 	html:not([data-nav="compact"]) .pbc-header__inner {

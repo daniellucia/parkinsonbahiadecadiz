@@ -82,6 +82,7 @@ final class Donation extends Widget {
 				'default'     => [],
 			]
 		);
+		$this->sticky_control();
 		$this->anchor_control();
 		$this->end_controls_section();
 	}
@@ -96,7 +97,7 @@ final class Donation extends Widget {
 			static fn ( $method ): bool => '' !== trim( (string) ( $method['title'] ?? '' ) )
 		);
 		?>
-		<section class="pbc-donation"<?php echo $this->anchor_attr( $settings ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escapado en anchor_attr(). ?> aria-labelledby="<?php echo esc_attr( $title_id ); ?>">
+		<section class="pbc-donation<?php echo $this->is_sticky( $settings ) ? ' pbc-donation--sticky' : ''; ?>"<?php echo $this->anchor_attr( $settings ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escapado en anchor_attr(). ?> aria-labelledby="<?php echo esc_attr( $title_id ); ?>">
 			<div class="pbc-donation__inner">
 				<div class="pbc-donation__body">
 					<?php $this->render_heading( $tag, (string) $settings['title'], 'pbc-donation__title', $title_id ); ?>

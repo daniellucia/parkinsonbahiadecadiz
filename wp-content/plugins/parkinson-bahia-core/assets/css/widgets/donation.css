@@ -64,3 +64,13 @@
 	font-size: 1.05rem;
 	overflow-wrap: anywhere;
 }
+
+/* ---------- Texto fijo al bajar ----------
+   Solo con dos columnas (desde 1000 px) y una pantalla con altura suficiente:
+   con una columna, o con la página ampliada, taparía la otra columna. */
+@media (min-width: 1000px) and (min-height: 640px) {
+	.pbc-donation--sticky .pbc-donation__body {
+		position: sticky;
+		top: var(--pbc-sticky-top);
+	}
+}

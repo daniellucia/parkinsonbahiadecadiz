@@ -312,6 +312,16 @@ html[data-contrast="high"] .pbc-form {
 	font-size: 1.05rem;
 }
 
+/* ---------- Texto fijo al bajar ----------
+   Solo con dos columnas (desde 1000 px) y una pantalla con altura suficiente:
+   con una columna, o con la página ampliada, taparía la otra columna. */
+@media (min-width: 1000px) and (min-height: 640px) {
+	.pbc-form-block--sticky .pbc-form-block__body {
+		position: sticky;
+		top: var(--pbc-sticky-top);
+	}
+}
+
 /* ---------- Microinteracciones ---------- */
 .pbc-form__input,
 .pbc-form__option {

@@ -209,6 +209,27 @@ abstract class Widget extends Widget_Base {
 	/**
 	 * Ancla de la sección, para enlazarla desde otra parte con «#ancla».
 	 */
+	protected function sticky_control(): void {
+		$this->add_control(
+			'sticky',
+			[
+				'label'       => esc_html__( 'Texto fijo al bajar', 'parkinson-bahia-core' ),
+				'description' => esc_html__( 'En pantallas anchas, el título y el texto se quedan a la vista mientras se baja por la otra columna. En el móvil no cambia nada.', 'parkinson-bahia-core' ),
+				'type'        => Controls_Manager::SWITCHER,
+				'default'     => '',
+			]
+		);
+	}
+
+	/**
+	 * Si el widget tiene activado «Texto fijo al bajar».
+	 *
+	 * @param array<string, mixed> $settings Ajustes del widget.
+	 */
+	protected function is_sticky( array $settings ): bool {
+		return 'yes' === ( $settings['sticky'] ?? '' );
+	}
+
 	protected function anchor_control(): void {
 		$this->add_control(
 			'anchor',
