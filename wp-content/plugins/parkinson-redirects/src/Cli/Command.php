@@ -63,7 +63,7 @@ final class Command {
 	 * ## OPTIONS
 	 *
 	 * <ruta>...
-	 * : Una o varias rutas o direcciones, por ejemplo /hazte-socio/.
+	 * : Una o varias rutas o direcciones, por ejemplo /hazte-socio.
 	 *
 	 * [--existe]
 	 * : Trata la ruta como si existiera en la web nueva (no se aplican las reglas generales «/*»).

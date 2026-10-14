@@ -526,7 +526,7 @@ final class SeedCommand {
 		foreach ( $rows as &$row ) {
 			if ( preg_match( '/^entrada:(.+)$/', $row[1] ?? '', $m ) ) {
 				$post   = get_page_by_path( $m[1], OBJECT, 'post' );
-				$row[1] = $post && 'publish' === $post->post_status ? 'post:' . $post->ID : '/actualidad/';
+				$row[1] = $post && 'publish' === $post->post_status ? 'post:' . $post->ID : '/actualidad';
 			}
 		}
 		unset( $row );
@@ -2941,7 +2941,7 @@ final class SeedCommand {
 			[ 'p', 'Si crees que no hemos atendido bien tu solicitud, puedes presentar una reclamación ante la Agencia Española de Protección de Datos, en <a href="https://www.aepd.es/">www.aepd.es</a>.' ],
 
 			[ 'h2', 'Cookies' ],
-			[ 'p', 'Esta web no usa cookies de publicidad ni de medición de visitas. El mapa y los vídeos de ejercicios, que vienen de OpenStreetMap y de YouTube, solo se cargan si das permiso. Todo lo que guarda la web en tu navegador, y cómo cambiar tu elección, está en la <a href="' . esc_url( home_url( '/politica-de-cookies/' ) ) . '">política de cookies</a>.' ],
+			[ 'p', 'Esta web no usa cookies de publicidad ni de medición de visitas. El mapa y los vídeos de ejercicios, que vienen de OpenStreetMap y de YouTube, solo se cargan si das permiso. Todo lo que guarda la web en tu navegador, y cómo cambiar tu elección, está en la <a href="' . esc_url( home_url( user_trailingslashit( '/politica-de-cookies' ) ) ) . '">política de cookies</a>.' ],
 
 			[ 'h2', 'Cambios en esta política' ],
 			[ 'p', 'Si cambiamos la forma de tratar tus datos, actualizaremos esta página e indicaremos la fecha arriba. Si el cambio es importante y tenemos tu contacto, te avisaremos.' ],

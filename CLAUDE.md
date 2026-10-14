@@ -34,7 +34,7 @@ Current state: WordPress 7.1.3 with Elementor (free) and our six packages active
 
 **Planned features:** online membership (form + SEPA direct debit), online donations (Stripe/Redsys, Bizum), volunteer form, map of the centre, cookie consent (done: `parkinson-cookies`), accessibility statement.
 
-**Migration/SEO:** Google is the main traffic source. Every old URL needs a 301 (`/terapias/…`, `/category/…` incl. slugs like `c54-talleres`, `/archivos/*.pdf`). Canonical domain: `https://parkinsonbahiadecadiz.org` (no www).
+**Migration/SEO:** Google is the main traffic source. Every old URL needs a 301 (`/terapias/…`, `/category/…` incl. slugs like `c54-talleres`, `/archivos/*.pdf`). Canonical domain: `https://parkinsonbahiadecadiz.org` (no www). **URLs have no trailing slash** (permalink structure `/%year%/%monthnum%/%day%/%postname%`; WordPress 301s the slashed form): build internal links with `get_permalink()` / `home_url( user_trailingslashit( … ) )` and never hard-code a path ending in `/` (except the home page).
 
 ## Build approach: one custom Elementor widget per section
 

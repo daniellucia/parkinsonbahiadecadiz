@@ -66,7 +66,7 @@ final class Target {
 	}
 
 	/**
-	 * Enlace personalizado: ruta de la web («/contacto/») o dirección http(s).
+	 * Enlace personalizado: ruta de la web («/contacto») o dirección http(s).
 	 */
 	public static function sanitize_url( string $url ): string {
 		$url = trim( $url );

@@ -34,6 +34,7 @@ ddev exec -d /var/www/html/wp-content/plugins/parkinson-rgpd composer install
 ddev exec -d /var/www/html/wp-content/plugins/parkinson-redirects composer install
 ddev wp plugin activate elementor parkinson-bahia-core parkinson-llms-txt parkinson-cookies parkinson-rgpd parkinson-redirects
 ddev wp theme activate parkinson-bahia
+ddev wp rewrite structure '/%year%/%monthnum%/%day%/%postname%'  # direcciones sin barra final
 ddev wp pbc seed-home        # crea la portada, las páginas base, las terapias y tres noticias
 ddev wp pbc seed-asociacion  # crea la página «La asociación» y sus contenidos
 ddev wp pbc seed-centro      # crea la página «Centro de día» y sus contenidos
@@ -52,6 +53,8 @@ ddev launch
 ```
 
 Para que el formulario de socios pida DNI e IBAN hace falta una clave de cifrado en `PBC_FORMS_KEY` (se genera con `php -r "echo base64_encode(random_bytes(32));"`). En local va en `.ddev/config.local.yaml`, que no se versiona (después, `ddev restart`); en producción, como constante en `wp-config.php`, con copia guardada fuera del servidor.
+
+Las direcciones de la web no llevan barra final (`/la-asociacion`, no `/la-asociacion/`): lo decide la estructura de enlaces permanentes de arriba, que hay que poner igual en producción. WordPress lleva con una redirección 301 las direcciones con barra a las que no la tienen.
 
 Los comandos se pueden repetir sin duplicar nada. Con `--force` reescriben su página; `seed-home` con `--skip-images` no descarga las fotos de la web actual.
 
@@ -84,7 +87,7 @@ Los comandos se pueden repetir sin duplicar nada. Con `--force` reescriben su p�
 - Datos de contacto, botón de cabecera, redes y textos del pie editables en Apariencia → Personalizar.
 - Indicador de carga en el botón al enviar cualquier formulario.
 
-### Plugin `parkinson-bahia-core` (versión 1.18.1)
+### Plugin `parkinson-bahia-core` (versión 1.18.2)
 
 - **Tipo de contenido «Terapias»**: una página por terapia, con resumen, foto, orden, «Qué trabajamos» (un punto por línea) y «Quién la hace».
 - **Menú «La asociación» del escritorio**, con los datos que alimentan esa página: Historia (hitos por año), Equipo profesional (puestos y número de personas), Junta directiva (nombre y cargo), Documentos de transparencia (con su archivo) y Redes y federaciones (siglas y web).
@@ -161,7 +164,7 @@ Cumple la normativa de cookies (LSSI art. 22.2, RGPD y la guía de cookies de la
 - **Política de cookies** sin lista escrita a mano: el atajo `[pbc_cookies_tabla]` la pinta a partir de los servicios que declaran el tema y los plugins con el filtro `parkinson_cookies/services`, así que siempre coincide con lo que se carga. `[pbc_cookies_ajustes]` pone el botón «Configurar cookies».
 - Sin JavaScript no hay aviso, pero tampoco se carga nada opcional. La página no cambia según quien la visite, así que se puede guardar en caché.
 
-### Plugin `parkinson-redirects` (versión 1.0.0)
+### Plugin `parkinson-redirects` (versión 1.0.1)
 
 Lleva las direcciones de la web antigua a su sitio en la nueva, para no perder visitas ni posiciones en Google. Todo está en **Herramientas → Redirecciones**.
 

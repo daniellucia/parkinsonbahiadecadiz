@@ -168,7 +168,7 @@ final class Repository {
 
 	private function validate( Rule $rule ): ?WP_Error {
 		if ( '' === $rule->source || '/' === $rule->source ) {
-			return new WP_Error( 'prd_source', __( 'Escribe la dirección antigua (por ejemplo, /hazte-socio/). La portada no se puede redirigir.', 'parkinson-redirects' ) );
+			return new WP_Error( 'prd_source', __( 'Escribe la dirección antigua (por ejemplo, /hazte-socio). La portada no se puede redirigir.', 'parkinson-redirects' ) );
 		}
 
 		if ( ! in_array( $rule->code, Rule::CODES, true ) ) {

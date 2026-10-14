@@ -1,11 +1,11 @@
 <?php
 /**
  * Importa y exporta redirecciones en CSV, y crea reglas a partir de textos
- * sencillos («/hazte-socio» → «/colabora/#socio»).
+ * sencillos («/hazte-socio» → «/colabora#socio»).
  *
  * Columnas: origen; destino; codigo; nota. El origen puede terminar en «/*»
  * para incluir todo lo que cuelga de él. El destino es una ruta de la web
- * («/centro-de-dia/», con ancla opcional), una dirección https://, «post:ID»
+ * («/centro-de-dia», con ancla opcional), una dirección https://, «post:ID»
  * o nada si el código es 410. Si el destino es una página, entrada o archivo
  * de esta web se guarda su ID, para que sobreviva a un cambio de slug.
  *

@@ -392,7 +392,7 @@ final class Page {
 			<input type="hidden" name="page" value="<?php echo esc_attr( self::SLUG ); ?>">
 			<p>
 				<label for="prd-probar"><?php esc_html_e( 'Dirección antigua', 'parkinson-redirects' ); ?></label><br>
-				<input type="text" id="prd-probar" name="probar" class="regular-text code" value="<?php echo esc_attr( $raw ); ?>" placeholder="/hazte-socio/" aria-describedby="prd-probar-help">
+				<input type="text" id="prd-probar" name="probar" class="regular-text code" value="<?php echo esc_attr( $raw ); ?>" placeholder="/hazte-socio" aria-describedby="prd-probar-help">
 				<?php submit_button( __( 'Probar', 'parkinson-redirects' ), 'secondary', '', false ); ?>
 			</p>
 			<p class="description" id="prd-probar-help"><?php esc_html_e( 'Escribe una ruta o pega una dirección completa de la web antigua para ver adónde lleva.', 'parkinson-redirects' ); ?></p>
@@ -485,8 +485,8 @@ final class Page {
 				<tr>
 					<th scope="row"><label for="prd-source"><?php esc_html_e( 'Dirección antigua', 'parkinson-redirects' ); ?></label></th>
 					<td>
-						<input type="text" id="prd-source" name="source" class="regular-text code" required value="<?php echo esc_attr( (string) $values['source'] ); ?>" placeholder="/hazte-socio/" aria-describedby="prd-source-help">
-						<p class="description" id="prd-source-help"><?php esc_html_e( 'Solo la ruta, por ejemplo /hazte-socio/. También puedes pegar la dirección completa. No importan las mayúsculas ni la barra final.', 'parkinson-redirects' ); ?></p>
+						<input type="text" id="prd-source" name="source" class="regular-text code" required value="<?php echo esc_attr( (string) $values['source'] ); ?>" placeholder="/hazte-socio" aria-describedby="prd-source-help">
+						<p class="description" id="prd-source-help"><?php esc_html_e( 'Solo la ruta, por ejemplo /hazte-socio. También puedes pegar la dirección completa. No importan las mayúsculas ni la barra final.', 'parkinson-redirects' ); ?></p>
 						<p><label><input type="checkbox" name="prefix" value="1" <?php checked( (bool) $values['prefix'] ); ?>> <?php esc_html_e( 'Incluir también todo lo que cuelga de esta ruta (por ejemplo, todas las direcciones que empiezan por /category/). Solo actúa cuando la página no existe en la web nueva.', 'parkinson-redirects' ); ?></label></p>
 					</td>
 				</tr>
@@ -525,7 +525,7 @@ final class Page {
 				<tr>
 					<th scope="row"><label for="prd-target-url"><?php esc_html_e( 'Enlace personalizado', 'parkinson-redirects' ); ?></label></th>
 					<td>
-						<input type="text" id="prd-target-url" name="target_url" class="regular-text code" value="<?php echo esc_attr( (string) $values['custom'] ); ?>" placeholder="/terapias/fisioterapia/" aria-describedby="prd-target-url-help">
+						<input type="text" id="prd-target-url" name="target_url" class="regular-text code" value="<?php echo esc_attr( (string) $values['custom'] ); ?>" placeholder="/terapias/fisioterapia" aria-describedby="prd-target-url-help">
 						<p class="description" id="prd-target-url-help"><?php esc_html_e( 'Solo si has elegido «Enlace personalizado»: una ruta de esta web (empieza por /) o una dirección completa https://. Si es una página, entrada o archivo de esta web, se guarda el contenido y no la dirección, así que seguirá funcionando aunque cambie.', 'parkinson-redirects' ); ?></p>
 					</td>
 				</tr>
