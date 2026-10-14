@@ -143,7 +143,7 @@ Genera solo el fichero [`llms.txt`](https://llmstxt.org/), que resume la web par
 - Excluye solo lo que no está publicado, tiene contraseña o está marcado «no indexar» en un plugin de SEO.
 - Los ajustes de este sitio (resumen, datos de contacto y redes) están guardados en la base de datos local; hay que repetirlos en producción desde Ajustes → llms.txt.
 
-### Plugin `parkinson-cookies` (versión 1.0.1)
+### Plugin `parkinson-cookies` (versión 1.0.2)
 
 Cumple la normativa de cookies (LSSI art. 22.2, RGPD y la guía de cookies de la AEPD de 2023) con lo mínimo y sin estorbar a quien visita.
 

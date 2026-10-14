@@ -175,6 +175,7 @@ final class Frontend {
 						);
 						?>
 					</p>
+					<p class="pbc-cookies-dialog__text"><?php esc_html_e( 'No te preocupes: es lo normal en cualquier web que muestra mapas o vídeos. Son servicios muy conocidos y no te van a pedir ningún dato.', 'parkinson-cookies' ); ?></p>
 					<p class="pbc-cookies-dialog__note"><?php esc_html_e( 'Si lo permites, lo recordaremos para el resto de vídeos y mapas. Puedes cambiarlo en «Configurar cookies».', 'parkinson-cookies' ); ?></p>
 					<div class="pbc-cookies-dialog__actions">
 						<button class="pbc-cookies__button" type="submit" value="allow"><?php esc_html_e( 'Permitir y continuar', 'parkinson-cookies' ); ?></button>
