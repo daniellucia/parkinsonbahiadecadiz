@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Redesign of the website for **Párkinson Bahía de Cádiz** (Asociación de Familiares y Enfermos de Párkinson Bahía de Cádiz), a non-profit in San Fernando (Cádiz) whose main service is a day centre (Unidad de Estancia Diurna) for people with Parkinson's and their families across the province. The current live site (parkinsonbahiadecadiz.org) runs a generic free theme and is being replaced by **WordPress + Elementor with a custom theme**.
 
-**Author:** Daniel Lucia — https://daniellucia.es. Use this for the theme/plugin headers (`Author`, `Author URI`) and any credit in the footer.
+**Author:** Daniel Lucia — https://daniellucia.es. Use this for the theme/plugin headers (`Author`, `Author URI`). The public footer carries no author credit.
 
 Full research (association data, current-site audit, proposed sitemap, open questions for the client): `docs/investigacion.md`. Read it before writing content, page structure or CPTs.
 

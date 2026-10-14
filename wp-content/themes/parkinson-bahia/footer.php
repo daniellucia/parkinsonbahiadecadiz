@@ -148,15 +148,6 @@ if ( apply_filters( 'parkinson_bahia/show_contact_band', ! is_404() ) ) {
 				<?php endforeach; ?>
 			</span>
 		<?php endif; ?>
-		<span class="pbc-footer__credit">
-			<?php
-			printf(
-				/* translators: %s: enlace al autor. */
-				esc_html__( 'Web: %s', 'parkinson-bahia' ),
-				'<a class="pbc-footer__link pbc-footer__link--inline" href="https://daniellucia.es">Daniel Lucia</a>'
-			);
-			?>
-		</span>
 	</p>
 </footer>
 

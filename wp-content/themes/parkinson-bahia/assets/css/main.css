@@ -1507,8 +1507,7 @@ html[data-contrast="high"] .pbc-contact__map--facade {
 	font-size: 0.85rem;
 }
 
-.pbc-footer__privacy,
-.pbc-footer__credit {
+.pbc-footer__privacy {
 	display: block;
 	margin-top: 6px;
 }
