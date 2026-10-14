@@ -3,7 +3,7 @@
  * Plugin Name:       Cookies accesibles
  * Plugin URI:        https://daniellucia.es
  * Description:       Aviso de cookies sencillo y accesible: aceptar, rechazar o elegir con el mismo esfuerzo, configuración siempre a mano y política de cookies generada a partir de los servicios que declara la web. Nada opcional se carga sin permiso.
- * Version:           1.0.0
+ * Version:           1.0.1
  * Requires at least: 6.6
  * Requires PHP:      8.2
  * Author:            Daniel Lucia
@@ -19,7 +19,7 @@ declare(strict_types=1);
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'PCK_VERSION', '1.0.0' );
+define( 'PCK_VERSION', '1.0.1' );
 define( 'PCK_FILE', __FILE__ );
 define( 'PCK_DIR', plugin_dir_path( __FILE__ ) );
 define( 'PCK_URL', plugin_dir_url( __FILE__ ) );

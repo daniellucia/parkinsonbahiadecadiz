@@ -63,7 +63,7 @@
 	--pbc-font-body: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, sans-serif;
 	--pbc-font-display: "Young Serif", Georgia, serif;
 
-	--pbc-width: 1240px;
+	--pbc-width: 1440px;
 	--pbc-width-narrow: 900px;
 	--pbc-gutter: clamp(16px, 4vw, 48px);
 	--pbc-radius: 24px;

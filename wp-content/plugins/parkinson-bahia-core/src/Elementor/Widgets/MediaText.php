@@ -80,7 +80,7 @@ final class MediaText extends Widget {
 			'pbc-feature',
 			[
 				'class'   => 'pbc-media-text__image',
-				'sizes'   => '(min-width: 900px) 560px, 100vw',
+				'sizes'   => '(min-width: 900px) 660px, 100vw',
 				'loading' => 'lazy',
 			]
 		);

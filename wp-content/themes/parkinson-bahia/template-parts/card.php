@@ -25,7 +25,7 @@ $pbc_category = 'post' === get_post_type() ? TemplateTags::primary_category( get
 			$pbc_featured ? 'pbc-feature' : 'pbc-card',
 			[
 				'class'         => 'pbc-card__image',
-				'sizes'         => $pbc_featured ? '(min-width: 960px) 580px, 100vw' : '(min-width: 1040px) 380px, (min-width: 700px) 50vw, 100vw',
+				'sizes'         => $pbc_featured ? '(min-width: 960px) 670px, 100vw' : '(min-width: 1040px) 440px, (min-width: 700px) 50vw, 100vw',
 				'loading'       => $pbc_featured ? 'eager' : 'lazy',
 				'fetchpriority' => $pbc_featured ? 'high' : 'auto',
 			]

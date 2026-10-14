@@ -111,7 +111,7 @@ final class LatestNews extends Widget {
 									'pbc-card',
 									[
 										'class'   => 'pbc-latest-news__image',
-										'sizes'   => '(min-width: 1040px) 380px, (min-width: 700px) 50vw, 100vw',
+										'sizes'   => '(min-width: 1040px) 440px, (min-width: 700px) 50vw, 100vw',
 										'loading' => 'lazy',
 									]
 								);

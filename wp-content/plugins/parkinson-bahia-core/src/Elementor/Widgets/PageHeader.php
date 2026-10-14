@@ -196,7 +196,7 @@ final class PageHeader extends Widget {
 			'pbc-feature',
 			[
 				'class'         => 'pbc-page-hero__image',
-				'sizes'         => '(min-width: 960px) 580px, 100vw',
+				'sizes'         => '(min-width: 960px) 670px, 100vw',
 				'loading'       => 'eager',
 				'fetchpriority' => 'high',
 			],

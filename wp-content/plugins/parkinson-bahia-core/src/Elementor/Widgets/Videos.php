@@ -108,7 +108,7 @@ final class Videos extends Widget {
 								[
 									'class'   => 'pbc-videos__image',
 									'alt'     => '',
-									'sizes'   => '(min-width: 1000px) 380px, 100vw',
+									'sizes'   => '(min-width: 1000px) 440px, 100vw',
 									'loading' => 'lazy',
 								]
 							) : '';

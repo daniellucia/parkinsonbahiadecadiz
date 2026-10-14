@@ -82,7 +82,7 @@ body {
 	flex-wrap: wrap;
 	align-items: center;
 	gap: 16px 40px;
-	max-width: var(--pbc-width, 1240px);
+	max-width: var(--pbc-width, 1440px);
 	margin-inline: auto;
 	padding: 20px var(--pbc-gutter, 24px) calc(20px + env(safe-area-inset-bottom, 0px));
 }

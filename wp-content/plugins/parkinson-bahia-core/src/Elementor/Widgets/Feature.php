@@ -87,7 +87,7 @@ final class Feature extends Widget {
 				1 === $number ? 'pbc-feature' : 'pbc-square',
 				[
 					'class'   => 'pbc-feature__image',
-					'sizes'   => 1 === $number ? '(min-width: 900px) 560px, 100vw' : '(min-width: 900px) 280px, 50vw',
+					'sizes'   => 1 === $number ? '(min-width: 900px) 660px, 100vw' : '(min-width: 900px) 330px, 50vw',
 					'loading' => 'lazy',
 				]
 			);

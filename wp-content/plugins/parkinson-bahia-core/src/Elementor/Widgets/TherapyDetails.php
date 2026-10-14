@@ -71,7 +71,7 @@ final class TherapyDetails extends Widget {
 					'pbc-feature',
 					[
 						'class'   => 'pbc-therapy-details__image',
-						'sizes'   => '(min-width: 1000px) 560px, 100vw',
+						'sizes'   => '(min-width: 1000px) 660px, 100vw',
 						'loading' => 'lazy',
 					]
 				) : '';

@@ -65,7 +65,7 @@ Los comandos se pueden repetir sin duplicar nada. Con `--force` reescriben su p�
 
 ## Funcionalidades
 
-### Tema `parkinson-bahia` (versión 1.7.0)
+### Tema `parkinson-bahia` (versión 1.7.1)
 
 - Diseño tomado del proyecto de claude.ai/design «Rediseño Asociación Párkinson Cádiz»: colores, tipografías (Atkinson Hyperlegible Next y Young Serif, alojadas en el tema) y componentes.
 - Barra superior con teléfono, horario, tres tamaños de texto y alto contraste (se recuerdan en el navegador). En móvil solo muestra el teléfono; el horario y las opciones de lectura pasan al menú.
@@ -77,7 +77,7 @@ Los comandos se pueden repetir sin duplicar nada. Con `--force` reescriben su p�
 - Datos de contacto, botón de cabecera, redes y textos del pie editables en Apariencia → Personalizar.
 - Indicador de carga en el botón al enviar cualquier formulario.
 
-### Plugin `parkinson-bahia-core` (versión 1.16.0)
+### Plugin `parkinson-bahia-core` (versión 1.16.1)
 
 - **Tipo de contenido «Terapias»**: una página por terapia, con resumen, foto, orden, «Qué trabajamos» (un punto por línea) y «Quién la hace».
 - **Menú «La asociación» del escritorio**, con los datos que alimentan esa página: Historia (hitos por año), Equipo profesional (puestos y número de personas), Junta directiva (nombre y cargo), Documentos de transparencia (con su archivo) y Redes y federaciones (siglas y web).
@@ -142,7 +142,7 @@ Genera solo el fichero [`llms.txt`](https://llmstxt.org/), que resume la web par
 - Excluye solo lo que no está publicado, tiene contraseña o está marcado «no indexar» en un plugin de SEO.
 - Los ajustes de este sitio (resumen, datos de contacto y redes) están guardados en la base de datos local; hay que repetirlos en producción desde Ajustes → llms.txt.
 
-### Plugin `parkinson-cookies` (versión 1.0.0)
+### Plugin `parkinson-cookies` (versión 1.0.1)
 
 Cumple la normativa de cookies (LSSI art. 22.2, RGPD y la guía de cookies de la AEPD de 2023) con lo mínimo y sin estorbar a quien visita.
 

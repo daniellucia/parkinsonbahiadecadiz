@@ -83,7 +83,7 @@ final class Spaces extends Widget {
 									'pbc-card',
 									[
 										'class'   => 'pbc-spaces__image',
-										'sizes'   => '(min-width: 1100px) 290px, (min-width: 620px) 50vw, 100vw',
+										'sizes'   => '(min-width: 1100px) 340px, (min-width: 620px) 50vw, 100vw',
 										'loading' => 'lazy',
 									]
 								);
