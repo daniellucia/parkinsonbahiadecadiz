@@ -66,7 +66,7 @@ Los comandos se pueden repetir sin duplicar nada. Con `--force` reescriben su p�
 
 ## Funcionalidades
 
-### Tema `parkinson-bahia` (versión 1.7.2)
+### Tema `parkinson-bahia` (versión 1.8.0)
 
 - Diseño tomado del proyecto de claude.ai/design «Rediseño Asociación Párkinson Cádiz»: colores, tipografías (Atkinson Hyperlegible Next y Young Serif, alojadas en el tema) y componentes.
 - Barra superior con teléfono, horario, tres tamaños de texto y alto contraste (se recuerdan en el navegador). En móvil solo muestra el teléfono; el horario y las opciones de lectura pasan al menú.
@@ -74,6 +74,9 @@ Los comandos se pueden repetir sin duplicar nada. Con `--force` reescriben su p�
 - En los formularios, las cajas de dos campos de la misma fila quedan alineadas aunque una etiqueta ocupe dos líneas (por ejemplo «Correo electrónico (opcional)»).
 - Ajustes para móvil en los widgets: horario del día más compacto, instalaciones en dos columnas, datos de la cabecera de página uno por fila, títulos principales algo más pequeños, botones de portada y llamadas a la acción a todo el ancho, logotipos de financiadores en rejilla y hueco del mapa más bajo.
 - Bloque de contacto común antes del pie y pie como en el diseño: logotipos de los financiadores, datos de la asociación, menús «La asociación» (Quiénes somos, Equipo y junta directiva, Transparencia) e «Información legal» (Declaración de accesibilidad, Aviso legal, Privacidad, Cookies y Configurar cookies) y redes sociales. El hueco del mapa lo rellena el plugin. Cada columna del pie lleva su título. Al final, una línea de protección de datos (responsable, «Cómo tratamos tus datos» y «Ejercer tus derechos») que rellena el plugin de RGPD con el filtro `parkinson_bahia/footer_privacy`; el tema le pasa los datos del responsable desde el Personalizador. Sobre el diseño se mantienen X entre las redes y el crédito del autor.
+- Buscador: botón «Buscar» en la cabecera de escritorio que abre una barra bajo ella (Escape o pulsar fuera la cierra); en móvil y tableta, arriba del panel del menú; sin JavaScript se ve siempre bajo la cabecera. Resultados en lista sencilla (qué es cada resultado, título y resumen), con número de resultados y accesos rápidos si no hay ninguno.
+- Página 404 útil: sugiere páginas a partir de las palabras de la dirección, buscador ya relleno, accesos rápidos (menú principal, filtro `parkinson_bahia/helpful_links`) y teléfono.
+- Pie más sencillo: enlaces sin subrayado y algo más pequeños (subrayado fino al pasar o enfocar), teléfono y correo bajo el nombre; los enlaces dentro de frases mantienen un subrayado fino.
 - Plantillas: Actualidad (noticia destacada, filtro por categoría, paginación y «En los medios»), noticia, página, página de Elementor a ancho completo, tipos de contenido propios, búsqueda y 404.
 - Datos de contacto, botón de cabecera, redes y textos del pie editables en Apariencia → Personalizar.
 - Indicador de carga en el botón al enviar cualquier formulario.
@@ -184,7 +187,6 @@ Ayuda a cumplir el RGPD y la LOPDGDD. Todo está en **Ajustes → Protección de
 
 ## Pendiente
 
-- Se ha quitado el buscador del pie a petición del cliente. WCAG 2.2 AA (criterio 2.4.5, «Múltiples vías») pide al menos dos formas de llegar a cada página: el menú principal es una; falta decidir la segunda (por ejemplo, un mapa del sitio enlazado desde el pie o el buscador dentro del panel del menú). Sigue habiendo buscador en la página 404 y en los resultados de búsqueda.
 
 - Logotipo de Hidralia y versiones oficiales de los demás logotipos a buena resolución (el de FANDEP mide 115 px y el de «la Caixa» es el antiguo de Obra Social). Fotos que faltan en Terapias, Familias y La asociación.
 - Revisar con la asociación los puntos «Pendiente de confirmar» de la declaración de accesibilidad y hacer la revisión manual completa.

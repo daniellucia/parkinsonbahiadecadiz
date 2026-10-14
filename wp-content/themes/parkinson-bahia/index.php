@@ -70,12 +70,30 @@ if ( is_category() ) {
 	?>
 </header>
 
-<div class="pbc-listing">
+<?php $pbc_has_posts = have_posts(); ?>
+<div class="pbc-listing<?php echo is_search() ? ' pbc-listing--search' : ''; ?>">
 	<?php if ( is_search() ) : ?>
-		<?php get_search_form(); ?>
+		<?php get_search_form( [ 'pbc_label' => __( 'Buscar otra cosa', 'parkinson-bahia' ), 'pbc_class' => 'pbc-search--page' ] ); ?>
+		<?php if ( $pbc_has_posts ) : ?>
+			<p class="pbc-listing__count">
+				<?php
+				$pbc_total = (int) $GLOBALS['wp_query']->found_posts;
+				/* translators: %d: número de resultados. */
+				echo esc_html( sprintf( _n( 'Hemos encontrado %d resultado.', 'Hemos encontrado %d resultados.', $pbc_total, 'parkinson-bahia' ), $pbc_total ) );
+				?>
+			</p>
+			<div class="pbc-results">
+				<?php
+				while ( have_posts() ) :
+					the_post();
+					get_template_part( 'template-parts/search-result' );
+				endwhile;
+				?>
+			</div>
+		<?php endif; ?>
 	<?php endif; ?>
 
-	<?php if ( have_posts() ) : ?>
+	<?php if ( $pbc_has_posts && ! is_search() ) : ?>
 		<?php
 		// La primera noticia de la primera página va destacada.
 		if ( $pbc_is_news && ! is_paged() ) :
@@ -115,16 +133,31 @@ if ( is_category() ) {
 			]
 		);
 		?>
-	<?php else : ?>
+	<?php elseif ( is_search() && $pbc_has_posts ) : ?>
+		<?php
+		the_posts_pagination(
+			[
+				'mid_size'           => 1,
+				'prev_text'          => __( 'Anterior', 'parkinson-bahia' ),
+				'next_text'          => __( 'Siguiente', 'parkinson-bahia' ),
+				'screen_reader_text' => __( 'Más resultados', 'parkinson-bahia' ),
+				'aria_label'         => __( 'Más resultados', 'parkinson-bahia' ),
+				'before_page_number' => '<span class="screen-reader-text">' . __( 'Página', 'parkinson-bahia' ) . ' </span>',
+				'class'              => 'pbc-pagination',
+			]
+		);
+		?>
+	<?php elseif ( is_search() ) : ?>
 		<p class="pbc-listing__empty">
 			<?php
-			if ( is_search() ) {
-				esc_html_e( 'No hemos encontrado nada con esas palabras. Prueba con otras o llámanos y te ayudamos.', 'parkinson-bahia' );
-			} else {
-				esc_html_e( 'Todavía no hay noticias publicadas.', 'parkinson-bahia' );
-			}
+			$pbc_phone = TemplateTags::mod( 'pbc_phone' );
+			/* translators: %s: teléfono. */
+			echo esc_html( sprintf( __( 'No hemos encontrado nada con esas palabras. Prueba con otras más sencillas, mira estos accesos o llámanos al %s y te ayudamos.', 'parkinson-bahia' ), $pbc_phone ) );
 			?>
 		</p>
+		<?php get_template_part( 'template-parts/helpful-links', null, [ 'title' => __( 'Lo que más se consulta', 'parkinson-bahia' ) ] ); ?>
+	<?php else : ?>
+		<p class="pbc-listing__empty"><?php esc_html_e( 'Todavía no hay noticias publicadas.', 'parkinson-bahia' ); ?></p>
 	<?php endif; ?>
 </div>
 

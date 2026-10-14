@@ -84,6 +84,56 @@
 		} );
 	}
 
+	/* ---------- Buscador de la cabecera (escritorio) ----------
+	   «Buscar» abre una barra bajo la cabecera con el foco ya en la caja.
+	   Se cierra con Escape, con el mismo botón, al pulsar fuera o al salir
+	   con el tabulador. Sin JavaScript la barra se ve siempre. */
+	var searchToggle = document.querySelector( '[data-pbc-search-toggle]' );
+	var searchPanel = document.querySelector( '[data-pbc-search-panel]' );
+
+	function searchIsOpen() {
+		return !! searchToggle && searchToggle.getAttribute( 'aria-expanded' ) === 'true';
+	}
+
+	function setSearch( open, focusInput ) {
+		if ( ! searchToggle || ! searchPanel ) {
+			return;
+		}
+		searchPanel.classList.toggle( 'pbc-search-panel--open', open );
+		searchToggle.setAttribute( 'aria-expanded', open ? 'true' : 'false' );
+		if ( open && focusInput ) {
+			var input = searchPanel.querySelector( 'input[type="search"]' );
+			if ( input ) {
+				input.focus();
+			}
+		}
+	}
+
+	if ( searchToggle && searchPanel ) {
+		searchToggle.hidden = false;
+		searchToggle.addEventListener( 'click', function () {
+			setSearch( ! searchIsOpen(), true );
+		} );
+		document.addEventListener( 'keydown', function ( event ) {
+			if ( event.key === 'Escape' && searchIsOpen() ) {
+				setSearch( false );
+				searchToggle.focus();
+			}
+		} );
+		document.addEventListener( 'click', function ( event ) {
+			if ( searchIsOpen() && header && ! header.contains( event.target ) ) {
+				setSearch( false );
+			}
+		} );
+		if ( header ) {
+			header.addEventListener( 'focusout', function ( event ) {
+				if ( searchIsOpen() && event.relatedTarget && ! header.contains( event.relatedTarget ) ) {
+					setSearch( false );
+				}
+			} );
+		}
+	}
+
 	/* El menú en línea necesita 1200 px con el texto normal; con el texto
 	   ampliado necesita más, así que el punto de corte crece con él. */
 	function updateNavMode() {
@@ -92,6 +142,7 @@
 
 		if ( compact ) {
 			root.setAttribute( 'data-nav', 'compact' );
+			setSearch( false );
 			fitPanel();
 		} else {
 			root.removeAttribute( 'data-nav' );

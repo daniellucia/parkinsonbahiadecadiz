@@ -27,6 +27,11 @@ final class Assets {
 			wp_enqueue_style( 'pbc-blog', $this->uri( 'assets/css/blog.css' ), [ 'pbc-main' ], $this->version( 'assets/css/blog.css' ) );
 		}
 
+		// 404 y búsqueda: sugerencias, accesos rápidos y resultados.
+		if ( is_404() || is_search() ) {
+			wp_enqueue_style( 'pbc-search', $this->uri( 'assets/css/search.css' ), [ 'pbc-main' ], $this->version( 'assets/css/search.css' ) );
+		}
+
 		wp_enqueue_script(
 			'pbc-main',
 			$this->uri( 'assets/js/main.js' ),

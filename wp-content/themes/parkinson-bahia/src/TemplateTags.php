@@ -47,6 +47,74 @@ final class TemplateTags {
 	}
 
 	/**
+	 * Accesos rápidos para el 404 y la búsqueda sin resultados: los enlaces del
+	 * menú principal (con su descripción, si la tienen), filtrables.
+	 *
+	 * @return array<int, array{title: string, url: string, text: string}>
+	 */
+	public static function helpful_links(): array {
+		$links     = [];
+		$locations = get_nav_menu_locations();
+
+		if ( ! empty( $locations['primary'] ) ) {
+			foreach ( (array) wp_get_nav_menu_items( (int) $locations['primary'] ) as $item ) {
+				if ( empty( $item->url ) || ! empty( $item->menu_item_parent ) ) {
+					continue;
+				}
+				$links[] = [
+					'title' => wp_strip_all_tags( (string) $item->title ),
+					'url'   => (string) $item->url,
+					'text'  => wp_strip_all_tags( (string) $item->description ),
+				];
+			}
+		}
+
+		/**
+		 * Accesos rápidos del 404 y de la búsqueda sin resultados.
+		 *
+		 * @param array<int, array{title: string, url: string, text: string}> $links Enlaces.
+		 */
+		$links = (array) apply_filters( 'parkinson_bahia/helpful_links', $links );
+
+		return array_values(
+			array_filter(
+				array_map(
+					static fn ( $link ): array => [
+						'title' => (string) ( $link['title'] ?? '' ),
+						'url'   => (string) ( $link['url'] ?? '' ),
+						'text'  => (string) ( $link['text'] ?? '' ),
+					],
+					$links
+				),
+				static fn ( array $link ): bool => '' !== $link['title'] && '' !== $link['url']
+			)
+		);
+	}
+
+	/**
+	 * Palabras de la dirección pedida, para sugerir páginas en el 404
+	 * («/terapias/logopedia-adultos/» → «logopedia adultos»).
+	 *
+	 * @return string[]
+	 */
+	public static function words_from_request(): array {
+		$path  = (string) wp_parse_url( (string) ( $_SERVER['REQUEST_URI'] ?? '' ), PHP_URL_PATH ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Se limpia palabra a palabra.
+		$path  = (string) preg_replace( '/\.(html?|php|pdf|aspx?)$/i', '', rawurldecode( $path ) );
+		$parts = preg_split( '/[\/\-_+.\s]+/u', mb_strtolower( $path ) ) ?: [];
+		$skip  = [ 'archivos', 'category', 'categoria', 'page', 'tag', 'wp', 'content', 'uploads', 'index', 'para', 'con', 'los', 'las', 'del', 'que', 'una' ];
+		$words = [];
+
+		foreach ( $parts as $part ) {
+			$part = sanitize_text_field( $part );
+			if ( mb_strlen( $part ) > 2 && ! ctype_digit( $part ) && ! in_array( $part, $skip, true ) && ! preg_match( '/^c\d+$/', $part ) ) {
+				$words[] = $part;
+			}
+		}
+
+		return array_slice( array_values( array_unique( $words ) ), 0, 5 );
+	}
+
+	/**
 	 * URL de la página de noticias (o la portada si las noticias están en ella).
 	 */
 	public static function news_url(): string {

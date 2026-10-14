@@ -74,6 +74,10 @@ $pbc_cta_url    = TemplateTags::mod( 'pbc_cta_url' );
 
 		<nav class="pbc-nav" id="pbc-menu" aria-label="<?php esc_attr_e( 'Menú principal', 'parkinson-bahia' ); ?>">
 			<div class="pbc-nav__panel">
+				<?php // Buscador del panel del menú (móvil y tableta). En escritorio se usa el botón «Buscar». ?>
+				<div class="pbc-nav__search">
+					<?php get_search_form( [ 'pbc_label' => __( '¿Qué estás buscando?', 'parkinson-bahia' ) ] ); ?>
+				</div>
 				<?php
 				wp_nav_menu(
 					[
@@ -87,6 +91,11 @@ $pbc_cta_url    = TemplateTags::mod( 'pbc_cta_url' );
 					]
 				);
 				?>
+				<?php // Sin JavaScript no hace falta: el buscador se ve abierto bajo la cabecera. ?>
+				<button class="pbc-nav__search-toggle" type="button" aria-expanded="false" aria-controls="pbc-search-panel" data-pbc-search-toggle hidden>
+					<svg class="pbc-nav__search-icon" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="m15.5 15.5 5 5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+					<?php esc_html_e( 'Buscar', 'parkinson-bahia' ); ?>
+				</button>
 				<?php if ( '' !== $pbc_cta_label && '' !== $pbc_cta_url ) : ?>
 					<a class="pbc-button pbc-button--accent pbc-nav__cta" href="<?php echo esc_url( $pbc_cta_url ); ?>"><?php echo esc_html( $pbc_cta_label ); ?></a>
 				<?php endif; ?>
@@ -102,6 +111,21 @@ $pbc_cta_url    = TemplateTags::mod( 'pbc_cta_url' );
 				<?php endif; ?>
 			</div>
 		</nav>
+
+		<?php // Buscador de escritorio: se abre con «Buscar». Sin JavaScript se ve siempre, bajo la cabecera. ?>
+		<div class="pbc-search-panel" id="pbc-search-panel" data-pbc-search-panel>
+			<div class="pbc-search-panel__inner">
+				<?php
+				get_search_form(
+					[
+						'pbc_label' => __( '¿Qué estás buscando?', 'parkinson-bahia' ),
+						'pbc_hint'  => __( 'Por ejemplo: plaza en el centro de día, logopedia, transporte, hacerse socio.', 'parkinson-bahia' ),
+						'pbc_class' => 'pbc-search--panel',
+					]
+				);
+				?>
+			</div>
+		</div>
 	</div>
 </header>
 

@@ -21,6 +21,9 @@ $pbc_social = array_filter(
 );
 
 $pbc_legal_name = TemplateTags::mod( 'pbc_legal_name' );
+$pbc_phone      = TemplateTags::mod( 'pbc_phone' );
+$pbc_phone_href = TemplateTags::phone_href();
+$pbc_email      = sanitize_email( TemplateTags::mod( 'pbc_email' ) );
 $pbc_note       = TemplateTags::mod( 'pbc_footer_note' );
 
 /**
@@ -64,6 +67,14 @@ if ( apply_filters( 'parkinson_bahia/show_contact_band', ! is_404() ) ) {
 			<?php if ( '' !== $pbc_legal_name ) : ?>
 				<span class="pbc-footer__legal"><?php echo esc_html( $pbc_legal_name ); ?></span>
 			<?php endif; ?>
+			<ul class="pbc-footer__contact">
+				<?php if ( '' !== $pbc_phone_href ) : ?>
+					<li><a class="pbc-footer__link" href="<?php echo esc_url( $pbc_phone_href ); ?>"><?php echo esc_html( sprintf( /* translators: %s: teléfono. */ __( 'Teléfono: %s', 'parkinson-bahia' ), $pbc_phone ) ); ?></a></li>
+				<?php endif; ?>
+				<?php if ( is_email( $pbc_email ) ) : ?>
+					<li><a class="pbc-footer__link" href="<?php echo esc_url( 'mailto:' . $pbc_email ); ?>"><?php echo esc_html( $pbc_email ); ?></a></li>
+				<?php endif; ?>
+			</ul>
 		</div>
 
 		<?php if ( has_nav_menu( 'footer-asociacion' ) ) : ?>
