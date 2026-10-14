@@ -35,6 +35,7 @@ ddev wp pbc seed-colabora    # crea la página «Colabora»
 ddev wp pbc seed-privacidad  # crea y publica la política de privacidad y el menú legal del pie
 ddev wp pbc seed-terapias    # completa las terapias y crea la página «Terapias»
 ddev wp pbc seed-familias    # guías (PDF de la web actual), vídeos del canal y la página «Familias y cuidadores»
+ddev wp pbc seed-contacto    # crea la página «Contacto» con su formulario
 ddev launch
 ```
 
@@ -56,18 +57,18 @@ Los comandos se pueden repetir sin duplicar nada. Con `--force` reescriben su p�
 
 ## Funcionalidades
 
-### Tema `parkinson-bahia` (versión 1.2.0)
+### Tema `parkinson-bahia` (versión 1.3.0)
 
 - Diseño tomado del proyecto de claude.ai/design «Rediseño Asociación Párkinson Cádiz»: colores, tipografías (Atkinson Hyperlegible Next y Young Serif, alojadas en el tema) y componentes.
 - Barra superior con teléfono, horario, tres tamaños de texto y alto contraste (se recuerdan en el navegador).
 - Cabecera con logotipo, menú principal y botón destacado; en móvil, botones «Llamar» y «Menú».
-- Bloque de contacto común antes del pie y pie con menús, redes sociales y datos legales.
+- Bloque de contacto común antes del pie y pie con menús, redes sociales y datos legales. El hueco del mapa lo rellena el plugin.
 - Plantillas: Actualidad (noticia destacada, filtro por categoría, paginación), noticia, página, página de Elementor a ancho completo, tipos de contenido propios, búsqueda y 404.
 - Datos de contacto, botón de cabecera, redes y textos del pie editables en Apariencia → Personalizar.
 - Buscador en el pie de todas las páginas.
 - Indicador de carga en el botón al enviar cualquier formulario.
 
-### Plugin `parkinson-bahia-core` (versión 1.7.0)
+### Plugin `parkinson-bahia-core` (versión 1.8.0)
 
 - **Tipo de contenido «Terapias»**: una página por terapia, con resumen, foto, orden, «Qué trabajamos» (un punto por línea) y «Quién la hace».
 - **Menú «La asociación» del escritorio**, con los datos que alimentan esa página: Historia (hitos por año), Equipo profesional (puestos y número de personas), Junta directiva (nombre y cargo), Documentos de transparencia (con su archivo) y Redes y federaciones (siglas y web).
@@ -96,7 +97,7 @@ Los comandos se pueden repetir sin duplicar nada. Con `--force` reescriben su p�
 | Texto con foto | Foto a un lado y texto al otro | Campos del widget |
 | Instalaciones | Galería de salas con su nombre | Centro de día → Instalaciones |
 | Preguntas frecuentes | Preguntas desplegables, de un tema o de todos | Centro de día → Preguntas frecuentes |
-| Formulario | Texto y formulario (hacerse socio o voluntariado) | Campos del widget; los envíos van a Formularios |
+| Formulario | Texto y formulario (hacerse socio, voluntariado o contacto); fondo arena, migas de pan y teléfono en grande opcionales | Campos del widget; los envíos van a Formularios |
 | Formas de donar | Texto y una tarjeta por cada medio de donación | Campos del widget |
 | Llamada con botón | Título, texto y uno o dos botones, en franja o en recuadro azul claro | Campos del widget |
 | Guías para descargar | Guías y fichas con filtro por tema | Familias → Guías y fichas |
@@ -104,8 +105,9 @@ Los comandos se pueden repetir sin duplicar nada. Con `--force` reescriben su p�
 | Fichas de terapias | Una sección por terapia: foto, resumen, qué trabajamos y quién la hace | Tipo de contenido Terapias |
 
 - Elementor no carga Google Fonts: las fuentes las sirve el tema.
+- **Mapa en el bloque de contacto** de todas las páginas: un botón «Ver el mapa» carga OpenStreetMap solo cuando se pulsa; hasta entonces la web no se conecta con nadie.
 - «Preguntas frecuentes» añade datos estructurados (FAQPage de schema.org) para los buscadores, un único bloque por página.
-- **Formularios** (hacerse socio y voluntariado):
+- **Formularios** (hacerse socio, voluntariado y contacto):
   - Se envían sin recargar la página, con indicador de carga en el botón y errores explicados junto a cada campo; también funcionan sin JavaScript.
   - Protección contra robots sin acertijos: campo trampa, marca de tiempo firmada, comprobación de origen, límite de envíos y, opcionalmente, **Cloudflare Turnstile**.
   - Los envíos se guardan en **Formularios** del escritorio, solo para administradores. DNI e IBAN se validan (letra y dígitos de control) y se guardan **cifrados**; nunca viajan por correo.
@@ -134,17 +136,17 @@ Genera solo el fichero [`llms.txt`](https://llmstxt.org/), que resume la web par
 - **La asociación**: montada con siete widgets (cabecera, misión, historia, equipo, junta directiva, transparencia y redes). Faltan la foto de cabecera, las fotos del equipo y los archivos de los documentos, que aparecen como «Próximamente».
 - **Centro de día**: montada con siete widgets (cabecera con datos clave, aviso de lista de espera, un día en el centro, cómo solicitar plaza, instalaciones, transporte y preguntas frecuentes). Falta la foto del transporte. El horario y el calendario usan el dato confirmado («cerrado en agosto»), no el del boceto («abierto todo el año»).
 - **Colabora**: montada con cabecera con accesos, formulario de socios, formas de donar, formulario de voluntariado y llamada a empresas. Los donativos todavía no se cobran en línea (solo transferencia y teléfono) y las cuotas de 5, 10 y 20 € son las del boceto, sin confirmar.
-- **Política de privacidad**: publicada y enlazada desde los formularios y el pie. Redactada a partir de los datos conocidos de la asociación y de cómo trata los datos esta web; tiene cuatro puntos marcados «Pendiente de confirmar» (delegado de protección de datos, plazos de conservación, empresa de alojamiento y política de cookies) y **debe revisarla la asociación o su asesoría antes de publicar la web**.
+- **Política de privacidad**: publicada y enlazada desde los formularios y el pie. Redactada a partir de los datos conocidos de la asociación y de cómo trata los datos esta web; incluye el formulario de contacto, el mapa y los vídeos (que solo conectan con OpenStreetMap o YouTube al pulsarlos); tiene cuatro puntos marcados «Pendiente de confirmar» (delegado de protección de datos, plazos de conservación, empresa de alojamiento y política de cookies si se añade medición de visitas) y **debe revisarla la asociación o su asesoría antes de publicar la web**.
 - **Terapias**: montada con cabecera azul con accesos a cada terapia, fichas de las ocho terapias y llamada final. Faltan las fotos de musicoterapia y apoyo a familias (sin foto la ficha ocupa todo el ancho).
 - **Familias y cuidadores**: montada con cabecera, primeros pasos tras el diagnóstico, las 13 guías que ya publicaba la web actual (con sus PDF), tres vídeos del canal de YouTube y el apoyo a cuidadores. Faltan las fotos de cabecera y de cuidadores, y revisar si los PDF cumplen accesibilidad (vienen de la web actual y de la FEP).
-- Contacto: creada, con contenido pendiente.
+- **Contacto**: montada con el formulario de contacto (nombre, teléfono, correo opcional, tema y mensaje opcional) junto al título y el teléfono en grande; debajo, el bloque de contacto común con el mapa.
 
 ## Pendiente
 
 - Resto de páginas y sus widgets; tipos de contenido que faltan (prensa, financiadores).
-- Donativos en línea: elegir pasarela (Stripe, Redsys, Bizum) e integrarla. Formulario de contacto.
+- Donativos en línea: elegir pasarela (Stripe, Redsys, Bizum) e integrarla.
 - Decidir con la asociación: cuotas de socio, texto del mandato SEPA, cuánto tiempo se conservan los envíos y los puntos pendientes de la política de privacidad.
 - Dar de alta Turnstile en Cloudflare y escribir sus claves en Formularios → Ajustes.
-- Mapa, cookies y declaración de accesibilidad.
+- Aviso de cookies (hoy no hace falta: no hay cookies propias ni de terceros hasta que se pulsa el mapa o un vídeo) y declaración de accesibilidad.
 - Redirecciones 301 de la web actual.
 - Datos por confirmar con la asociación (ver «Preguntas pendientes» en `docs/investigacion.md`) y fotos originales a mayor resolución: las de la web actual miden 800 px de ancho.

@@ -3,7 +3,8 @@
  * Formularios del sitio y sus campos.
  *
  * Tipos de campo: text, tel, email, dni, iban, amount (cantidad con «otra»),
- * choices (casillas). «sensitive» = se guarda cifrado y no sale en el correo;
+ * choices (casillas), select (desplegable con las opciones de «options»,
+ * que el servidor comprueba) y textarea (texto largo). «sensitive» = se guarda cifrado y no sale en el correo;
  * esos campos solo se piden si hay clave de cifrado (ver Crypto).
  *
  * @package ParkinsonBahiaCore
@@ -19,6 +20,12 @@ final class Definitions {
 
 	public const MEMBER    = 'socio';
 	public const VOLUNTEER = 'voluntariado';
+	public const CONTACT   = 'contacto';
+
+	/**
+	 * Longitud máxima de un campo de texto largo.
+	 */
+	public const TEXTAREA_MAX = 2000;
 
 	/**
 	 * @return array<string, string> Tipo => nombre.
@@ -27,6 +34,7 @@ final class Definitions {
 		return [
 			self::MEMBER    => __( 'Hacerse socio', 'parkinson-bahia-core' ),
 			self::VOLUNTEER => __( 'Voluntariado', 'parkinson-bahia-core' ),
+			self::CONTACT   => __( 'Contacto', 'parkinson-bahia-core' ),
 		];
 	}
 
@@ -104,6 +112,48 @@ final class Definitions {
 					'required' => false,
 				],
 			],
+			self::CONTACT   => [
+				'nombre'  => [
+					'label'        => __( 'Nombre', 'parkinson-bahia-core' ),
+					'type'         => 'text',
+					'required'     => true,
+					'autocomplete' => 'name',
+					'wide'         => true,
+				],
+				'tel'     => [
+					'label'        => __( 'Teléfono', 'parkinson-bahia-core' ),
+					'type'         => 'tel',
+					'required'     => true,
+					'autocomplete' => 'tel',
+				],
+				'email'   => [
+					'label'        => __( 'Correo electrónico', 'parkinson-bahia-core' ),
+					'type'         => 'email',
+					'required'     => false,
+					'autocomplete' => 'email',
+				],
+				'motivo'  => [
+					'label'    => __( '¿Sobre qué quieres hablar?', 'parkinson-bahia-core' ),
+					'type'     => 'select',
+					'required' => true,
+					'wide'     => true,
+					'options'  => [
+						__( 'Plaza en el centro de día', 'parkinson-bahia-core' ),
+						__( 'Terapias', 'parkinson-bahia-core' ),
+						__( 'Apoyo para familias', 'parkinson-bahia-core' ),
+						__( 'Hacerme socio o donar', 'parkinson-bahia-core' ),
+						__( 'Voluntariado', 'parkinson-bahia-core' ),
+						__( 'Otra consulta', 'parkinson-bahia-core' ),
+					],
+				],
+				'mensaje' => [
+					'label'    => __( 'Tu mensaje', 'parkinson-bahia-core' ),
+					'type'     => 'textarea',
+					'required' => false,
+					'wide'     => true,
+					'help'     => __( 'No hace falta que nos cuentes datos de salud: te llamamos y hablamos con calma.', 'parkinson-bahia-core' ),
+				],
+			],
 			default         => [],
 		};
 
@@ -123,6 +173,7 @@ final class Definitions {
 		$purpose = match ( $type ) {
 			self::MEMBER    => __( 'darte de alta como socio y cobrar tu cuota', 'parkinson-bahia-core' ),
 			self::VOLUNTEER => __( 'ponernos en contacto contigo y organizar tu voluntariado', 'parkinson-bahia-core' ),
+			self::CONTACT   => __( 'llamarte y responder a tu consulta', 'parkinson-bahia-core' ),
 			default         => __( 'atender tu solicitud', 'parkinson-bahia-core' ),
 		};
 

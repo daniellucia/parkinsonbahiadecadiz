@@ -1360,6 +1360,48 @@ final class SeedCommand {
 	}
 
 	/**
+	 * Monta la página «Contacto»: formulario de contacto con el teléfono en grande.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--force]
+	 * : Reescribe el contenido de la página aunque ya tenga widgets.
+	 *
+	 * @param string[]             $args       Argumentos posicionales.
+	 * @param array<string, mixed> $assoc_args Opciones.
+	 */
+	public function contacto( array $args, array $assoc_args ): void {
+		$this->start();
+
+		$pages   = $this->seed_pages();
+		$page_id = $pages['contacto'];
+
+		if ( $this->may_write( $page_id, $assoc_args ) ) {
+			$this->save_page(
+				$page_id,
+				[
+					'pbc-form' => [
+						'form'          => 'contacto',
+						'title'         => 'Cuéntanos qué necesitas',
+						'title_tag'     => 'h1',
+						'breadcrumb'    => 'yes',
+						'variant'       => 'sand',
+						'text'          => 'Déjanos tu teléfono y te llamamos nosotros. Si lo prefieres, llámanos directamente de lunes a viernes, de 9:00 a 17:00.',
+						'phone'         => '956 59 19 28',
+						'submit_label'  => 'Enviar',
+						'success_title' => 'Mensaje enviado',
+						'success_text'  => 'Gracias. Te llamaremos lo antes posible, de lunes a viernes.',
+					],
+				],
+				'contacto'
+			);
+			WP_CLI::log( 'Página «Contacto» montada con sus widgets.' );
+		}
+
+		WP_CLI::success( 'Contacto lista: ' . get_permalink( $page_id ) );
+	}
+
+	/**
 	 * Descarga un archivo a la biblioteca de medios (una sola vez por dirección de origen).
 	 */
 	private function file( string $url, string $title, string $name = '' ): int {
@@ -1586,6 +1628,11 @@ final class SeedCommand {
 				'<strong>Datos:</strong> nombre, teléfono, correo electrónico (si lo indicas) y las áreas en las que te gustaría ayudar.',
 				'<strong>Para qué:</strong> llamarte, conocerte y organizar tu colaboración.',
 			] ],
+			[ 'h3', 'Si nos escribes desde el formulario de contacto' ],
+			[ 'ul', [
+				'<strong>Datos:</strong> nombre, teléfono, correo electrónico (si lo indicas), el tema de tu consulta y el mensaje que escribas (si escribes uno).',
+				'<strong>Para qué:</strong> llamarte y responder a tu consulta. En el mensaje no hace falta que nos cuentes datos de salud: preferimos hablarlo contigo por teléfono.',
+			] ],
 			[ 'h3', 'Si nos llamas o nos escribes' ],
 			[ 'ul', [
 				'<strong>Datos:</strong> los que tú nos des por teléfono o por correo electrónico.',
@@ -1604,7 +1651,7 @@ final class SeedCommand {
 			[ 'h2', 'Cuánto tiempo guardamos tus datos' ],
 			[ 'ul', [
 				'<strong>Socios:</strong> mientras sigas siendo socio. Después, solo el tiempo que la ley obliga a conservar la documentación.',
-				'<strong>Voluntariado y consultas:</strong> el tiempo necesario para atender tu solicitud.',
+				'<strong>Voluntariado y consultas (también las del formulario de contacto):</strong> el tiempo necesario para atender tu solicitud.',
 			] ],
 			[ 'p', $pending( 'los plazos concretos de conservación de cada tipo de dato y el momento en que se borran los formularios recibidos por la web.' ) ],
 
@@ -1642,7 +1689,8 @@ final class SeedCommand {
 			[ 'h2', 'Cookies y preferencias de lectura' ],
 			[ 'p', 'Esta web guarda en tu propio navegador dos preferencias, solo si las usas: el tamaño del texto y el modo de alto contraste. Sirven para que la web se vea como tú la has elegido la próxima vez. No te identifican ni se envían a nadie.' ],
 			[ 'p', 'Ahora mismo la web no usa cookies de publicidad ni de medición de visitas.' ],
-			[ 'p', $pending( 'la política de cookies definitiva, cuando se decida si la web tendrá mapa, vídeos o medición de visitas.' ) ],
+			[ 'p', 'El mapa de la sección de contacto y los vídeos de ejercicios vienen de otros servicios, pero <strong>solo se cargan si tú los pides</strong> pulsando «Ver el mapa» o «Ver el vídeo». Hasta entonces la web no se conecta con ellos. Al pulsar, tu navegador se conecta con OpenStreetMap (el mapa) o con YouTube, de Google (los vídeos, en su modo de privacidad mejorada), que reciben datos técnicos como tu dirección IP y, en el caso de YouTube, pueden guardar cookies. Puedes consultar la <a href="https://osmfoundation.org/wiki/Privacy_Policy">política de privacidad de OpenStreetMap</a> y la <a href="https://policies.google.com/privacy?hl=es">de Google</a>.' ],
+			[ 'p', $pending( 'la política de cookies definitiva, si más adelante se añade medición de visitas u otro servicio externo.' ) ],
 
 			[ 'h2', 'Cambios en esta política' ],
 			[ 'p', 'Si cambiamos la forma de tratar tus datos, actualizaremos esta página e indicaremos la fecha arriba. Si el cambio es importante y tenemos tu contacto, te avisaremos.' ],

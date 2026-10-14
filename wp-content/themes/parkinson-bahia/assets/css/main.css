@@ -823,8 +823,41 @@ img {
 
 .pbc-contact__map {
 	min-height: 360px;
+	overflow: hidden;
 	border-radius: 200px var(--pbc-radius) var(--pbc-radius) var(--pbc-radius);
 	background: var(--pbc-mist);
+}
+
+/* Hueco del mapa con contenido del plugin: aviso y botón hasta que se pide el mapa. */
+.pbc-contact__map--facade {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 16px;
+	padding: 32px 24px;
+	text-align: center;
+}
+
+html[data-contrast="high"] .pbc-contact__map--facade {
+	border: 1px solid var(--pbc-line);
+}
+
+.pbc-contact__map-text {
+	max-width: 22em;
+	margin: 0;
+	color: var(--pbc-ink-2);
+}
+
+.pbc-contact__map--loaded {
+	display: flex;
+}
+
+.pbc-contact__map-frame {
+	flex: 1;
+	width: 100%;
+	min-height: 360px;
+	border: 0;
 }
 
 /* ---------- Pie ---------- */

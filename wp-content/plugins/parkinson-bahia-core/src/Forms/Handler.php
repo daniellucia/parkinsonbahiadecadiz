@@ -122,6 +122,30 @@ final class Handler {
 			$value    = is_scalar( $raw ) ? trim( sanitize_text_field( (string) $raw ) ) : '';
 
 			switch ( $field['type'] ) {
+				case 'select':
+					$options = array_map( 'strval', (array) ( $field['options'] ?? [] ) );
+					if ( '' === $value && ! $required ) {
+						$data[ $name ] = '';
+					} elseif ( ! in_array( $value, $options, true ) ) {
+						$errors[ $name ] = __( 'Elige una de las opciones de la lista.', 'parkinson-bahia-core' );
+					} else {
+						$data[ $name ] = $value;
+					}
+					break;
+
+				case 'textarea':
+					$text = is_scalar( $raw ) ? trim( sanitize_textarea_field( (string) $raw ) ) : '';
+					if ( $required && mb_strlen( $text ) < 2 ) {
+						/* translators: %s: nombre del campo. */
+						$errors[ $name ] = sprintf( __( 'Rellena el campo «%s».', 'parkinson-bahia-core' ), $field['label'] );
+					} elseif ( mb_strlen( $text ) > Definitions::TEXTAREA_MAX ) {
+						/* translators: %d: número máximo de caracteres. */
+						$errors[ $name ] = sprintf( __( 'El mensaje es demasiado largo. Escribe como mucho %d caracteres o llámanos por teléfono.', 'parkinson-bahia-core' ), Definitions::TEXTAREA_MAX );
+					} else {
+						$data[ $name ] = $text;
+					}
+					break;
+
 				case 'amount':
 					if ( 'otra' === $value ) {
 						$other = $input[ $name . '_otra' ] ?? '';

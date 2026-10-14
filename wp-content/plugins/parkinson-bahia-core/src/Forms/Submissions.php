@@ -153,6 +153,8 @@ final class Submissions {
 			'email'  => __( 'Correo electrónico', 'parkinson-bahia-core' ),
 			'iban'   => __( 'Número de cuenta (IBAN)', 'parkinson-bahia-core' ),
 			'areas'  => __( 'En qué quiere ayudar', 'parkinson-bahia-core' ),
+			'motivo' => __( 'Sobre qué quiere hablar', 'parkinson-bahia-core' ),
+			'mensaje' => __( 'Mensaje', 'parkinson-bahia-core' ),
 		];
 		?>
 		<p><strong><?php esc_html_e( 'Formulario:', 'parkinson-bahia-core' ); ?></strong> <?php echo esc_html( Definitions::types()[ $type ] ?? $type ); ?></p>
@@ -173,7 +175,7 @@ final class Submissions {
 					?>
 					<tr>
 						<th scope="row" style="width:16em"><?php echo esc_html( $label ); ?></th>
-						<td><?php echo esc_html( '' !== $value ? $value : '—' ); ?></td>
+						<td><?php echo '' !== $value ? nl2br( esc_html( $value ) ) : '—'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escapado con esc_html() antes de nl2br(). ?></td>
 					</tr>
 				<?php endforeach; ?>
 			</tbody>

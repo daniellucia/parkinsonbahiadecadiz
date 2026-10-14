@@ -46,6 +46,7 @@ final class Plugin {
 		( new Integration() )->register();
 		( new Forms\Submissions() )->register();
 		( new Forms\Handler() )->register();
+		( new Frontend\ContactMap() )->register();
 
 		if ( is_admin() ) {
 			( new Forms\Settings() )->register();
@@ -64,6 +65,7 @@ final class Plugin {
 			\WP_CLI::add_command( 'pbc seed-privacidad', [ $seed, 'privacidad' ] );
 			\WP_CLI::add_command( 'pbc seed-terapias', [ $seed, 'terapias' ] );
 			\WP_CLI::add_command( 'pbc seed-familias', [ $seed, 'familias' ] );
+			\WP_CLI::add_command( 'pbc seed-contacto', [ $seed, 'contacto' ] );
 		}
 	}
 }

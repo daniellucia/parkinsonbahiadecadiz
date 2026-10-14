@@ -61,6 +61,34 @@ final class Form extends Widget {
 			]
 		);
 		$this->image_control( 'image', esc_html__( 'Foto (opcional)', 'parkinson-bahia-core' ) );
+		$this->add_control(
+			'phone',
+			[
+				'label'       => esc_html__( 'Teléfono en grande (opcional)', 'parkinson-bahia-core' ),
+				'description' => esc_html__( 'Se muestra bajo el texto y se puede pulsar para llamar.', 'parkinson-bahia-core' ),
+				'type'        => Controls_Manager::TEXT,
+			]
+		);
+		$this->add_control(
+			'variant',
+			[
+				'label'   => esc_html__( 'Fondo', 'parkinson-bahia-core' ),
+				'type'    => Controls_Manager::SELECT,
+				'options' => [
+					''     => esc_html__( 'Claro', 'parkinson-bahia-core' ),
+					'sand' => esc_html__( 'Arena', 'parkinson-bahia-core' ),
+				],
+				'default' => '',
+			]
+		);
+		$this->add_control(
+			'breadcrumb',
+			[
+				'label'       => esc_html__( 'Mostrar las migas de pan', 'parkinson-bahia-core' ),
+				'description' => esc_html__( 'Actívalo cuando el formulario sea lo primero de la página; ponle entonces el título H1.', 'parkinson-bahia-core' ),
+				'type'        => Controls_Manager::SWITCHER,
+			]
+		);
 		$this->anchor_control();
 		$this->end_controls_section();
 
@@ -111,14 +139,24 @@ final class Form extends Widget {
 		// aunque un proxy sirva la web por https y WordPress crea que es http.
 		$privacy  = get_privacy_policy_url();
 		$tiles    = [ 'cuota', 'areas' ];
+		$phone    = trim( (string) ( $settings['phone'] ?? '' ) );
+		$digits   = (string) preg_replace( '/\D+/', '', $phone );
+		$variant  = 'sand' === ( $settings['variant'] ?? '' ) ? ' pbc-form-block--sand' : '';
+		$crumbs   = 'yes' === ( $settings['breadcrumb'] ?? '' );
 		?>
-		<section class="pbc-form-block"<?php echo $this->anchor_attr( $settings ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escapado en anchor_attr(). ?> aria-labelledby="<?php echo esc_attr( $title_id ); ?>">
+		<section class="pbc-form-block<?php echo esc_attr( $variant . ( $crumbs ? ' pbc-form-block--page' : '' ) ); ?>"<?php echo $this->anchor_attr( $settings ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escapado en anchor_attr(). ?> aria-labelledby="<?php echo esc_attr( $title_id ); ?>">
+			<?php if ( $crumbs ) : ?>
+				<div class="pbc-form-block__crumbs"><?php $this->render_breadcrumb(); ?></div>
+			<?php endif; ?>
 			<div class="pbc-form-block__inner">
 				<div class="pbc-form-block__body">
 					<?php $this->render_heading( $this->heading_tag( $settings ), (string) $settings['title'], 'pbc-form-block__title', $title_id ); ?>
 					<?php foreach ( $this->paragraphs( (string) $settings['text'] ) as $paragraph ) : ?>
 						<?php $this->render_text( $paragraph, 'pbc-form-block__text' ); ?>
 					<?php endforeach; ?>
+					<?php if ( strlen( $digits ) >= 9 ) : ?>
+						<a class="pbc-form-block__phone" href="<?php echo esc_url( 'tel:' . ( 9 === strlen( $digits ) ? '+34' : '+' ) . $digits ); ?>"><?php echo esc_html( $phone ); ?></a>
+					<?php endif; ?>
 					<?php echo $image; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML generado por wp_get_attachment_image(). ?>
 				</div>
 
@@ -198,6 +236,26 @@ final class Form extends Widget {
 														<?php endforeach; ?>
 													</div>
 												</fieldset>
+											<?php endif; ?>
+										<?php elseif ( in_array( $field['type'], [ 'select', 'textarea' ], true ) ) : ?>
+											<label class="pbc-form__label" for="<?php echo esc_attr( $id ); ?>">
+												<?php echo esc_html( $field['label'] ); ?>
+												<?php if ( ! $required ) : ?>
+													<span class="pbc-form__optional"><?php esc_html_e( '(opcional)', 'parkinson-bahia-core' ); ?></span>
+												<?php endif; ?>
+											</label>
+											<?php $described = trim( ( ! empty( $field['help'] ) ? $help_id . ' ' : '' ) . $error_id ); ?>
+											<?php if ( 'select' === $field['type'] ) : ?>
+												<select class="pbc-form__input pbc-form__select" id="<?php echo esc_attr( $id ); ?>" name="pbc[<?php echo esc_attr( $name ); ?>]" aria-describedby="<?php echo esc_attr( $described ); ?>"<?php echo $required ? ' required' : ''; ?>>
+													<?php foreach ( (array) ( $field['options'] ?? [] ) as $option ) : ?>
+														<option value="<?php echo esc_attr( (string) $option ); ?>"><?php echo esc_html( (string) $option ); ?></option>
+													<?php endforeach; ?>
+												</select>
+											<?php else : ?>
+												<textarea class="pbc-form__input pbc-form__textarea" id="<?php echo esc_attr( $id ); ?>" name="pbc[<?php echo esc_attr( $name ); ?>]" rows="4" maxlength="<?php echo esc_attr( (string) Definitions::TEXTAREA_MAX ); ?>" aria-describedby="<?php echo esc_attr( $described ); ?>"<?php echo $required ? ' required' : ''; ?>></textarea>
+											<?php endif; ?>
+											<?php if ( ! empty( $field['help'] ) ) : ?>
+												<span class="pbc-form__help" id="<?php echo esc_attr( $help_id ); ?>"><?php echo esc_html( $field['help'] ); ?></span>
 											<?php endif; ?>
 										<?php else : ?>
 											<label class="pbc-form__label" for="<?php echo esc_attr( $id ); ?>">

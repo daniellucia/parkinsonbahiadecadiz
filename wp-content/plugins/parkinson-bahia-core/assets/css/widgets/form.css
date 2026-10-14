@@ -40,6 +40,55 @@
 	object-fit: cover;
 }
 
+/* ---------- Fondo arena y formulario como primera sección de la página ---------- */
+.pbc-form-block--sand {
+	background: var(--pbc-sand);
+}
+
+html[data-contrast="high"] .pbc-form-block--sand {
+	border-bottom: 1px solid var(--pbc-line);
+}
+
+.pbc-form-block--sand .pbc-form {
+	border-color: var(--pbc-line);
+	background: var(--pbc-card);
+}
+
+.pbc-form-block__crumbs {
+	max-width: var(--pbc-width);
+	margin-inline: auto;
+	padding: 24px var(--pbc-gutter) 0;
+}
+
+.pbc-form-block--page .pbc-form-block__inner {
+	padding-top: 0;
+}
+
+.pbc-form-block--page .pbc-form-block__title {
+	font-size: clamp(2.3rem, 5vw, 3.6rem);
+	line-height: 1.08;
+}
+
+.pbc-form-block--page .pbc-form-block__text {
+	font-size: 1.2rem;
+}
+
+.pbc-form-block__phone {
+	align-self: flex-start;
+	min-height: 48px;
+	color: var(--pbc-sea);
+	font-family: var(--pbc-font-display);
+	font-size: clamp(1.8rem, 3.6vw, 2.4rem);
+	text-decoration: none;
+	transition: color var(--pbc-speed) var(--pbc-ease);
+}
+
+.pbc-form-block__phone:hover {
+	color: var(--pbc-ink);
+	text-decoration: underline;
+	text-decoration-thickness: 2px;
+}
+
 .pbc-form {
 	position: relative;
 	display: flex;
@@ -110,6 +159,15 @@ html[data-contrast="high"] .pbc-form {
 	color: var(--pbc-ink);
 	font-family: inherit;
 	font-size: 1.05rem;
+}
+
+.pbc-form__textarea {
+	min-height: 120px;
+	resize: vertical;
+}
+
+.pbc-form__select {
+	appearance: auto;
 }
 
 /* «Otra cantidad»: el campo solo aparece al elegir esa opción y ocupa todo el ancho. */

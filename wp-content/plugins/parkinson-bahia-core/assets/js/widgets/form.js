@@ -99,13 +99,13 @@
 			names.forEach( function ( name ) {
 				var field = form.querySelector( '[data-pbc-field="' + name + '"]' );
 				var item = document.createElement( 'li' );
-				var input = field ? field.querySelector( 'input:not([type="hidden"])' ) : null;
+				var input = field ? field.querySelector( 'input:not([type="hidden"]), select, textarea' ) : null;
 
 				if ( field ) {
 					var error = field.querySelector( '[data-pbc-error]' );
 					error.textContent = errors[ name ];
 					error.hidden = false;
-					field.querySelectorAll( 'input' ).forEach( function ( element ) {
+					field.querySelectorAll( 'input, select, textarea' ).forEach( function ( element ) {
 						element.setAttribute( 'aria-invalid', 'true' );
 					} );
 				}
