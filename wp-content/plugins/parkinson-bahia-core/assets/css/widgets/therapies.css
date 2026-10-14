@@ -83,9 +83,3 @@
 	transition: transform var(--pbc-speed) var(--pbc-ease);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-	.pbc-therapies__link:hover .pbc-therapies__name,
-	.pbc-therapies__link:hover .pbc-therapies__text {
-		transform: translateX(8px);
-	}
-}
