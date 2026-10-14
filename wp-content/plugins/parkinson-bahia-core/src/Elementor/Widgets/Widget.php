@@ -333,6 +333,29 @@ abstract class Widget extends Widget_Base {
 	}
 
 	/**
+	 * Migas de pan de la página actual (bloque .pbc-breadcrumb del tema).
+	 * No se pintan en la portada.
+	 */
+	protected function render_breadcrumb(): void {
+		$page_id = (int) get_queried_object_id();
+
+		if ( $page_id <= 0 || is_front_page() ) {
+			return;
+		}
+		?>
+		<nav class="pbc-breadcrumb" aria-label="<?php esc_attr_e( 'Estás en', 'parkinson-bahia-core' ); ?>">
+			<ol class="pbc-breadcrumb__list">
+				<li class="pbc-breadcrumb__item"><a class="pbc-breadcrumb__link" href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'Inicio', 'parkinson-bahia-core' ); ?></a></li>
+				<?php foreach ( array_reverse( get_post_ancestors( $page_id ) ) as $ancestor ) : ?>
+					<li class="pbc-breadcrumb__item"><a class="pbc-breadcrumb__link" href="<?php echo esc_url( get_permalink( $ancestor ) ); ?>"><?php echo esc_html( get_the_title( $ancestor ) ); ?></a></li>
+				<?php endforeach; ?>
+				<li class="pbc-breadcrumb__item" aria-current="page"><?php echo esc_html( get_the_title( $page_id ) ); ?></li>
+			</ol>
+		</nav>
+		<?php
+	}
+
+	/**
 	 * Pinta un encabezado si tiene texto.
 	 */
 	protected function render_heading( string $tag, string $text, string $class_name, string $id = '' ): void {
@@ -403,6 +426,20 @@ abstract class Widget extends Widget_Base {
 		);
 
 		return $query->posts;
+	}
+
+	/**
+	 * Carga de una vez las imágenes destacadas de una lista ya consultada con
+	 * items() (sus metadatos ya están en caché), sin repetir la consulta.
+	 *
+	 * @param \WP_Post[] $posts Elementos.
+	 */
+	protected function prime_thumbnails( array $posts ): void {
+		$ids = array_filter( array_map( static fn ( \WP_Post $post ): int => (int) get_post_thumbnail_id( $post ), $posts ) );
+
+		if ( $ids ) {
+			_prime_post_caches( array_values( array_unique( $ids ) ), false, true );
+		}
 	}
 
 	/**

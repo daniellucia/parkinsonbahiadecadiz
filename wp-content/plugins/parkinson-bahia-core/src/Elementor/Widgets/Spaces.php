@@ -65,7 +65,7 @@ final class Spaces extends Widget {
 		}
 
 		// Una sola consulta para todas las fotos.
-		update_post_thumbnail_cache( new \WP_Query( [ 'post__in' => wp_list_pluck( $items, 'ID' ), 'post_type' => Espacio::POST_TYPE, 'posts_per_page' => count( $items ), 'no_found_rows' => true ] ) );
+		$this->prime_thumbnails( $items );
 		?>
 		<section class="pbc-spaces" aria-labelledby="<?php echo esc_attr( $title_id ); ?>">
 			<div class="pbc-spaces__inner">

@@ -52,6 +52,7 @@ final class PageHeader extends Widget {
 					''     => esc_html__( 'Claro', 'parkinson-bahia-core' ),
 					'sand' => esc_html__( 'Arena', 'parkinson-bahia-core' ),
 					'clay' => esc_html__( 'Naranja', 'parkinson-bahia-core' ),
+					'dark' => esc_html__( 'Azul oscuro', 'parkinson-bahia-core' ),
 				],
 				'default' => '',
 			]
@@ -90,6 +91,30 @@ final class PageHeader extends Widget {
 		$this->end_controls_section();
 
 		$this->start_controls_section( 'jumps_section', [ 'label' => esc_html__( 'Accesos (opcional)', 'parkinson-bahia-core' ) ] );
+		$this->add_control(
+			'jumps_source',
+			[
+				'label'       => esc_html__( 'Qué accesos mostrar', 'parkinson-bahia-core' ),
+				'description' => esc_html__( '«Las terapias» enlaza con cada ficha del widget «Fichas de terapias» de esta misma página, en el orden del menú «Terapias».', 'parkinson-bahia-core' ),
+				'type'        => \Elementor\Controls_Manager::SELECT,
+				'options'     => [
+					''          => esc_html__( 'Los que escriba aquí', 'parkinson-bahia-core' ),
+					'therapies' => esc_html__( 'Las terapias', 'parkinson-bahia-core' ),
+				],
+				'default'     => '',
+			]
+		);
+		$this->add_control(
+			'chips_label',
+			[
+				'label'       => esc_html__( 'Nombre de la lista de accesos', 'parkinson-bahia-core' ),
+				'description' => esc_html__( 'Lo oyen quienes usan lector de pantalla.', 'parkinson-bahia-core' ),
+				'type'        => \Elementor\Controls_Manager::TEXT,
+				'default'     => esc_html__( 'Ir a una terapia', 'parkinson-bahia-core' ),
+				'label_block' => true,
+				'condition'   => [ 'jumps_source' => 'therapies' ],
+			]
+		);
 		$jumps = new Repeater();
 		$jumps->add_control(
 			'label',
@@ -109,9 +134,32 @@ final class PageHeader extends Widget {
 				'fields'      => $jumps->get_controls(),
 				'title_field' => '{{ label }}',
 				'default'     => [],
+				'condition'   => [ 'jumps_source' => '' ],
 			]
 		);
 		$this->end_controls_section();
+	}
+
+	/**
+	 * Solo consulta contenidos cuando los accesos salen de las terapias.
+	 */
+	protected function is_dynamic_content(): bool {
+		return 'therapies' === $this->get_settings( 'jumps_source' );
+	}
+
+	/**
+	 * Accesos a las fichas de las terapias: ancla => nombre.
+	 *
+	 * @return array<string, string>
+	 */
+	private function therapy_chips(): array {
+		$chips = [];
+
+		foreach ( $this->items( \DanielLucia\ParkinsonBahia\Core\PostTypes\Terapia::POST_TYPE, 30 ) as $item ) {
+			$chips[ '#' . TherapyDetails::ANCHOR_PREFIX . $item->post_name ] = get_the_title( $item );
+		}
+
+		return $chips;
 	}
 
 	protected function render(): void {
@@ -127,7 +175,6 @@ final class PageHeader extends Widget {
 			],
 			'yes' === ( $settings['image_decorative'] ?? '' )
 		);
-		$page_id  = (int) get_queried_object_id();
 		$facts    = array_filter(
 			is_array( $settings['facts'] ?? null ) ? $settings['facts'] : [],
 			static fn ( $fact ): bool => '' !== trim( (string) ( $fact['label'] ?? '' ) ) && '' !== trim( (string) ( $fact['value'] ?? '' ) )
@@ -135,8 +182,9 @@ final class PageHeader extends Widget {
 		$has_side = '' !== $image || $facts;
 		$variant = (string) ( $settings['variant'] ?? '' );
 		$jumps   = [];
+		$chips   = 'therapies' === ( $settings['jumps_source'] ?? '' ) ? $this->therapy_chips() : [];
 
-		foreach ( is_array( $settings['jumps'] ?? null ) ? $settings['jumps'] : [] as $index => $jump ) {
+		foreach ( $chips ? [] : ( is_array( $settings['jumps'] ?? null ) ? $settings['jumps'] : [] ) as $index => $jump ) {
 			$link = $this->link_value( $jump, 'link' );
 			if ( '' !== trim( (string) ( $jump['label'] ?? '' ) ) && $link ) {
 				$key = 'jump-' . $index;
@@ -146,19 +194,9 @@ final class PageHeader extends Widget {
 			}
 		}
 		?>
-		<section class="pbc-page-hero<?php echo in_array( $variant, [ 'sand', 'clay' ], true ) ? ' pbc-page-hero--' . esc_attr( $variant ) : ''; ?>">
+		<section class="pbc-page-hero<?php echo in_array( $variant, [ 'sand', 'clay', 'dark' ], true ) ? ' pbc-page-hero--' . esc_attr( $variant ) : ''; ?>">
 			<div class="pbc-page-hero__inner">
-				<?php if ( $page_id > 0 && ! is_front_page() ) : ?>
-					<nav class="pbc-breadcrumb" aria-label="<?php esc_attr_e( 'Estás en', 'parkinson-bahia-core' ); ?>">
-						<ol class="pbc-breadcrumb__list">
-							<li class="pbc-breadcrumb__item"><a class="pbc-breadcrumb__link" href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'Inicio', 'parkinson-bahia-core' ); ?></a></li>
-							<?php foreach ( array_reverse( get_post_ancestors( $page_id ) ) as $ancestor ) : ?>
-								<li class="pbc-breadcrumb__item"><a class="pbc-breadcrumb__link" href="<?php echo esc_url( get_permalink( $ancestor ) ); ?>"><?php echo esc_html( get_the_title( $ancestor ) ); ?></a></li>
-							<?php endforeach; ?>
-							<li class="pbc-breadcrumb__item" aria-current="page"><?php echo esc_html( get_the_title( $page_id ) ); ?></li>
-						</ol>
-					</nav>
-				<?php endif; ?>
+				<?php $this->render_breadcrumb(); ?>
 				<div class="pbc-page-hero__grid<?php echo $has_side ? '' : ' pbc-page-hero__grid--text'; ?>">
 					<div class="pbc-page-hero__body">
 						<?php $this->render_text( (string) $settings['eyebrow'], 'pbc-page-hero__eyebrow' ); ?>
@@ -181,6 +219,13 @@ final class PageHeader extends Widget {
 						</dl>
 					<?php endif; ?>
 				</div>
+				<?php if ( $chips ) : ?>
+					<ul class="pbc-page-hero__chips"<?php echo '' !== trim( (string) ( $settings['chips_label'] ?? '' ) ) ? ' aria-label="' . esc_attr( $settings['chips_label'] ) . '"' : ''; ?>>
+						<?php foreach ( $chips as $anchor => $label ) : ?>
+							<li class="pbc-page-hero__chips-item"><a class="pbc-page-hero__chip" href="<?php echo esc_attr( $anchor ); ?>"><?php echo esc_html( $label ); ?></a></li>
+						<?php endforeach; ?>
+					</ul>
+				<?php endif; ?>
 				<?php if ( $jumps ) : ?>
 					<ul class="pbc-page-hero__jumps">
 						<?php foreach ( $jumps as $key => $label ) : ?>

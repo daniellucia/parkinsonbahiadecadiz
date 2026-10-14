@@ -46,7 +46,9 @@ abstract class PostType {
 	abstract protected function args(): array;
 
 	/**
-	 * Campos extra: clave de meta => [ 'label', 'type' (text|number|url|file), 'description' ].
+	 * Campos extra: clave de meta => [ 'label', 'type' (text|textarea|number|url|file|date), 'description' ].
+	 * «textarea» guarda varias líneas (por ejemplo, una lista con un elemento por línea);
+	 * «date» guarda la fecha como AAAA-MM-DD.
 	 *
 	 * @return array<string, array{label:string, type:string, description?:string}>
 	 */
@@ -184,6 +186,10 @@ abstract class PostType {
 					<span data-pbc-file-name><?php echo $file_id > 0 ? esc_html( wp_basename( (string) get_attached_file( $file_id ) ) ) : esc_html__( 'Ningún archivo elegido', 'parkinson-bahia-core' ); ?></span><br>
 					<button type="button" class="button" data-pbc-file-choose><?php esc_html_e( 'Elegir archivo', 'parkinson-bahia-core' ); ?></button>
 					<button type="button" class="button-link" data-pbc-file-clear><?php esc_html_e( 'Quitar', 'parkinson-bahia-core' ); ?></button>
+				<?php elseif ( 'textarea' === $field['type'] ) : ?>
+					<textarea class="large-text" rows="4" id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $key ); ?>"><?php echo esc_textarea( (string) $value ); ?></textarea>
+				<?php elseif ( 'date' === $field['type'] ) : ?>
+					<input type="date" id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $key ); ?>" value="<?php echo esc_attr( (string) $value ); ?>">
 				<?php else : ?>
 					<input
 						type="<?php echo esc_attr( 'number' === $field['type'] ? 'number' : ( 'url' === $field['type'] ? 'url' : 'text' ) ); ?>"
@@ -235,6 +241,8 @@ abstract class PostType {
 		return match ( $type ) {
 			'number', 'file' => absint( $value ),
 			'url'            => esc_url_raw( (string) $value ),
+			'textarea'       => sanitize_textarea_field( (string) $value ),
+			'date'           => preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) $value ) && wp_checkdate( (int) substr( (string) $value, 5, 2 ), (int) substr( (string) $value, 8, 2 ), (int) substr( (string) $value, 0, 4 ), (string) $value ) ? (string) $value : '',
 			default          => sanitize_text_field( (string) $value ),
 		};
 	}

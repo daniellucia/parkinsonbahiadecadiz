@@ -40,3 +40,49 @@
 	padding: 0 28px;
 	font-size: 1.05rem;
 }
+
+.pbc-cta__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+}
+
+/* ---------- Recuadro azul claro ----------
+   El recuadro es un fondo dibujado detrás del contenido, dentro del ancho de
+   la página: así el widget mantiene un único envoltorio. */
+.pbc-cta--mist {
+	border-top: 0;
+}
+
+.pbc-cta--mist .pbc-cta__inner {
+	position: relative;
+	isolation: isolate;
+	padding:
+		calc(clamp(48px, 7vw, 88px) + clamp(28px, 5vw, 56px))
+		calc(var(--pbc-gutter) + clamp(24px, 4vw, 56px));
+}
+
+.pbc-cta--mist .pbc-cta__inner::after {
+	content: "";
+	position: absolute;
+	inset: clamp(48px, 7vw, 88px) var(--pbc-gutter);
+	z-index: -1;
+	border: 1px solid transparent;
+	border-radius: 28px;
+	background: var(--pbc-mist);
+}
+
+html[data-contrast="high"] .pbc-cta--mist .pbc-cta__inner::after {
+	border-color: var(--pbc-line);
+}
+
+.pbc-cta--mist .pbc-cta__title {
+	font-size: clamp(1.6rem, 3vw, 2.2rem);
+}
+
+.pbc-cta--mist .pbc-cta__button.pbc-button--outline:hover {
+	background: var(--pbc-card);
+}
+
+/* ---------- Microinteracciones ----------
+   Los botones usan las de .pbc-button del tema. */

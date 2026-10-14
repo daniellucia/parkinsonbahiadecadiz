@@ -1,0 +1,106 @@
+/* Widget «Fichas de terapias». */
+.pbc-therapy-details {
+	max-width: var(--pbc-width);
+	margin-inline: auto;
+	padding: clamp(24px, 4vw, 48px) var(--pbc-gutter) 0;
+}
+
+.pbc-therapy-details__item {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
+	align-items: center;
+	gap: clamp(28px, 5vw, 64px);
+	padding: clamp(40px, 6vw, 72px) 0;
+	border-bottom: 1px solid var(--pbc-line);
+}
+
+.pbc-therapy-details__item--text {
+	display: block;
+}
+
+.pbc-therapy-details__item--text .pbc-therapy-details__body {
+	max-width: 46em;
+}
+
+.pbc-therapy-details__figure {
+	margin: 0;
+}
+
+/* Doble clase: Elementor aplica «.elementor img { border-radius: 0 }». */
+.pbc-therapy-details .pbc-therapy-details__image {
+	display: block;
+	width: 100%;
+	height: auto;
+	aspect-ratio: 4 / 3;
+	border-radius: var(--pbc-radius);
+	background: var(--pbc-sand);
+	object-fit: cover;
+}
+
+.pbc-therapy-details__body {
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+}
+
+.pbc-therapy-details__title {
+	margin: 0;
+	font-family: var(--pbc-font-display);
+	font-size: clamp(1.9rem, 3.6vw, 2.6rem);
+	font-weight: 400;
+	line-height: 1.12;
+	overflow-wrap: break-word;
+}
+
+.pbc-therapy-details__lead {
+	margin: 0;
+	color: var(--pbc-ink-2);
+	font-size: 1.15rem;
+}
+
+.pbc-therapy-details__works-title {
+	margin: 8px 0 10px;
+	font-family: var(--pbc-font-body);
+	font-size: 1rem;
+	font-weight: 700;
+}
+
+.pbc-therapy-details__list {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.pbc-therapy-details__list-item {
+	display: flex;
+	align-items: baseline;
+	gap: 12px;
+	font-size: 1.05rem;
+}
+
+.pbc-therapy-details__list-item::before {
+	content: "";
+	flex: none;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--pbc-sea);
+	transform: translateY(-2px);
+}
+
+.pbc-therapy-details__who {
+	margin: 4px 0 0;
+	padding-top: 16px;
+	border-top: 1px solid var(--pbc-line);
+	color: var(--pbc-ink-2);
+	font-size: 0.95rem;
+}
+
+.pbc-therapy-details__who-label {
+	color: var(--pbc-ink);
+}
+
+/* Microinteracciones: esta sección no tiene elementos interactivos. */

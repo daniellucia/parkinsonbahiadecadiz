@@ -43,6 +43,7 @@ final class Integration {
 		'form'        => Widgets\Form::class,
 		'donation'    => Widgets\Donation::class,
 		'cta'         => Widgets\Cta::class,
+		'therapy-details' => Widgets\TherapyDetails::class,
 	];
 
 	/**

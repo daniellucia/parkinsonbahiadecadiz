@@ -33,12 +33,13 @@ ddev wp pbc seed-asociacion  # crea la página «La asociación» y sus contenid
 ddev wp pbc seed-centro      # crea la página «Centro de día» y sus contenidos
 ddev wp pbc seed-colabora    # crea la página «Colabora»
 ddev wp pbc seed-privacidad  # crea y publica la política de privacidad y el menú legal del pie
+ddev wp pbc seed-terapias    # completa las terapias y crea la página «Terapias»
 ddev launch
 ```
 
 Para que el formulario de socios pida DNI e IBAN hace falta una clave de cifrado en `PBC_FORMS_KEY` (se genera con `php -r "echo base64_encode(random_bytes(32));"`). En local va en `.ddev/config.local.yaml`, que no se versiona (después, `ddev restart`); en producción, como constante en `wp-config.php`, con copia guardada fuera del servidor.
 
-Los cinco comandos se pueden repetir sin duplicar nada. Con `--force` reescriben su página; `seed-home` con `--skip-images` no descarga las fotos de la web actual.
+Los comandos se pueden repetir sin duplicar nada. Con `--force` reescriben su página; `seed-home` con `--skip-images` no descarga las fotos de la web actual.
 
 ## Cómo está construida
 
@@ -65,9 +66,9 @@ Los cinco comandos se pueden repetir sin duplicar nada. Con `--force` reescriben
 - Buscador en el pie de todas las páginas.
 - Indicador de carga en el botón al enviar cualquier formulario.
 
-### Plugin `parkinson-bahia-core` (versión 1.5.0)
+### Plugin `parkinson-bahia-core` (versión 1.6.0)
 
-- **Tipo de contenido «Terapias»**: una página por terapia, con resumen, foto y orden.
+- **Tipo de contenido «Terapias»**: una página por terapia, con resumen, foto, orden, «Qué trabajamos» (un punto por línea) y «Quién la hace».
 - **Menú «La asociación» del escritorio**, con los datos que alimentan esa página: Historia (hitos por año), Equipo profesional (puestos y número de personas), Junta directiva (nombre y cargo), Documentos de transparencia (con su archivo) y Redes y federaciones (siglas y web).
 - **Menú «Centro de día» del escritorio**: Instalaciones (sala y foto) y Preguntas frecuentes (pregunta, respuesta y tema).
 - **Widgets de Elementor** (categoría «Párkinson Bahía de Cádiz»):
@@ -95,7 +96,8 @@ Los cinco comandos se pueden repetir sin duplicar nada. Con `--force` reescriben
 | Preguntas frecuentes | Preguntas desplegables, de un tema o de todos | Centro de día → Preguntas frecuentes |
 | Formulario | Texto y formulario (hacerse socio o voluntariado) | Campos del widget; los envíos van a Formularios |
 | Formas de donar | Texto y una tarjeta por cada medio de donación | Campos del widget |
-| Llamada con botón | Título, texto y botón en una franja | Campos del widget |
+| Llamada con botón | Título, texto y uno o dos botones, en franja o en recuadro azul claro | Campos del widget |
+| Fichas de terapias | Una sección por terapia: foto, resumen, qué trabajamos y quién la hace | Tipo de contenido Terapias |
 
 - Elementor no carga Google Fonts: las fuentes las sirve el tema.
 - «Preguntas frecuentes» añade datos estructurados (FAQPage de schema.org) para los buscadores, un único bloque por página.
@@ -105,6 +107,7 @@ Los cinco comandos se pueden repetir sin duplicar nada. Con `--force` reescriben
   - Los envíos se guardan en **Formularios** del escritorio, solo para administradores. DNI e IBAN se validan (letra y dígitos de control) y se guardan **cifrados**; nunca viajan por correo.
   - Casilla de aceptación con enlace a la política de privacidad (se abre en otra pestaña) y, debajo, la información básica de protección de datos.
   - **Formularios → Ajustes**: correo que recibe los avisos y claves de Turnstile, escritas una sola vez para todos los formularios.
+- «Cabecera de página» admite fondo azul oscuro y accesos automáticos a cada terapia (enlazan con «Fichas de terapias»).
 - «Cabecera de página» admite también fondo naranja y botones de acceso; las secciones admiten un ancla para enlazarlas.
 - «Cabecera de página» admite fondo arena y datos clave; «Pasos» admite fondo azul oscuro y tarjetas de apoyo.
 - Comandos `wp pbc seed-home`, `wp pbc seed-asociacion`, `wp pbc seed-centro` y `wp pbc seed-colabora` para montar esas páginas con el contenido del diseño.
@@ -128,7 +131,8 @@ Genera solo el fichero [`llms.txt`](https://llmstxt.org/), que resume la web par
 - **Centro de día**: montada con siete widgets (cabecera con datos clave, aviso de lista de espera, un día en el centro, cómo solicitar plaza, instalaciones, transporte y preguntas frecuentes). Falta la foto del transporte. El horario y el calendario usan el dato confirmado («cerrado en agosto»), no el del boceto («abierto todo el año»).
 - **Colabora**: montada con cabecera con accesos, formulario de socios, formas de donar, formulario de voluntariado y llamada a empresas. Los donativos todavía no se cobran en línea (solo transferencia y teléfono) y las cuotas de 5, 10 y 20 € son las del boceto, sin confirmar.
 - **Política de privacidad**: publicada y enlazada desde los formularios y el pie. Redactada a partir de los datos conocidos de la asociación y de cómo trata los datos esta web; tiene cuatro puntos marcados «Pendiente de confirmar» (delegado de protección de datos, plazos de conservación, empresa de alojamiento y política de cookies) y **debe revisarla la asociación o su asesoría antes de publicar la web**.
-- Terapias, Familias y cuidadores y Contacto: creadas, con contenido pendiente.
+- **Terapias**: montada con cabecera azul con accesos a cada terapia, fichas de las ocho terapias y llamada final. Faltan las fotos de musicoterapia y apoyo a familias (sin foto la ficha ocupa todo el ancho).
+- Familias y cuidadores y Contacto: creadas, con contenido pendiente.
 
 ## Pendiente
 

@@ -1066,6 +1066,164 @@ final class SeedCommand {
 	}
 
 	/**
+	 * Completa las terapias (qué trabajamos, quién la hace y foto) y monta la página «Terapias».
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--force]
+	 * : Reescribe el contenido de la página aunque ya tenga widgets.
+	 *
+	 * [--skip-images]
+	 * : No descarga las fotos de la web actual.
+	 *
+	 * @param string[]             $args       Argumentos posicionales.
+	 * @param array<string, mixed> $assoc_args Opciones.
+	 */
+	public function terapias( array $args, array $assoc_args ): void {
+		$this->start();
+
+		$with_images = empty( $assoc_args['skip-images'] );
+		$pages       = $this->seed_pages();
+		$page_id     = $pages['terapias'];
+
+		$this->seed_therapies();
+
+		// Nombre => qué trabajamos, quién la hace, foto y texto alternativo (sin foto: '').
+		$details = [
+			'Fisioterapia'           => [ [ 'Equilibrio y prevención de caídas', 'Marcha, postura y flexibilidad', 'Fuerza y resistencia' ], 'Fisioterapeuta, en sesiones individuales y en grupo', '2026/01/20260108_111217.jpg', 'Sala de rehabilitación funcional con espalderas y aparatos' ],
+			'Logopedia'              => [ [ 'Volumen y claridad de la voz', 'Respiración y articulación', 'Deglución segura (disfagia)' ], 'Logopeda, en sesiones individuales', '2026/01/20260108_120850.jpg', 'Sala de logopedia con mesa y espejo' ],
+			'Psicología'             => [ [ 'Ansiedad, tristeza y apatía', 'Aceptación del diagnóstico', 'Apoyo a la pareja y a la familia' ], 'Dos psicólogos, en sesiones individuales y grupos', '2026/01/20260108_112732.jpg', 'Despacho de psicología con sillones' ],
+			'Estimulación cognitiva' => [ [ 'Memoria y atención', 'Orientación y lenguaje', 'Rehabilitación cognitiva personalizada' ], 'Equipo de psicología y neuropsicología', '2026/01/20260108_110920.jpg', 'Sala con ordenadores para estimulación cognitiva' ],
+			'Musicoterapia'          => [ [ 'Ritmo y coordinación del movimiento', 'Voz y respiración a través del canto', 'Relación con los compañeros' ], 'En grupo, dentro del centro de día', '', '' ],
+			'Cineterapia'            => [ [ 'Expresión de emociones', 'Atención y memoria', 'Conversación y compañía' ], 'En grupo, en el salón de actos', '2026/01/20260108_112838.jpg', 'Salón de actos del centro con butacas' ],
+			'Trabajo social'         => [ [ 'Solicitud de dependencia y discapacidad', 'Ayudas y recursos públicos', 'Orientación a la familia' ], 'Trabajadora social, con cita previa', '2026/01/20260108_112043.jpg', 'Despacho de trabajo social' ],
+			'Apoyo a familias'       => [ [ 'Grupos de autoayuda', 'Atención psicológica al cuidador', 'Pautas para el día a día en casa' ], 'Equipo de psicología y trabajo social', '', '' ],
+		];
+
+		foreach ( $details as $title => [ $works, $who, $path, $alt ] ) {
+			$therapy = get_page_by_path( sanitize_title( $title ), OBJECT, Terapia::POST_TYPE );
+			if ( ! $therapy ) {
+				continue;
+			}
+			// Solo se rellena lo que está vacío: no se pisa lo que haya escrito la asociación.
+			if ( '' === (string) get_post_meta( $therapy->ID, Terapia::META_WORKS, true ) ) {
+				update_post_meta( $therapy->ID, Terapia::META_WORKS, implode( "\n", $works ) );
+			}
+			if ( '' === (string) get_post_meta( $therapy->ID, Terapia::META_WHO, true ) ) {
+				update_post_meta( $therapy->ID, Terapia::META_WHO, $who );
+			}
+			if ( $with_images && '' !== $path && ! has_post_thumbnail( $therapy ) ) {
+				$image_id = $this->image( $path, $alt );
+				if ( $image_id > 0 ) {
+					set_post_thumbnail( $therapy, $image_id );
+				}
+			}
+		}
+		WP_CLI::log( 'Terapias completadas.' );
+
+		if ( ! $this->may_write( $page_id, $assoc_args ) ) {
+			WP_CLI::success( 'Terapias lista: ' . get_permalink( $page_id ) );
+			return;
+		}
+
+		$this->save_page(
+			$page_id,
+			[
+				'pbc-page-header'     => [
+					'title'        => 'Terapias para seguir haciendo lo que te importa',
+					'title_tag'    => 'h1',
+					'text'         => 'El párkinson afecta al movimiento, a la voz, a la memoria y al ánimo. Por eso lo tratamos desde todos los lados a la vez, con un plan hecho para cada persona.',
+					'variant'      => 'dark',
+					'jumps_source' => 'therapies',
+					'chips_label'  => 'Ir a una terapia',
+				],
+				'pbc-therapy-details' => [
+					'works_label' => 'Qué trabajamos',
+					'who_label'   => 'Quién la hace:',
+				],
+				'pbc-cta'             => [
+					'title'             => '¿No sabes qué terapia necesitas?',
+					'title_tag'         => 'h2',
+					'text'              => 'No hace falta saberlo. Llámanos y el equipo te orienta según tu situación.',
+					'variant'           => 'mist',
+					'button_label'      => 'Llamar al 956 59 19 28',
+					'button_link_page'  => 'custom',
+					'button_link'       => $this->custom_link( 'tel:+34956591928' ),
+					'button2_label'     => 'Ver el centro de día',
+					'button2_link_page' => 'page-' . $pages['centro-de-dia'],
+				],
+			],
+			'terapias'
+		);
+
+		WP_CLI::log( 'Página «Terapias» montada con sus widgets.' );
+		WP_CLI::success( 'Terapias lista: ' . get_permalink( $page_id ) );
+	}
+
+	/**
+	 * Comprobaciones comunes de los comandos que montan páginas: Elementor
+	 * activo y un administrador como usuario actual.
+	 */
+	private function start(): void {
+		if ( ! did_action( 'elementor/loaded' ) ) {
+			WP_CLI::error( 'Elementor no está activo.' );
+		}
+
+		$admins = get_users(
+			[
+				'role'   => 'administrator',
+				'number' => 1,
+				'fields' => 'ID',
+			]
+		);
+		if ( ! $admins ) {
+			WP_CLI::error( 'No hay ningún usuario administrador.' );
+		}
+		wp_set_current_user( (int) $admins[0] );
+	}
+
+	/**
+	 * Una página solo se reescribe si está vacía o si se pasa --force.
+	 *
+	 * @param array<string, mixed> $assoc_args Opciones del comando.
+	 */
+	private function may_write( int $page_id, array $assoc_args ): bool {
+		if ( '' !== (string) get_post_meta( $page_id, '_elementor_data', true ) && empty( $assoc_args['force'] ) ) {
+			WP_CLI::log( 'La página ya tiene contenido; no se toca (usa --force para reescribirla).' );
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Valor de un enlace personalizado (control URL de Elementor).
+	 *
+	 * @return array<string, string>
+	 */
+	private function custom_link( string $url ): array {
+		return [
+			'url'         => $url,
+			'is_external' => '',
+			'nofollow'    => '',
+		];
+	}
+
+	/**
+	 * Filas de un repetidor con su identificador interno.
+	 *
+	 * @param array<int, array<string, mixed>> $items Filas.
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function rows( array $items ): array {
+		foreach ( $items as $index => $item ) {
+			$items[ $index ]['_id'] = substr( md5( (string) wp_json_encode( $item ) . $index ), 0, 7 );
+		}
+
+		return $items;
+	}
+
+	/**
 	 * Crea y publica la página «Política de privacidad» y el menú legal del pie.
 	 *
 	 * El texto parte de lo que se sabe de la asociación y de cómo trata los
