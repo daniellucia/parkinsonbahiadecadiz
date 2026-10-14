@@ -1,0 +1,24 @@
+{
+    "name": "daniellucia/parkinson-redirects",
+    "description": "Redirecciones 301 de la web antigua a la nueva, con registro de errores 404 y sin datos personales.",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Daniel Lucia",
+            "homepage": "https://daniellucia.es"
+        }
+    ],
+    "require": {
+        "php": ">=8.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "DanielLucia\\Redirects\\": "src/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    }
+}

@@ -494,6 +494,68 @@ final class SeedCommand {
 
 
 	/**
+	 * Crea las redirecciones 301 de la web antigua (necesita el plugin
+	 * «Redirecciones», parkinson-redirects).
+	 *
+	 * La tabla está en assets/seed/redirecciones.csv: páginas, entradas,
+	 * categorías y PDF de /archivos/ de la web actual, sacados de sus mapas del
+	 * sitio. Un destino «entrada:<slug>» es una noticia que sigue en la web
+	 * nueva con otro nombre. Las guías que importó seed-familias se redirigen
+	 * a su nuevo archivo PDF.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--force]
+	 * : Cambia también las redirecciones que ya existen (por ejemplo, las editadas a mano).
+	 *
+	 * @param string[]             $args       Argumentos posicionales.
+	 * @param array<string, mixed> $assoc_args Opciones.
+	 */
+	public function redirecciones( array $args, array $assoc_args ): void {
+		if ( ! class_exists( \DanielLucia\Redirects\Importer::class ) ) {
+			WP_CLI::error( 'El plugin «Redirecciones» (parkinson-redirects) no está activo.' );
+		}
+
+		$importer = new \DanielLucia\Redirects\Importer( new \DanielLucia\Redirects\Repository() );
+		$rows     = $importer->read_csv( PBC_CORE_DIR . 'assets/seed/redirecciones.csv' );
+
+		if ( is_wp_error( $rows ) ) {
+			WP_CLI::error( $rows->get_error_message() );
+		}
+
+		foreach ( $rows as &$row ) {
+			if ( preg_match( '/^entrada:(.+)$/', $row[1] ?? '', $m ) ) {
+				$post   = get_page_by_path( $m[1], OBJECT, 'post' );
+				$row[1] = $post && 'publish' === $post->post_status ? 'post:' . $post->ID : '/actualidad/';
+			}
+		}
+		unset( $row );
+
+		$guides = get_posts(
+			[
+				'post_type'      => 'attachment',
+				'post_status'    => 'inherit',
+				'posts_per_page' => 100,
+				'fields'         => 'ids',
+				'meta_key'       => self::SOURCE_META, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Comando puntual.
+				'meta_value'     => 'https://parkinsonbahiadecadiz.org/archivos/', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Comando puntual.
+				'meta_compare'   => 'LIKE',
+			]
+		);
+		foreach ( $guides as $guide_id ) {
+			$path   = (string) wp_parse_url( (string) get_post_meta( (int) $guide_id, self::SOURCE_META, true ), PHP_URL_PATH );
+			$rows[] = [ rawurldecode( $path ), 'post:' . $guide_id, '301', 'Guía de la web antigua, ahora en Familias y cuidadores' ];
+		}
+
+		$report = $importer->import( $rows, ! empty( $assoc_args['force'] ) );
+		foreach ( $report['errors'] as $error ) {
+			WP_CLI::warning( $error );
+		}
+
+		WP_CLI::success( sprintf( 'Redirecciones creadas: %d. Actualizadas: %d. Sin cambios: %d. Con errores: %d.', $report['created'], $report['updated'], $report['kept'], count( $report['errors'] ) ) );
+	}
+
+	/**
 	 * Genera el mapa estático del bloque de contacto: une unas pocas teselas de
 	 * OpenStreetMap alrededor del centro, marca su situación y lo guarda en la
 	 * biblioteca como WebP. Así el mapa se ve sin pulsar nada y sin conectar

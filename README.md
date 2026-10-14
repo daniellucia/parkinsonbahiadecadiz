@@ -15,6 +15,7 @@ Solo se versiona el trabajo propio (ver `.gitignore`); el núcleo de WordPress, 
 | `wp-content/plugins/parkinson-llms-txt/` | Plugin: genera y sirve `llms.txt` para asistentes de IA |
 | `wp-content/plugins/parkinson-cookies/` | Plugin: aviso y configuración de cookies, y lista de la política de cookies |
 | `wp-content/plugins/parkinson-rgpd/` | Plugin: protección de datos (registro de tratamientos, plazos de conservación, menos datos expuestos) |
+| `wp-content/plugins/parkinson-redirects/` | Plugin: redirecciones 301 de la web antigua y lista de páginas no encontradas (404) |
 | `docs/investigacion.md` | Investigación: datos de la asociación, auditoría de la web actual, preguntas pendientes |
 | `CLAUDE.md` | Normas del proyecto (accesibilidad, rendimiento, seguridad, convenciones) |
 | `.ddev/` | Entorno local |
@@ -30,7 +31,8 @@ ddev exec -d /var/www/html/wp-content/plugins/parkinson-bahia-core composer inst
 ddev exec -d /var/www/html/wp-content/plugins/parkinson-llms-txt composer install
 ddev exec -d /var/www/html/wp-content/plugins/parkinson-cookies composer install
 ddev exec -d /var/www/html/wp-content/plugins/parkinson-rgpd composer install
-ddev wp plugin activate elementor parkinson-bahia-core parkinson-llms-txt parkinson-cookies parkinson-rgpd
+ddev exec -d /var/www/html/wp-content/plugins/parkinson-redirects composer install
+ddev wp plugin activate elementor parkinson-bahia-core parkinson-llms-txt parkinson-cookies parkinson-rgpd parkinson-redirects
 ddev wp theme activate parkinson-bahia
 ddev wp pbc seed-home        # crea la portada, las páginas base, las terapias y tres noticias
 ddev wp pbc seed-asociacion  # crea la página «La asociación» y sus contenidos
@@ -45,6 +47,7 @@ ddev wp pbc seed-pie         # logotipos de los financiadores, accesibilidad, av
 ddev wp pbc seed-cookies     # política de cookies, su enlace en el plugin y el menú legal con «Cookies» y «Configurar cookies»
 ddev wp pbc seed-diagnostico # página «Me acaban de diagnosticar», sus PDF y el aviso de la portada
 ddev wp pbc seed-mapa        # mapa estático del bloque de contacto (12 teselas de OpenStreetMap, una sola vez)
+ddev wp pbc seed-redirecciones # redirecciones 301 de la web antigua (después de seed-familias)
 ddev launch
 ```
 
@@ -81,7 +84,7 @@ Los comandos se pueden repetir sin duplicar nada. Con `--force` reescriben su p�
 - Datos de contacto, botón de cabecera, redes y textos del pie editables en Apariencia → Personalizar.
 - Indicador de carga en el botón al enviar cualquier formulario.
 
-### Plugin `parkinson-bahia-core` (versión 1.17.0)
+### Plugin `parkinson-bahia-core` (versión 1.18.0)
 
 - **Tipo de contenido «Terapias»**: una página por terapia, con resumen, foto, orden, «Qué trabajamos» (un punto por línea) y «Quién la hace».
 - **Menú «La asociación» del escritorio**, con los datos que alimentan esa página: Historia (hitos por año), Equipo profesional (puestos y número de personas), Junta directiva (nombre y cargo), Documentos de transparencia (con su archivo) y Redes y federaciones (siglas y web).
@@ -132,6 +135,7 @@ Los comandos se pueden repetir sin duplicar nada. Con `--force` reescriben su p�
 - «Cabecera de página» admite fondo azul oscuro y accesos automáticos a cada terapia (enlazan con «Fichas de terapias»).
 - «Cabecera de página» admite también fondo naranja y botones de acceso; las secciones admiten un ancla para enlazarlas.
 - «Cabecera de página» admite fondo arena y datos clave; «Pasos» admite fondo azul oscuro y tarjetas de apoyo.
+- Comando `wp pbc seed-redirecciones [--force]`: carga en el plugin «Redirecciones» la tabla de `assets/seed/redirecciones.csv` (unas 225 direcciones de la web actual sacadas de sus mapas del sitio) y lleva cada guía antigua de `/archivos/` a su nuevo PDF. Sin `--force` no toca las redirecciones que ya existen.
 - Comandos `wp pbc seed-home`, `wp pbc seed-asociacion`, `wp pbc seed-centro` y `wp pbc seed-colabora` para montar esas páginas con el contenido del diseño.
 
 ### Plugin `parkinson-llms-txt` (versión 1.0.0)
@@ -156,6 +160,19 @@ Cumple la normativa de cookies (LSSI art. 22.2, RGPD y la guía de cookies de la
 - La elección se guarda 12 meses en la cookie `pbc_cookies` (versión, tipos permitidos y fecha). Se vuelve a preguntar si se añade o quita un servicio opcional o desde **Ajustes → Cookies** («Volver a preguntar»), donde también se elige la página de la política y se ven los servicios declarados.
 - **Política de cookies** sin lista escrita a mano: el atajo `[pbc_cookies_tabla]` la pinta a partir de los servicios que declaran el tema y los plugins con el filtro `parkinson_cookies/services`, así que siempre coincide con lo que se carga. `[pbc_cookies_ajustes]` pone el botón «Configurar cookies».
 - Sin JavaScript no hay aviso, pero tampoco se carga nada opcional. La página no cambia según quien la visite, así que se puede guardar en caché.
+
+### Plugin `parkinson-redirects` (versión 1.0.0)
+
+Lleva las direcciones de la web antigua a su sitio en la nueva, para no perder visitas ni posiciones en Google. Todo está en **Herramientas → Redirecciones**.
+
+- **Lista de redirecciones** con búsqueda, orden, cuántas veces se ha usado cada una y cuándo, edición y borrado (también en lote). Avisa si el destino ya no está publicado (entonces la redirección no actúa).
+- **Añadir o editar**: dirección antigua (vale pegar la dirección completa; no importan mayúsculas ni barra final), tipo (301 «se ha movido», 302 temporal o 410 «ya no existe»), destino elegido en un desplegable de páginas o «Enlace personalizado», sección opcional (ancla) y nota. Si el destino es una página, entrada o archivo de la web se guarda el contenido, no la dirección, así que sigue funcionando aunque cambie su slug.
+- **Reglas generales**: una dirección terminada en `/*` (por ejemplo `/category/*`) cubre todo lo que cuelga de ella, pero solo cuando la página no existe en la web nueva, así que no tapa las categorías nuevas. Una regla vale también para su paginación y su feed (`/page/2/`, `/feed/`).
+- **Noticias recuperadas**: si un día se vuelve a publicar una noticia antigua con el mismo nombre, su dirección vieja lleva a ella sola, sin tocar la redirección.
+- **Probar una dirección**: dice adónde lleva cualquier dirección antigua y por qué regla.
+- **No encontradas (404)**: lista de direcciones pedidas que no existen, con «Crear redirección» en cada una. Solo guarda la dirección, cuántas veces y cuándo (nada de quién la pidió); las 500 más recientes; se puede apagar en Ajustes.
+- **Importar y exportar** en CSV (se abre con Excel o LibreOffice) y comandos `wp redirecciones listar | probar | importar | exportar`.
+- En producción, el servidor tiene que pasar a WordPress las peticiones de archivos que no existen (en nginx, `try_files $uri $uri/ /index.php?$args` también para `.pdf`), o los PDF antiguos de `/archivos/` darán un 404 del servidor sin pasar por las redirecciones. El paso de `www` a sin `www`, de `http` a `https` y del dominio `.com` al `.org` se hace en el alojamiento.
 
 ### Plugin `parkinson-rgpd` (versión 1.0.0)
 
@@ -195,5 +212,5 @@ Ayuda a cumplir el RGPD y la LOPDGDD. Todo está en **Ajustes → Protección de
 - Dar de alta Turnstile en Cloudflare y escribir sus claves en Formularios → Ajustes.
 - Cookies: comprobar antes de publicar los nombres y la duración de las cookies de YouTube, OpenStreetMap y Cloudflare (la política los toma de la información de cada proveedor) y que la asesoría revise la política. La prueba del consentimiento de cookies es la propia cookie del navegador; no se guarda un registro en el servidor (decidir con la asociación si lo quiere).
 - Protección de datos: que la asociación confirme los plazos de conservación (los configurados son una propuesta), si tiene delegado de protección de datos, la empresa de alojamiento (encargada del tratamiento: firmar el contrato del art. 28) y que su asesoría revise la política de privacidad. El registro de tratamientos solo cubre la web; los tratamientos del centro (usuarios, historias, personal) van en el registro propio de la asociación. Los envíos sin cerrar no se borran solos: hay que revisarlos de vez en cuando.
-- Redirecciones 301 de la web actual.
+- Redirecciones 301: revisar con la asociación qué noticias antiguas merece la pena recuperar (ahora llevan a Actualidad; las de ejercicios y consejos, a Familias y cuidadores) y subir los documentos de transparencia, para que los PDF antiguos (memorias, cuentas, código ético…) lleven al archivo y no a la sección. En el alojamiento: `www` → sin `www`, `http` → `https`, dominio `.com` → `.org`, y que nginx pase a WordPress los PDF que no existen. Tras publicar, mirar cada semana Herramientas → Redirecciones → No encontradas.
 - Datos por confirmar con la asociación (ver «Preguntas pendientes» en `docs/investigacion.md`) y fotos originales a mayor resolución: las de la web actual miden 800 px de ancho.
