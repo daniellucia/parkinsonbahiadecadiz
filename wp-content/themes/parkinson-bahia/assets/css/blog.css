@@ -325,3 +325,100 @@
 		transform: scale(0.97);
 	}
 }
+
+/* ---------- En los medios (Actualidad) ---------- */
+.pbc-press {
+	background: var(--pbc-sand);
+}
+
+html[data-contrast="high"] .pbc-press {
+	border-top: 1px solid var(--pbc-line);
+}
+
+.pbc-press__inner {
+	max-width: var(--pbc-width);
+	margin-inline: auto;
+	padding: clamp(56px, 8vw, 96px) var(--pbc-gutter);
+}
+
+.pbc-press__title {
+	margin: 0 0 28px;
+	font-family: var(--pbc-font-display);
+	font-size: clamp(1.9rem, 3.6vw, 2.6rem);
+	font-weight: 400;
+	line-height: 1.12;
+}
+
+.pbc-press__list {
+	margin: 0;
+	padding: 0;
+	border-top: 1px solid var(--pbc-line);
+	list-style: none;
+}
+
+.pbc-press__item {
+	border-bottom: 1px solid var(--pbc-line);
+}
+
+.pbc-press__link {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+	gap: 4px 24px;
+	padding: 22px 12px;
+	color: var(--pbc-ink);
+	text-decoration: none;
+	transition:
+		background-color var(--pbc-speed) var(--pbc-ease),
+		color var(--pbc-speed) var(--pbc-ease);
+}
+
+.pbc-press__source {
+	display: flex;
+	flex-direction: column;
+	color: var(--pbc-ink-2);
+	font-size: 0.95rem;
+}
+
+.pbc-press__media {
+	color: var(--pbc-ink);
+}
+
+.pbc-press__headline {
+	grid-column: span 2;
+	font-size: 1.15rem;
+	font-weight: 500;
+}
+
+@media (max-width: 640px) {
+	.pbc-press__headline {
+		grid-column: auto;
+	}
+}
+
+.pbc-press__new-tab {
+	color: var(--pbc-ink-2);
+	font-size: 0.85rem;
+	font-weight: 400;
+}
+
+.pbc-press__link:hover {
+	background: var(--pbc-card);
+	color: var(--pbc-sea);
+}
+
+.pbc-press__link:hover .pbc-press__headline {
+	text-decoration: underline;
+	text-decoration-thickness: 2px;
+	text-underline-offset: 4px;
+}
+
+/* Microinteracciones: «En los medios». */
+@media (prefers-reduced-motion: no-preference) {
+	.pbc-press__headline {
+		transition: transform var(--pbc-speed) var(--pbc-ease);
+	}
+
+	.pbc-press__link:hover .pbc-press__headline {
+		transform: translateX(4px);
+	}
+}

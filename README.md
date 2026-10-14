@@ -36,6 +36,7 @@ ddev wp pbc seed-privacidad  # crea y publica la política de privacidad y el me
 ddev wp pbc seed-terapias    # completa las terapias y crea la página «Terapias»
 ddev wp pbc seed-familias    # guías (PDF de la web actual), vídeos del canal y la página «Familias y cuidadores»
 ddev wp pbc seed-contacto    # crea la página «Contacto» con su formulario
+ddev wp pbc seed-actualidad  # apariciones en prensa y financiadores del pie
 ddev launch
 ```
 
@@ -57,22 +58,24 @@ Los comandos se pueden repetir sin duplicar nada. Con `--force` reescriben su p�
 
 ## Funcionalidades
 
-### Tema `parkinson-bahia` (versión 1.3.0)
+### Tema `parkinson-bahia` (versión 1.4.0)
 
 - Diseño tomado del proyecto de claude.ai/design «Rediseño Asociación Párkinson Cádiz»: colores, tipografías (Atkinson Hyperlegible Next y Young Serif, alojadas en el tema) y componentes.
 - Barra superior con teléfono, horario, tres tamaños de texto y alto contraste (se recuerdan en el navegador).
 - Cabecera con logotipo, menú principal y botón destacado; en móvil, botones «Llamar» y «Menú».
 - Bloque de contacto común antes del pie y pie con menús, redes sociales y datos legales. El hueco del mapa lo rellena el plugin.
-- Plantillas: Actualidad (noticia destacada, filtro por categoría, paginación), noticia, página, página de Elementor a ancho completo, tipos de contenido propios, búsqueda y 404.
+- Plantillas: Actualidad (noticia destacada, filtro por categoría, paginación y «En los medios»), noticia, página, página de Elementor a ancho completo, tipos de contenido propios, búsqueda y 404.
 - Datos de contacto, botón de cabecera, redes y textos del pie editables en Apariencia → Personalizar.
 - Buscador en el pie de todas las páginas.
 - Indicador de carga en el botón al enviar cualquier formulario.
 
-### Plugin `parkinson-bahia-core` (versión 1.8.0)
+### Plugin `parkinson-bahia-core` (versión 1.9.0)
 
 - **Tipo de contenido «Terapias»**: una página por terapia, con resumen, foto, orden, «Qué trabajamos» (un punto por línea) y «Quién la hace».
 - **Menú «La asociación» del escritorio**, con los datos que alimentan esa página: Historia (hitos por año), Equipo profesional (puestos y número de personas), Junta directiva (nombre y cargo), Documentos de transparencia (con su archivo) y Redes y federaciones (siglas y web).
 - **Menú «Centro de día» del escritorio**: Instalaciones (sala y foto) y Preguntas frecuentes (pregunta, respuesta y tema).
+- **Financiadores** (en el menú «La asociación»): nombre, logotipo y web; salen en la banda «Con el apoyo de» del pie de todas las páginas (sin logotipo se ve el nombre).
+- **En los medios** (en el menú «Entradas»): medio, fecha, titular y enlace; salen en Actualidad, de la más reciente a la más antigua.
 - **Menú «Familias» del escritorio**: Guías y fichas (archivo y tema, con sus temas) y Vídeos de ejercicios (dirección de YouTube y miniatura).
 - **Widgets de Elementor** (categoría «Párkinson Bahía de Cádiz»):
 
@@ -132,6 +135,7 @@ Genera solo el fichero [`llms.txt`](https://llmstxt.org/), que resume la web par
 
 ### Páginas
 
+- **Actualidad**: plantilla del tema con las noticias y, en su primera página, «En los medios» con cuatro apariciones en prensa.
 - **Inicio**: montada con los siete widgets y configurada como página de inicio. Actualidad es la página de entradas.
 - **La asociación**: montada con siete widgets (cabecera, misión, historia, equipo, junta directiva, transparencia y redes). Faltan la foto de cabecera, las fotos del equipo y los archivos de los documentos, que aparecen como «Próximamente».
 - **Centro de día**: montada con siete widgets (cabecera con datos clave, aviso de lista de espera, un día en el centro, cómo solicitar plaza, instalaciones, transporte y preguntas frecuentes). Falta la foto del transporte. El horario y el calendario usan el dato confirmado («cerrado en agosto»), no el del boceto («abierto todo el año»).
@@ -143,7 +147,8 @@ Genera solo el fichero [`llms.txt`](https://llmstxt.org/), que resume la web par
 
 ## Pendiente
 
-- Resto de páginas y sus widgets; tipos de contenido que faltan (prensa, financiadores).
+- Logotipos oficiales de los financiadores (ahora se ven sus nombres) y fotos que faltan en Terapias, Familias y La asociación.
+- Página de declaración de accesibilidad y aviso legal.
 - Donativos en línea: elegir pasarela (Stripe, Redsys, Bizum) e integrarla.
 - Decidir con la asociación: cuotas de socio, texto del mandato SEPA, cuánto tiempo se conservan los envíos y los puntos pendientes de la política de privacidad.
 - Dar de alta Turnstile en Cloudflare y escribir sus claves en Formularios → Ajustes.

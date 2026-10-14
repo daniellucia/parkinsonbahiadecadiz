@@ -35,6 +35,8 @@ final class Plugin {
 			new PostTypes\Pregunta(),
 			new PostTypes\Recurso(),
 			new PostTypes\Video(),
+			new PostTypes\Prensa(),
+			new PostTypes\Financiador(),
 		];
 	}
 
@@ -47,6 +49,8 @@ final class Plugin {
 		( new Forms\Submissions() )->register();
 		( new Forms\Handler() )->register();
 		( new Frontend\ContactMap() )->register();
+		( new Frontend\Press() )->register();
+		( new Frontend\Funders() )->register();
 
 		if ( is_admin() ) {
 			( new Forms\Settings() )->register();
@@ -66,6 +70,7 @@ final class Plugin {
 			\WP_CLI::add_command( 'pbc seed-terapias', [ $seed, 'terapias' ] );
 			\WP_CLI::add_command( 'pbc seed-familias', [ $seed, 'familias' ] );
 			\WP_CLI::add_command( 'pbc seed-contacto', [ $seed, 'contacto' ] );
+			\WP_CLI::add_command( 'pbc seed-actualidad', [ $seed, 'actualidad' ] );
 		}
 	}
 }

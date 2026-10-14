@@ -654,6 +654,11 @@ img {
 	line-height: 1.75;
 }
 
+/* Un correo o una dirección web larga no debe salirse de la pantalla a 320 px. */
+.pbc-prose a {
+	overflow-wrap: anywhere;
+}
+
 .pbc-prose > * {
 	margin-block: 0 20px;
 }
@@ -877,6 +882,62 @@ html[data-contrast="high"] .pbc-contact__map--facade {
 	margin: 0 0 16px;
 	color: var(--pbc-footer-muted);
 	font-size: 0.95rem;
+}
+
+/* Banda de financiadores: la lista la pinta el plugin. Logotipos sobre blanco para que se vean con sus colores. */
+.pbc-footer__funders-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.pbc-footer__funder {
+	display: flex;
+}
+
+.pbc-footer__funder-link,
+.pbc-footer__funder > .pbc-footer__funder-name,
+.pbc-footer__funder > .pbc-footer__funder-logo {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 140px;
+	min-height: 64px;
+	padding: 8px 18px;
+	border-radius: 10px;
+	background: var(--pbc-card);
+	color: var(--pbc-ink);
+	font-size: 0.95rem;
+	font-weight: 700;
+	text-align: center;
+	text-decoration: none;
+}
+
+.pbc-footer .pbc-footer__funder-logo {
+	box-sizing: border-box;
+	width: auto;
+	max-width: 180px;
+	height: 64px;
+	object-fit: contain;
+}
+
+.pbc-footer__funder-link .pbc-footer__funder-logo {
+	height: 48px;
+	min-height: 0;
+	padding: 0;
+}
+
+.pbc-footer__funder-link:hover {
+	box-shadow: 0 0 0 3px var(--pbc-footer-muted);
+	color: var(--pbc-sea);
+}
+
+/* Sobre el pie oscuro el anillo de foco va por fuera del recuadro blanco. */
+.pbc-footer__funder-link:focus-visible {
+	outline-offset: 3px;
 }
 
 .pbc-footer__columns {

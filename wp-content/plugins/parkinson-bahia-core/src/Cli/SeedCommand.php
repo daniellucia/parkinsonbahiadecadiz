@@ -1402,6 +1402,61 @@ final class SeedCommand {
 	}
 
 	/**
+	 * Crea las apariciones en prensa («En los medios», en Actualidad) y los
+	 * financiadores de la banda del pie.
+	 *
+	 * Los financiadores se crean sin logotipo (se ve su nombre): los logotipos
+	 * oficiales los tiene que facilitar la asociación.
+	 *
+	 * @param string[]             $args       Argumentos posicionales.
+	 * @param array<string, mixed> $assoc_args Opciones.
+	 */
+	public function actualidad( array $args, array $assoc_args ): void {
+		$this->start();
+
+		$press = [
+			[ 'San Fernando estrena centro para pacientes de párkinson', 'ESdiario', '2026-01-15', 'https://www.esdiario.com/andalucia/260115/177053/san-fernando-cadiz-estrena-centro-pacientes-parkinson-breve-nuevo-centro-salud.html' ],
+			[ 'Moreno resalta la apertura en San Fernando de un centro de referencia nacional para pacientes con párkinson', 'Psiquiatria.com', '2026-01-16', 'https://psiquiatria.com/parkinson-y-trastornos-del-movimiento/moreno-resalta-la-apertura-en-san-fernando-de-un-centro-de-referencia-nacional-para-pacientes-con-parkinson/' ],
+			[ 'La Junta concede una ayuda de 17.000 euros a la asociación Párkinson Bahía de Cádiz', 'Andalucía Información', '2025-10-29', 'https://www.andaluciainformacion.es/articulo/san-fernando-local/junta-concede-ayuda-17000-euros-asociacion-parkinson-bahia-cadiz/202510291318513159528.html' ],
+			[ 'Colocada la primera piedra de la nueva Unidad de Estancia Diurna de Párkinson Bahía de Cádiz', 'Diario Bahía de Cádiz', '2020-11-03', 'https://www.diariobahiadecadiz.com/san-fernando/colocada-la-primera-piedra-de-la-nueva-unidad-de-estancia-diurna-de-parkinson-bahia-de-cadiz-con-el-objetivo-de-atender-a-mas-enfermos' ],
+		];
+
+		$this->seed_items(
+			PostTypes\Prensa::POST_TYPE,
+			array_map(
+				static fn ( array $item ): array => [
+					$item[0],
+					'',
+					[
+						PostTypes\Prensa::META_MEDIA => $item[1],
+						PostTypes\Prensa::META_DATE  => $item[2],
+						PostTypes\Prensa::META_URL   => $item[3],
+					],
+				],
+				$press
+			)
+		);
+
+		// Financiadores y colaboradores según la web actual (docs/investigacion.md).
+		$funders = [
+			'Junta de Andalucía',
+			'Next Generation EU',
+			'Diputación de Cádiz',
+			'Ayuntamiento de San Fernando',
+			'Ayuntamiento de Chiclana',
+			'Fundación «la Caixa»',
+			'Fundación Bidafarma',
+			'FANDEP',
+			'Hidralia',
+		];
+
+		$this->seed_items( PostTypes\Financiador::POST_TYPE, array_map( static fn ( string $name ): array => [ $name, '', [] ], $funders ) );
+		delete_transient( 'pbc_funders_html' );
+
+		WP_CLI::success( 'Apariciones en prensa y financiadores listos.' );
+	}
+
+	/**
 	 * Descarga un archivo a la biblioteca de medios (una sola vez por dirección de origen).
 	 */
 	private function file( string $url, string $title, string $name = '' ): int {

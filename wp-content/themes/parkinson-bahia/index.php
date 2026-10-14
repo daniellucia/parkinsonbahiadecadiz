@@ -129,4 +129,9 @@ if ( is_category() ) {
 </div>
 
 <?php
+// «En los medios», solo en la primera página de Actualidad.
+if ( is_home() && ! is_paged() ) {
+	get_template_part( 'template-parts/press' );
+}
+
 get_footer();
