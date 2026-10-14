@@ -189,7 +189,13 @@ final class TemplateTags {
 			];
 		}
 
-		return $items;
+		/**
+		 * Migas de pan de la página actual. Un plugin puede añadir un paso,
+		 * por ejemplo «Agenda» antes de un evento.
+		 *
+		 * @param array<int, array{label: string, url: string}> $items Pasos, del inicio a la página actual.
+		 */
+		return (array) apply_filters( 'parkinson_bahia/breadcrumb_items', $items );
 	}
 
 	/**

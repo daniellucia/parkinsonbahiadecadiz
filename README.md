@@ -15,6 +15,7 @@ Solo se versiona el trabajo propio (ver `.gitignore`); el núcleo de WordPress, 
 | `wp-content/plugins/parkinson-llms-txt/` | Plugin: genera y sirve `llms.txt` para asistentes de IA |
 | `wp-content/plugins/parkinson-cookies/` | Plugin: aviso y configuración de cookies, y lista de la política de cookies |
 | `wp-content/plugins/parkinson-rgpd/` | Plugin: protección de datos (registro de tratamientos, plazos de conservación, menos datos expuestos) |
+| `wp-content/plugins/parkinson-agenda/` | Plugin: agenda de actividades (eventos, widgets «Próximos eventos» y «Agenda», ficha de cada evento) |
 | `wp-content/plugins/parkinson-redirects/` | Plugin: redirecciones 301 de la web antigua y lista de páginas no encontradas (404) |
 | `docs/investigacion.md` | Investigación: datos de la asociación, auditoría de la web actual, preguntas pendientes |
 | `CLAUDE.md` | Normas del proyecto (accesibilidad, rendimiento, seguridad, convenciones) |
@@ -32,7 +33,8 @@ ddev exec -d /var/www/html/wp-content/plugins/parkinson-llms-txt composer instal
 ddev exec -d /var/www/html/wp-content/plugins/parkinson-cookies composer install
 ddev exec -d /var/www/html/wp-content/plugins/parkinson-rgpd composer install
 ddev exec -d /var/www/html/wp-content/plugins/parkinson-redirects composer install
-ddev wp plugin activate elementor parkinson-bahia-core parkinson-llms-txt parkinson-cookies parkinson-rgpd parkinson-redirects
+ddev exec -d /var/www/html/wp-content/plugins/parkinson-agenda composer install
+ddev wp plugin activate elementor parkinson-bahia-core parkinson-llms-txt parkinson-cookies parkinson-rgpd parkinson-redirects parkinson-agenda
 ddev wp theme activate parkinson-bahia
 ddev wp rewrite structure '/%year%/%monthnum%/%day%/%postname%'  # direcciones sin barra final
 ddev wp pbc seed-home        # crea la portada, las páginas base, las terapias y tres noticias
@@ -49,6 +51,7 @@ ddev wp pbc seed-cookies     # política de cookies, su enlace en el plugin y el
 ddev wp pbc seed-diagnostico # página «Me acaban de diagnosticar», sus PDF y el aviso de la portada
 ddev wp pbc seed-mapa        # mapa estático del bloque de contacto (12 teselas de OpenStreetMap, una sola vez)
 ddev wp pbc seed-redirecciones # redirecciones 301 de la web antigua (después de seed-familias)
+ddev wp pbc seed-agenda      # página «Agenda», «Próximos eventos» en la portada y enlace en el pie (--ejemplos: cinco actividades de muestra)
 ddev launch
 ```
 
@@ -72,7 +75,7 @@ Los comandos se pueden repetir sin duplicar nada. Con `--force` reescriben su p�
 
 ## Funcionalidades
 
-### Tema `parkinson-bahia` (versión 1.8.0)
+### Tema `parkinson-bahia` (versión 1.9.0)
 
 - Diseño tomado del proyecto de claude.ai/design «Rediseño Asociación Párkinson Cádiz»: colores, tipografías (Atkinson Hyperlegible Next y Young Serif, alojadas en el tema) y componentes.
 - Barra superior con teléfono, horario, tres tamaños de texto y alto contraste (se recuerdan en el navegador). En móvil solo muestra el teléfono; el horario y las opciones de lectura pasan al menú.
@@ -87,7 +90,7 @@ Los comandos se pueden repetir sin duplicar nada. Con `--force` reescriben su p�
 - Datos de contacto, botón de cabecera, redes y textos del pie editables en Apariencia → Personalizar.
 - Indicador de carga en el botón al enviar cualquier formulario.
 
-### Plugin `parkinson-bahia-core` (versión 1.18.2)
+### Plugin `parkinson-bahia-core` (versión 1.19.0)
 
 - **Tipo de contenido «Terapias»**: una página por terapia, con resumen, foto, orden, «Qué trabajamos» (un punto por línea) y «Quién la hace».
 - **Menú «La asociación» del escritorio**, con los datos que alimentan esa página: Historia (hitos por año), Equipo profesional (puestos y número de personas), Junta directiva (nombre y cargo), Documentos de transparencia (con su archivo) y Redes y federaciones (siglas y web).
@@ -138,6 +141,7 @@ Los comandos se pueden repetir sin duplicar nada. Con `--force` reescriben su p�
 - «Cabecera de página» admite fondo azul oscuro y accesos automáticos a cada terapia (enlazan con «Fichas de terapias»).
 - «Cabecera de página» admite también fondo naranja y botones de acceso; las secciones admiten un ancla para enlazarlas.
 - «Cabecera de página» admite fondo arena y datos clave; «Pasos» admite fondo azul oscuro y tarjetas de apoyo.
+- Comando `wp pbc seed-agenda [--force] [--ejemplos]`: crea los tipos de actividad (Taller, Charla, Celebración, Salida), la página «Agenda» (cabecera y widget Agenda), añade «Próximos eventos» a la portada antes de las noticias (oculto mientras no haya actividades) y «Agenda» al menú «La asociación» del pie. Con `--ejemplos`, cinco actividades de muestra («Ejemplo · …»), una ya celebrada.
 - Comando `wp pbc seed-redirecciones [--force]`: carga en el plugin «Redirecciones» la tabla de `assets/seed/redirecciones.csv` (unas 225 direcciones de la web actual sacadas de sus mapas del sitio) y lleva cada guía antigua de `/archivos/` a su nuevo PDF. Sin `--force` no toca las redirecciones que ya existen.
 - Comandos `wp pbc seed-home`, `wp pbc seed-asociacion`, `wp pbc seed-centro` y `wp pbc seed-colabora` para montar esas páginas con el contenido del diseño.
 
@@ -163,6 +167,16 @@ Cumple la normativa de cookies (LSSI art. 22.2, RGPD y la guía de cookies de la
 - La elección se guarda 12 meses en la cookie `pbc_cookies` (versión, tipos permitidos y fecha). Se vuelve a preguntar si se añade o quita un servicio opcional o desde **Ajustes → Cookies** («Volver a preguntar»), donde también se elige la página de la política y se ven los servicios declarados.
 - **Política de cookies** sin lista escrita a mano: el atajo `[pbc_cookies_tabla]` la pinta a partir de los servicios que declaran el tema y los plugins con el filtro `parkinson_cookies/services`, así que siempre coincide con lo que se carga. `[pbc_cookies_ajustes]` pone el botón «Configurar cookies».
 - Sin JavaScript no hay aviso, pero tampoco se carga nada opcional. La página no cambia según quien la visite, así que se puede guardar en caché.
+
+### Plugin `parkinson-agenda` (versión 1.0.0)
+
+Agenda de actividades de la asociación. Necesita Elementor y `parkinson-bahia-core` (usa su clase base de widgets).
+
+- **Menú «Agenda» del escritorio**: cada evento tiene nombre, descripción, resumen (extracto), foto y una caja «Fecha, lugar e inscripción» con fecha, hora de inicio y de fin, último día si dura varios, lugar (se propone el centro de día), precio, instrucciones y enlace para apuntarse, y la casilla «Evento cancelado» (sigue en la agenda con el aviso, para que nadie vaya por error). Tipos de actividad propios (Taller, Charla…). La lista sale por fecha del evento, con accesos «Próximos» y «Ya celebrados» y columnas «Cuándo» y «Lugar»; avisa si un evento publicado no tiene fecha.
+- **Ficha de cada evento** en `/agenda/<nombre>`: migas «Inicio › Agenda › evento», tipo, título, resumen, recuadro «Cuándo y dónde» con hoja de calendario, botón «Apuntarme» (si hay enlace) y botón para llamar a la asociación (teléfono del Personalizador), foto, descripción y «Volver a la agenda». Si ya se celebró o está cancelado, lo dice arriba. Datos estructurados `Event` de schema.org para Google. La plantilla está en el plugin y un tema puede sustituirla con `single-pbc_evento.php`.
+- **Widget «Próximos eventos»** (portada u otras páginas): título, nivel, texto, cuántos (1–6), un solo tipo si se quiere, enlace «Ver toda la agenda» (por defecto, a la página Agenda), y si no hay actividades, mensaje con el teléfono u ocultar la sección. Los eventos pasados desaparecen solos.
+- **Widget «Agenda»** (página Agenda): todas las próximas actividades agrupadas por mes (títulos H2), botones por tipo que son enlaces normales (`?tipo=taller`, funcionan sin JavaScript), mensaje con el teléfono si no hay nada, y una lista plegada con las ya celebradas en los últimos doce meses.
+- Tarjetas con la hoja de calendario, iconos en SVG, toda la tarjeta pulsable y microinteracciones del resto de la web; estilos solo en las páginas que usan cada widget.
 
 ### Plugin `parkinson-redirects` (versión 1.0.1)
 
@@ -203,10 +217,12 @@ Ayuda a cumplir el RGPD y la LOPDGDD. Todo está en **Ajustes → Protección de
 - **Declaración de accesibilidad** y **Aviso legal**: páginas de texto enlazadas desde el pie. La declaración explica qué hace la web para ser fácil de usar y qué no es accesible todavía (PDF de otras entidades, subtítulos de los vídeos, el mapa); dice «parcialmente conforme» con WCAG 2.2 AA y tiene dos puntos «Pendiente de confirmar» (revisión manual completa y plazo de respuesta). El aviso legal recoge los datos de la LSSI (CIF, domicilio, registros) y aclara que la información no sustituye al médico.
 - **Política de cookies**: página de texto creada con `seed-cookies`: qué son, qué cookies usa la web (lista generada por el plugin), cómo aceptar, rechazar o cambiar de opinión, cómo borrarlas en los navegadores, datos fuera de la UE y más información. La política de privacidad remite a ella.
 - **Me acaban de diagnosticar** (fuera del menú): se llega desde la primera tarjeta de «¿En qué podemos ayudarte?» y desde un aviso bajo la portada de Inicio («¿Te acaban de diagnosticar párkinson?»). Cabecera con un botón para descargar la guía y un índice «En esta página» con enlaces sencillos a cada parte (opción «Botón principal e índice» de la Cabecera de página), «El párkinson, en pocas palabras», qué hacer las primeras semanas (seis pasos), cómo ayuda la asociación aunque no se necesite el centro de día, preguntas para el neurólogo (lista con casillas y ficha para imprimir), guías del tema «Primeros pasos» y llamada final. Dos PDF propios, etiquetados para lectores de pantalla: «Guía de bienvenida» (7 páginas) y «Preguntas para mi neurólogo» (2 páginas); su fuente está en `docs/guias/` (HTML) y se regeneran con `node docs/guias/generar-pdf.mjs`. El texto médico es general y lo debería revisar el equipo de la asociación.
+- **Agenda**: montada con «Cabecera de página» y el widget «Agenda». Enlazada desde «Próximos eventos» de la portada y desde el menú «La asociación» del pie; no está en el menú principal. En local tiene cinco actividades de ejemplo.
 - **Contacto**: montada con el formulario de contacto (nombre, teléfono, correo opcional, tema y mensaje opcional) junto al título y el teléfono en grande, que en escritorio se quedan fijos mientras se baja por el formulario; debajo, el bloque de contacto común con el mapa.
 
 ## Pendiente
 
+- Agenda: borrar las cinco actividades «Ejemplo · …» y que la asociación escriba las reales; decidir si «Agenda» va también en el menú principal (ahora está en la portada y en el pie).
 
 - Logotipo de Hidralia y versiones oficiales de los demás logotipos a buena resolución (el de FANDEP mide 115 px y el de «la Caixa» es el antiguo de Obra Social). Fotos que faltan en Terapias, Familias y La asociación.
 - Revisar con la asociación los puntos «Pendiente de confirmar» de la declaración de accesibilidad y hacer la revisión manual completa.

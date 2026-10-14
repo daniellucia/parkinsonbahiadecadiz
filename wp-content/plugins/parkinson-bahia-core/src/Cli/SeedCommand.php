@@ -494,6 +494,242 @@ final class SeedCommand {
 
 
 	/**
+	 * Monta la agenda (necesita el plugin «Agenda», parkinson-agenda): los
+	 * tipos de actividad, la página «Agenda» (cabecera y widget Agenda), el
+	 * widget «Próximos eventos» en la portada, antes de las noticias, y el
+	 * enlace en el menú «La asociación» del pie.
+	 *
+	 * Las actividades reales las escribe la asociación en el menú «Agenda». Con
+	 * --ejemplos se crean cuatro de muestra en las próximas semanas (y una ya celebrada), con
+	 * «Ejemplo ·» en el título, para ver la página llena; hay que borrarlas
+	 * antes de publicar la web.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--force]
+	 * : Reescribe la página «Agenda» aunque ya tenga widgets.
+	 *
+	 * [--ejemplos]
+	 * : Crea cinco actividades de ejemplo.
+	 *
+	 * @param string[]             $args       Argumentos posicionales.
+	 * @param array<string, mixed> $assoc_args Opciones.
+	 */
+	public function agenda( array $args, array $assoc_args ): void {
+		$this->start();
+
+		if ( ! class_exists( \DanielLucia\ParkinsonBahia\Agenda\PostType::class ) ) {
+			WP_CLI::error( 'El plugin «Agenda» (parkinson-agenda) no está activo.' );
+		}
+
+		$type_tax = \DanielLucia\ParkinsonBahia\Agenda\PostType::TAXONOMY;
+		$types    = [];
+		foreach ( [ 'Taller', 'Charla', 'Celebración', 'Salida' ] as $name ) {
+			$term           = term_exists( $name, $type_tax );
+			$term           = $term ? $term : wp_insert_term( $name, $type_tax );
+			$types[ $name ] = is_array( $term ) ? (int) $term['term_id'] : 0;
+		}
+
+		$page = get_page_by_path( 'agenda' );
+		$page_id = $page ? (int) $page->ID : (int) wp_insert_post(
+			[
+				'post_type'    => 'page',
+				'post_status'  => 'publish',
+				'post_title'   => 'Agenda',
+				'post_name'    => 'agenda',
+				'post_excerpt' => 'Talleres, charlas, celebraciones y salidas de la asociación, con fecha, hora y lugar.',
+			]
+		);
+		update_option( \DanielLucia\ParkinsonBahia\Agenda\Plugin::PAGE_OPTION, $page_id, false );
+
+		if ( $this->may_write( $page_id, $assoc_args ) ) {
+			$this->save_page(
+				$page_id,
+				[
+					'pbc-page-header' => [
+						'eyebrow'   => 'Actividades',
+						'title'     => 'Agenda',
+						'title_tag' => 'h1',
+						'text'      => 'Talleres, charlas, celebraciones y salidas de la asociación. Si quieres apuntarte o tienes dudas, llámanos: te lo contamos todo.',
+					],
+					'pbc-agenda'      => [
+						'filter'     => 'yes',
+						'past'       => 'yes',
+						'past_title' => 'Actividades ya celebradas',
+						'empty_text' => 'Ahora mismo no hay actividades programadas. Llámanos y te contamos las próximas.',
+					],
+				],
+				'agenda'
+			);
+			WP_CLI::log( 'Página «Agenda» montada con sus widgets.' );
+		}
+
+		$this->add_upcoming_to_home( $page_id );
+		$this->add_agenda_to_footer( $page_id );
+
+		if ( ! empty( $assoc_args['ejemplos'] ) ) {
+			$this->agenda_examples( $types );
+		}
+
+		flush_rewrite_rules( false );
+		WP_CLI::success( 'Agenda lista: ' . get_permalink( $page_id ) );
+	}
+
+	/**
+	 * Añade «Próximos eventos» a la portada, justo antes de «Últimas noticias»,
+	 * si todavía no lo tiene.
+	 */
+	private function add_upcoming_to_home( int $agenda_id ): void {
+		$home_id  = (int) get_option( 'page_on_front' );
+		$document = $home_id > 0 ? \Elementor\Plugin::$instance->documents->get( $home_id, false ) : null;
+
+		if ( ! $document ) {
+			WP_CLI::warning( 'No hay portada de Elementor: añade el widget «Próximos eventos» a mano.' );
+			return;
+		}
+
+		$data = $document->get_elements_data();
+		if ( str_contains( (string) wp_json_encode( $data ), '"pbc-upcoming-events"' ) ) {
+			WP_CLI::log( 'La portada ya tiene «Próximos eventos».' );
+			return;
+		}
+
+		$widget = [
+			'id'         => substr( md5( 'inicio-pbc-upcoming-events' ), 0, 7 ),
+			'elType'     => 'widget',
+			'widgetType' => 'pbc-upcoming-events',
+			'settings'   => [
+				'title'      => 'Próximas actividades',
+				'title_tag'  => 'h2',
+				'count'      => 3,
+				'more_label' => 'Ver toda la agenda',
+				'more_page'  => 'page-' . $agenda_id,
+				'empty'      => 'hide',
+			],
+			'elements'   => [],
+		];
+
+		$inserted = false;
+		$insert   = static function ( array $elements ) use ( &$insert, &$inserted, $widget ): array {
+			$out = [];
+			foreach ( $elements as $element ) {
+				if ( ! $inserted && 'pbc-latest-news' === ( $element['widgetType'] ?? '' ) ) {
+					$out[]    = $widget;
+					$inserted = true;
+				}
+				if ( ! empty( $element['elements'] ) ) {
+					$element['elements'] = $insert( $element['elements'] );
+				}
+				$out[] = $element;
+			}
+
+			return $out;
+		};
+		$data = $insert( $data );
+
+		if ( ! $inserted && isset( $data[0]['elements'] ) ) {
+			$data[0]['elements'][] = $widget;
+		}
+
+		$document->save( [ 'elements' => $data ] );
+		\Elementor\Plugin::$instance->files_manager->clear_cache();
+		WP_CLI::log( 'Portada: añadido «Próximos eventos» antes de las noticias (se oculta si no hay actividades).' );
+	}
+
+	private function add_agenda_to_footer( int $agenda_id ): void {
+		$locations = (array) get_theme_mod( 'nav_menu_locations', [] );
+		$menu_id   = (int) ( $locations['footer-asociacion'] ?? 0 );
+
+		if ( 0 === $menu_id ) {
+			WP_CLI::warning( 'No hay menú «La asociación» en el pie: ejecuta «wp pbc seed-pie».' );
+			return;
+		}
+
+		foreach ( (array) wp_get_nav_menu_items( $menu_id ) as $item ) {
+			if ( 'post_type' === $item->type && $agenda_id === (int) $item->object_id ) {
+				return;
+			}
+		}
+
+		wp_update_nav_menu_item(
+			$menu_id,
+			0,
+			[
+				'menu-item-object-id' => $agenda_id,
+				'menu-item-object'    => 'page',
+				'menu-item-type'      => 'post_type',
+				'menu-item-status'    => 'publish',
+			]
+		);
+		WP_CLI::log( 'Pie: añadido «Agenda» al menú «La asociación».' );
+	}
+
+	/**
+	 * Cuatro actividades de ejemplo en las próximas semanas y una ya celebrada (no se duplican).
+	 *
+	 * @param array<string, int> $types Tipo => ID del término.
+	 */
+	private function agenda_examples( array $types ): void {
+		$post_type = \DanielLucia\ParkinsonBahia\Agenda\PostType::class;
+		$examples  = [
+			[ 'Ejemplo · Taller de memoria para familias', 'Taller', 6, '17:00', '18:30', 'Gratuito', 'Plazas limitadas: llama para apuntarte.', 'Ejercicios sencillos para entrenar la memoria en casa, con el equipo de psicología.' ],
+			[ 'Ejemplo · Charla: comer bien con párkinson', 'Charla', 13, '11:00', '12:30', 'Gratuito', '', 'Consejos prácticos sobre alimentación y medicación, con tiempo para preguntas.' ],
+			[ 'Ejemplo · Paseo por el Parque Natural Bahía de Cádiz', 'Salida', 20, '10:00', '', '3 € (incluye el transporte)', 'Apúntate llamando antes del jueves anterior.', 'Un paseo tranquilo y adaptado, con paradas para descansar.' ],
+			[ 'Ejemplo · Fiesta de Navidad del centro de día', 'Celebración', 45, '12:00', '15:00', '', '', 'Comida, música y sorteo con usuarios, familias y voluntariado.' ],
+			// Una ya celebrada, para ver la lista «Actividades ya celebradas».
+			[ 'Ejemplo · Taller de risoterapia', 'Taller', -20, '17:00', '18:00', 'Gratuito', '', 'Una tarde para reír juntos y soltar tensiones.' ],
+		];
+
+		foreach ( $examples as [ $title, $type, $days, $start, $end, $price, $signup, $excerpt ] ) {
+			$existing = get_posts(
+				[
+					'post_type'      => $post_type::POST_TYPE,
+					'post_status'    => 'any',
+					'title'          => $title,
+					'posts_per_page' => 1,
+					'fields'         => 'ids',
+				]
+			);
+			if ( $existing ) {
+				continue;
+			}
+
+			$id = (int) wp_insert_post(
+				[
+					'post_type'    => $post_type::POST_TYPE,
+					'post_status'  => 'publish',
+					'post_title'   => $title,
+					// Sin «·» en la dirección: WordPress lo dejaría como «%c2%b7».
+					'post_name'    => sanitize_title( str_replace( '·', '', $title ) ),
+					'post_excerpt' => $excerpt,
+					'post_content' => '<!-- wp:paragraph --><p>Actividad de ejemplo para ver cómo queda la agenda. Bórrala antes de publicar la web.</p><!-- /wp:paragraph -->',
+				]
+			);
+
+			$fields = [
+				$post_type::META_DATE   => wp_date( 'Y-m-d', strtotime( sprintf( '%+d days', $days ) ) ),
+				$post_type::META_START  => $start,
+				$post_type::META_END    => $end,
+				$post_type::META_PLACE  => $post_type::DEFAULT_PLACE,
+				$post_type::META_PRICE  => $price,
+				$post_type::META_SIGNUP => $signup,
+			];
+			if ( 'Salida' === $type ) {
+				$fields[ $post_type::META_PLACE ] = 'Salida desde el centro de día';
+			}
+			foreach ( $fields as $key => $value ) {
+				$post_type::store( $id, $key, $value );
+			}
+			$post_type::refresh_index( $id );
+
+			if ( ! empty( $types[ $type ] ) ) {
+				wp_set_object_terms( $id, [ $types[ $type ] ], $post_type::TAXONOMY );
+			}
+			WP_CLI::log( "Actividad de ejemplo creada: {$title}" );
+		}
+	}
+
+	/**
 	 * Crea las redirecciones 301 de la web antigua (necesita el plugin
 	 * «Redirecciones», parkinson-redirects).
 	 *
@@ -2267,6 +2503,7 @@ final class SeedCommand {
 						'url'   => $url . '#transparencia',
 						'title' => 'Transparencia',
 					],
+					...( get_page_by_path( 'agenda' ) ? [ [ 'page' => (int) get_page_by_path( 'agenda' )->ID ] ] : [] ),
 				],
 				$assoc_args
 			);
@@ -3005,6 +3242,8 @@ final class SeedCommand {
 					'post_type'    => $post_type,
 					'post_status'  => 'publish',
 					'post_title'   => $title,
+					// Sin «·» en la dirección: WordPress lo dejaría como «%c2%b7».
+					'post_name'    => sanitize_title( str_replace( '·', '', $title ) ),
 					'post_excerpt' => $excerpt,
 					'menu_order'   => $order + 1,
 				]

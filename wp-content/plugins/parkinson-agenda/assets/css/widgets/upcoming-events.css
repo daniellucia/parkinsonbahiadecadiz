@@ -1,0 +1,67 @@
+/* Widget «Próximos eventos». La tarjeta está en event-card.css. */
+.pbc-upcoming-events {
+	border-top: 1px solid var(--pbc-line);
+}
+
+.pbc-upcoming-events__inner {
+	max-width: var(--pbc-width);
+	margin-inline: auto;
+	padding: clamp(56px, 8vw, 96px) var(--pbc-gutter);
+}
+
+.pbc-upcoming-events__header {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: 12px 32px;
+	margin-bottom: 32px;
+}
+
+.pbc-upcoming-events__intro {
+	max-width: 40em;
+}
+
+.pbc-upcoming-events__title {
+	margin: 0;
+	font-family: var(--pbc-font-display);
+	font-size: clamp(1.8rem, 3.2vw, 2.4rem);
+	font-weight: 400;
+	line-height: 1.15;
+}
+
+.pbc-upcoming-events__text {
+	margin: 12px 0 0;
+	color: var(--pbc-ink-2);
+	font-size: 1.1rem;
+}
+
+.pbc-upcoming-events__more {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	min-height: 44px;
+	font-weight: 700;
+}
+
+.pbc-upcoming-events__list {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+	gap: 24px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+/* ---------- Microinteracciones ---------- */
+@media (prefers-reduced-motion: no-preference) {
+	.pbc-upcoming-events__arrow {
+		display: inline-block;
+		transition: transform var(--pbc-speed) var(--pbc-ease);
+	}
+
+	.pbc-upcoming-events__more:hover .pbc-upcoming-events__arrow,
+	.pbc-upcoming-events__more:focus-visible .pbc-upcoming-events__arrow {
+		transform: translateX(5px);
+	}
+}

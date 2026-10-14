@@ -1,0 +1,151 @@
+/* Widget «Agenda». La tarjeta está en event-card.css. */
+.pbc-agenda__inner {
+	max-width: var(--pbc-width);
+	margin-inline: auto;
+	padding: clamp(8px, 2vw, 24px) var(--pbc-gutter) clamp(56px, 8vw, 96px);
+}
+
+/* Accesos por tipo: mismo aspecto que los de Actualidad. */
+.pbc-agenda__filter {
+	margin-bottom: clamp(32px, 4vw, 48px);
+}
+
+.pbc-agenda__chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.pbc-agenda__chip {
+	display: flex;
+	align-items: center;
+	min-height: 48px;
+	padding: 8px 20px;
+	border: 2px solid var(--pbc-sea);
+	border-radius: var(--pbc-radius-pill);
+	background: var(--pbc-card);
+	color: var(--pbc-ink);
+	font-weight: 700;
+	text-decoration: none;
+}
+
+.pbc-agenda__chip:hover {
+	background: var(--pbc-mist);
+	color: var(--pbc-ink);
+}
+
+.pbc-agenda__chip[aria-current="true"] {
+	background: var(--pbc-sea);
+	color: var(--pbc-on-dark);
+}
+
+.pbc-agenda__month + .pbc-agenda__month {
+	margin-top: clamp(40px, 5vw, 64px);
+}
+
+.pbc-agenda__month-title {
+	margin: 0 0 20px;
+	padding-bottom: 12px;
+	border-bottom: 1px solid var(--pbc-line);
+	font-family: var(--pbc-font-display);
+	font-size: clamp(1.7rem, 3vw, 2.2rem);
+	font-weight: 400;
+	line-height: 1.15;
+}
+
+.pbc-agenda__list {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 440px), 1fr));
+	gap: 20px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+/* Ya celebradas: lista plegada y sencilla. */
+.pbc-agenda__past {
+	margin-top: clamp(48px, 6vw, 80px);
+	border-top: 1px solid var(--pbc-line);
+}
+
+.pbc-agenda__past-summary {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	min-height: 56px;
+	padding: 12px 0;
+	font-size: 1.2rem;
+	font-weight: 700;
+	cursor: pointer;
+	list-style: none;
+}
+
+.pbc-agenda__past-summary::-webkit-details-marker {
+	display: none;
+}
+
+.pbc-agenda__past-summary::before {
+	content: "";
+	flex: none;
+	width: 0.6em;
+	height: 0.6em;
+	border-right: 3px solid var(--pbc-sea);
+	border-bottom: 3px solid var(--pbc-sea);
+	transform: rotate(-45deg);
+}
+
+.pbc-agenda__past[open] .pbc-agenda__past-summary::before {
+	transform: rotate(45deg);
+}
+
+.pbc-agenda__past-summary:hover {
+	color: var(--pbc-sea);
+}
+
+.pbc-agenda__past-list {
+	display: grid;
+	gap: 4px;
+	max-width: 48em;
+	margin: 0 0 16px;
+	padding: 0;
+	list-style: none;
+}
+
+.pbc-agenda__past-item {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0 16px;
+	padding: 10px 0;
+	border-bottom: 1px solid var(--pbc-line);
+}
+
+.pbc-agenda__past-date {
+	min-width: 15em;
+	color: var(--pbc-ink-2);
+}
+
+.pbc-agenda__past-link {
+	font-weight: 700;
+}
+
+/* ---------- Microinteracciones ---------- */
+.pbc-agenda__chip,
+.pbc-agenda__past-summary {
+	transition:
+		color var(--pbc-speed) var(--pbc-ease),
+		background-color var(--pbc-speed) var(--pbc-ease),
+		transform var(--pbc-speed) var(--pbc-ease);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.pbc-agenda__chip:active {
+		transform: scale(0.97);
+	}
+
+	.pbc-agenda__past-summary::before {
+		transition: transform var(--pbc-speed) var(--pbc-ease);
+	}
+}

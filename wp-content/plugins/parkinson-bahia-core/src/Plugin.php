@@ -79,6 +79,7 @@ final class Plugin {
 			\WP_CLI::add_command( 'pbc seed-diagnostico', [ $seed, 'diagnostico' ] );
 			\WP_CLI::add_command( 'pbc seed-mapa', [ $seed, 'mapa' ] );
 			\WP_CLI::add_command( 'pbc seed-redirecciones', [ $seed, 'redirecciones' ] );
+			\WP_CLI::add_command( 'pbc seed-agenda', [ $seed, 'agenda' ] );
 		}
 	}
 }

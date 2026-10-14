@@ -1,0 +1,148 @@
+/* Ficha de un evento de la agenda. */
+.pbc-event-page__type {
+	margin: 16px 0 8px;
+	color: var(--pbc-clay-text);
+	font-weight: 700;
+}
+
+.pbc-event-page__lead {
+	max-width: 36em;
+	margin: 0;
+	color: var(--pbc-ink-2);
+	font-size: 1.2rem;
+}
+
+.pbc-event-page__body {
+	max-width: var(--pbc-width-narrow);
+	margin-inline: auto;
+	padding: 0 var(--pbc-gutter) clamp(48px, 7vw, 88px);
+}
+
+.pbc-event-page__notice {
+	margin: 0 0 24px;
+	padding: 16px 20px;
+	border-left: 6px solid var(--pbc-sea);
+	border-radius: 8px;
+	background: var(--pbc-mist);
+	font-size: 1.1rem;
+}
+
+.pbc-event-page__notice--cancelled {
+	border-left-color: var(--pbc-error);
+	background: var(--pbc-card);
+	box-shadow: inset 0 0 0 2px var(--pbc-error);
+}
+
+.pbc-event-page__card {
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr);
+	align-items: start;
+	gap: 20px 28px;
+	margin: 0 0 clamp(32px, 4vw, 48px);
+	padding: clamp(20px, 3vw, 32px);
+	border-radius: var(--pbc-radius);
+	background: var(--pbc-sand);
+}
+
+.pbc-event-page__card .pbc-event-date {
+	min-width: 88px;
+	background: var(--pbc-card);
+}
+
+.pbc-event-page__card-title {
+	margin: 0 0 16px;
+	font-family: var(--pbc-font-display);
+	font-size: 1.6rem;
+	font-weight: 400;
+	line-height: 1.2;
+}
+
+.pbc-event-page__facts {
+	display: grid;
+	gap: 16px;
+	margin: 0;
+}
+
+.pbc-event-page__fact dt {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	color: var(--pbc-ink-2);
+	font-weight: 700;
+}
+
+.pbc-event-page__fact dt .pbc-event-icon {
+	margin-top: 0;
+	color: var(--pbc-sea);
+}
+
+.pbc-event-page__fact dd {
+	margin: 2px 0 0 calc(1.1em + 8px);
+	font-size: 1.15rem;
+	overflow-wrap: anywhere;
+}
+
+.pbc-event-page__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	margin-top: 24px;
+}
+
+.pbc-event-page__actions .pbc-event-icon {
+	margin-top: 0;
+}
+
+.pbc-event-page__figure {
+	margin: 0 0 clamp(32px, 4vw, 48px);
+}
+
+/* Doble clase: Elementor aplica «.elementor img { border-radius: 0 }» en algunas páginas. */
+.pbc-event-page .pbc-event-page__image {
+	display: block;
+	width: 100%;
+	height: auto;
+	border-radius: var(--pbc-radius);
+}
+
+.pbc-event-page__content {
+	margin-bottom: clamp(32px, 4vw, 48px);
+}
+
+.pbc-event-page__back {
+	margin: 0;
+}
+
+.pbc-event-page__back-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	min-height: 44px;
+	font-weight: 700;
+}
+
+.pbc-event-page__back-link::before {
+	content: "←";
+}
+
+@media (max-width: 520px) {
+	.pbc-event-page__card {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.pbc-event-page__card .pbc-event-date {
+		display: none;
+	}
+}
+
+/* ---------- Microinteracciones ---------- */
+@media (prefers-reduced-motion: no-preference) {
+	.pbc-event-page__back-link::before {
+		transition: transform var(--pbc-speed) var(--pbc-ease);
+	}
+
+	.pbc-event-page__back-link:hover::before,
+	.pbc-event-page__back-link:focus-visible::before {
+		transform: translateX(-5px);
+	}
+}

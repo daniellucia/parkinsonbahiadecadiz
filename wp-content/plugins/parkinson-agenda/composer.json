@@ -1,0 +1,24 @@
+{
+    "name": "daniellucia/parkinson-agenda",
+    "description": "Agenda de actividades de Párkinson Bahía de Cádiz: eventos, widgets de Elementor y ficha de cada evento.",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Daniel Lucia",
+            "homepage": "https://daniellucia.es"
+        }
+    ],
+    "require": {
+        "php": ">=8.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "DanielLucia\\ParkinsonBahia\\Agenda\\": "src/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    }
+}
