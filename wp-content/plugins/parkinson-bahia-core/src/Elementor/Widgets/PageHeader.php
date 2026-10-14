@@ -137,6 +137,33 @@ final class PageHeader extends Widget {
 				'condition'   => [ 'jumps_source' => '' ],
 			]
 		);
+		$this->add_control(
+			'jumps_style',
+			[
+				'label'       => esc_html__( 'Cómo se ven los accesos', 'parkinson-bahia-core' ),
+				'description' => esc_html__( '«Índice»: el primero es un botón y el resto, enlaces sencillos bajo «En esta página». Va mejor cuando hay muchos accesos o textos largos.', 'parkinson-bahia-core' ),
+				'type'        => Controls_Manager::SELECT,
+				'options'     => [
+					''      => esc_html__( 'Botones grandes', 'parkinson-bahia-core' ),
+					'index' => esc_html__( 'Botón principal e índice', 'parkinson-bahia-core' ),
+				],
+				'default'     => '',
+				'condition'   => [ 'jumps_source' => '' ],
+			]
+		);
+		$this->add_control(
+			'index_label',
+			[
+				'label'       => esc_html__( 'Título del índice', 'parkinson-bahia-core' ),
+				'type'        => Controls_Manager::TEXT,
+				'default'     => esc_html__( 'En esta página', 'parkinson-bahia-core' ),
+				'label_block' => true,
+				'condition'   => [
+					'jumps_source' => '',
+					'jumps_style'  => 'index',
+				],
+			]
+		);
 		$this->end_controls_section();
 	}
 
@@ -183,13 +210,18 @@ final class PageHeader extends Widget {
 		$variant = (string) ( $settings['variant'] ?? '' );
 		$jumps   = [];
 		$chips   = 'therapies' === ( $settings['jumps_source'] ?? '' ) ? $this->therapy_chips() : [];
+		$as_index = 'index' === ( $settings['jumps_style'] ?? '' );
 
 		foreach ( $chips ? [] : ( is_array( $settings['jumps'] ?? null ) ? $settings['jumps'] : [] ) as $index => $jump ) {
 			$link = $this->link_value( $jump, 'link' );
 			if ( '' !== trim( (string) ( $jump['label'] ?? '' ) ) && $link ) {
 				$key = 'jump-' . $index;
 				$this->add_link_attributes( $key, $link );
-				$this->add_render_attribute( $key, 'class', $jumps ? 'pbc-page-hero__jump' : 'pbc-page-hero__jump pbc-page-hero__jump--main' );
+				if ( $as_index ) {
+					$this->add_render_attribute( $key, 'class', $jumps ? 'pbc-page-hero__index-link' : 'pbc-button pbc-button--primary pbc-page-hero__main' );
+				} else {
+					$this->add_render_attribute( $key, 'class', $jumps ? 'pbc-page-hero__jump' : 'pbc-page-hero__jump pbc-page-hero__jump--main' );
+				}
 				$jumps[ $key ] = (string) $jump['label'];
 			}
 		}
@@ -226,7 +258,27 @@ final class PageHeader extends Widget {
 						<?php endforeach; ?>
 					</ul>
 				<?php endif; ?>
-				<?php if ( $jumps ) : ?>
+				<?php if ( $jumps && $as_index ) : ?>
+					<?php
+					$main_key   = (string) array_key_first( $jumps );
+					$links      = array_slice( $jumps, 1, null, true );
+					$index_id   = $this->title_id() . '-indice';
+					$index_name = trim( (string) ( $settings['index_label'] ?? '' ) );
+					?>
+					<div class="pbc-page-hero__index-block">
+						<a <?php $this->print_render_attribute_string( $main_key ); ?>><?php echo esc_html( $jumps[ $main_key ] ); ?></a>
+						<?php if ( $links ) : ?>
+							<nav class="pbc-page-hero__index" aria-labelledby="<?php echo esc_attr( $index_id ); ?>">
+								<p class="pbc-page-hero__index-title" id="<?php echo esc_attr( $index_id ); ?>"><?php echo esc_html( '' !== $index_name ? $index_name : __( 'En esta página', 'parkinson-bahia-core' ) ); ?></p>
+								<ul class="pbc-page-hero__index-list">
+									<?php foreach ( $links as $key => $label ) : ?>
+										<li><a <?php $this->print_render_attribute_string( $key ); ?>><span class="pbc-page-hero__index-text"><?php echo esc_html( $label ); ?></span></a></li>
+									<?php endforeach; ?>
+								</ul>
+							</nav>
+						<?php endif; ?>
+					</div>
+				<?php elseif ( $jumps ) : ?>
 					<ul class="pbc-page-hero__jumps">
 						<?php foreach ( $jumps as $key => $label ) : ?>
 							<li class="pbc-page-hero__jumps-item"><a <?php $this->print_render_attribute_string( $key ); ?>><?php echo esc_html( $label ); ?></a></li>

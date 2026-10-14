@@ -196,6 +196,80 @@ html[data-contrast="high"] .pbc-page-hero__fact {
 	color: var(--pbc-ink);
 }
 
+/* ---------- Accesos en forma de índice ----------
+   Un botón principal y, debajo, «En esta página» con enlaces de texto de la
+   misma altura: más sencillo cuando hay muchos accesos o textos largos. */
+.pbc-page-hero__index-block {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 24px;
+	margin-top: clamp(28px, 4vw, 44px);
+}
+
+.pbc-page-hero__index {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 4px 20px;
+	padding-top: 16px;
+	border-top: 1px solid var(--pbc-line);
+}
+
+.pbc-page-hero__index-title {
+	margin: 0;
+	color: var(--pbc-ink-2);
+	font-weight: 700;
+}
+
+.pbc-page-hero__index-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0 24px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.pbc-page-hero .pbc-page-hero__index-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	min-height: 44px;
+	color: var(--pbc-sea);
+	font-weight: 700;
+	text-decoration: none;
+}
+
+/* El subrayado va solo en el texto; la flecha queda limpia. */
+.pbc-page-hero__index-text {
+	text-decoration: underline;
+	text-decoration-thickness: 2px;
+	text-underline-offset: 4px;
+}
+
+.pbc-page-hero__index-link::after {
+	content: "↓";
+}
+
+.pbc-page-hero .pbc-page-hero__index-link:hover {
+	color: var(--pbc-ink);
+}
+
+.pbc-page-hero__index-link:hover .pbc-page-hero__index-text {
+	text-decoration-thickness: 3px;
+}
+
+@media (max-width: 479px) {
+	.pbc-page-hero__main {
+		width: 100%;
+	}
+
+	.pbc-page-hero__index-list {
+		flex-direction: column;
+	}
+}
+
 /* ---------- Variante azul oscuro y accesos a las terapias ---------- */
 .pbc-page-hero--dark {
 	background: var(--pbc-sea-dark);
@@ -261,6 +335,14 @@ html[data-contrast="high"] .pbc-page-hero--dark .pbc-page-hero__chip {
 @media (prefers-reduced-motion: no-preference) {
 	.pbc-page-hero__jump:hover::after {
 		transform: translateY(4px);
+	}
+
+	.pbc-page-hero__index-link::after {
+		transition: transform var(--pbc-speed) var(--pbc-ease);
+	}
+
+	.pbc-page-hero__index-link:hover::after {
+		transform: translateY(3px);
 	}
 
 	.pbc-page-hero__chip {
