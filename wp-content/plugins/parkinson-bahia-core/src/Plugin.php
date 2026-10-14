@@ -33,6 +33,8 @@ final class Plugin {
 			new PostTypes\Entidad(),
 			new PostTypes\Espacio(),
 			new PostTypes\Pregunta(),
+			new PostTypes\Recurso(),
+			new PostTypes\Video(),
 		];
 	}
 
@@ -61,6 +63,7 @@ final class Plugin {
 			\WP_CLI::add_command( 'pbc seed-colabora', [ $seed, 'colabora' ] );
 			\WP_CLI::add_command( 'pbc seed-privacidad', [ $seed, 'privacidad' ] );
 			\WP_CLI::add_command( 'pbc seed-terapias', [ $seed, 'terapias' ] );
+			\WP_CLI::add_command( 'pbc seed-familias', [ $seed, 'familias' ] );
 		}
 	}
 }

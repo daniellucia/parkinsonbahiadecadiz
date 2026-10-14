@@ -44,12 +44,14 @@ final class Integration {
 		'donation'    => Widgets\Donation::class,
 		'cta'         => Widgets\Cta::class,
 		'therapy-details' => Widgets\TherapyDetails::class,
+		'resources'   => Widgets\Resources::class,
+		'videos'      => Widgets\Videos::class,
 	];
 
 	/**
 	 * Widgets que tienen JavaScript propio (assets/js/widgets/<slug>.js).
 	 */
-	public const SCRIPTS = [ 'form' ];
+	public const SCRIPTS = [ 'form', 'resources', 'videos' ];
 
 	public function register(): void {
 		add_action( 'init', [ $this, 'register_styles' ] );

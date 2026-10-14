@@ -34,6 +34,7 @@ ddev wp pbc seed-centro      # crea la página «Centro de día» y sus contenid
 ddev wp pbc seed-colabora    # crea la página «Colabora»
 ddev wp pbc seed-privacidad  # crea y publica la política de privacidad y el menú legal del pie
 ddev wp pbc seed-terapias    # completa las terapias y crea la página «Terapias»
+ddev wp pbc seed-familias    # guías (PDF de la web actual), vídeos del canal y la página «Familias y cuidadores»
 ddev launch
 ```
 
@@ -66,11 +67,12 @@ Los comandos se pueden repetir sin duplicar nada. Con `--force` reescriben su p�
 - Buscador en el pie de todas las páginas.
 - Indicador de carga en el botón al enviar cualquier formulario.
 
-### Plugin `parkinson-bahia-core` (versión 1.6.0)
+### Plugin `parkinson-bahia-core` (versión 1.7.0)
 
 - **Tipo de contenido «Terapias»**: una página por terapia, con resumen, foto, orden, «Qué trabajamos» (un punto por línea) y «Quién la hace».
 - **Menú «La asociación» del escritorio**, con los datos que alimentan esa página: Historia (hitos por año), Equipo profesional (puestos y número de personas), Junta directiva (nombre y cargo), Documentos de transparencia (con su archivo) y Redes y federaciones (siglas y web).
 - **Menú «Centro de día» del escritorio**: Instalaciones (sala y foto) y Preguntas frecuentes (pregunta, respuesta y tema).
+- **Menú «Familias» del escritorio**: Guías y fichas (archivo y tema, con sus temas) y Vídeos de ejercicios (dirección de YouTube y miniatura).
 - **Widgets de Elementor** (categoría «Párkinson Bahía de Cádiz»):
 
 | Widget | Para qué sirve | De dónde salen los datos |
@@ -97,6 +99,8 @@ Los comandos se pueden repetir sin duplicar nada. Con `--force` reescriben su p�
 | Formulario | Texto y formulario (hacerse socio o voluntariado) | Campos del widget; los envíos van a Formularios |
 | Formas de donar | Texto y una tarjeta por cada medio de donación | Campos del widget |
 | Llamada con botón | Título, texto y uno o dos botones, en franja o en recuadro azul claro | Campos del widget |
+| Guías para descargar | Guías y fichas con filtro por tema | Familias → Guías y fichas |
+| Vídeos de ejercicios | Vídeos que se cargan desde YouTube solo al pulsarlos | Familias → Vídeos de ejercicios |
 | Fichas de terapias | Una sección por terapia: foto, resumen, qué trabajamos y quién la hace | Tipo de contenido Terapias |
 
 - Elementor no carga Google Fonts: las fuentes las sirve el tema.
@@ -132,11 +136,12 @@ Genera solo el fichero [`llms.txt`](https://llmstxt.org/), que resume la web par
 - **Colabora**: montada con cabecera con accesos, formulario de socios, formas de donar, formulario de voluntariado y llamada a empresas. Los donativos todavía no se cobran en línea (solo transferencia y teléfono) y las cuotas de 5, 10 y 20 € son las del boceto, sin confirmar.
 - **Política de privacidad**: publicada y enlazada desde los formularios y el pie. Redactada a partir de los datos conocidos de la asociación y de cómo trata los datos esta web; tiene cuatro puntos marcados «Pendiente de confirmar» (delegado de protección de datos, plazos de conservación, empresa de alojamiento y política de cookies) y **debe revisarla la asociación o su asesoría antes de publicar la web**.
 - **Terapias**: montada con cabecera azul con accesos a cada terapia, fichas de las ocho terapias y llamada final. Faltan las fotos de musicoterapia y apoyo a familias (sin foto la ficha ocupa todo el ancho).
-- Familias y cuidadores y Contacto: creadas, con contenido pendiente.
+- **Familias y cuidadores**: montada con cabecera, primeros pasos tras el diagnóstico, las 13 guías que ya publicaba la web actual (con sus PDF), tres vídeos del canal de YouTube y el apoyo a cuidadores. Faltan las fotos de cabecera y de cuidadores, y revisar si los PDF cumplen accesibilidad (vienen de la web actual y de la FEP).
+- Contacto: creada, con contenido pendiente.
 
 ## Pendiente
 
-- Resto de páginas y sus widgets; tipos de contenido que faltan (recursos, vídeos, prensa, financiadores).
+- Resto de páginas y sus widgets; tipos de contenido que faltan (prensa, financiadores).
 - Donativos en línea: elegir pasarela (Stripe, Redsys, Bizum) e integrarla. Formulario de contacto.
 - Decidir con la asociación: cuotas de socio, texto del mandato SEPA, cuánto tiempo se conservan los envíos y los puntos pendientes de la política de privacidad.
 - Dar de alta Turnstile en Cloudflare y escribir sus claves en Formularios → Ajustes.

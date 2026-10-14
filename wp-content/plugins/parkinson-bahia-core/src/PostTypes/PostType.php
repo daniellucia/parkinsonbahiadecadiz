@@ -34,6 +34,11 @@ abstract class PostType {
 	public const ADMIN_MENU_CENTRE = 'edit.php?post_type=pbc_espacio';
 
 	/**
+	 * Menú del escritorio que agrupa los recursos para familias.
+	 */
+	public const ADMIN_MENU_FAMILIES = 'edit.php?post_type=pbc_recurso';
+
+	/**
 	 * Identificador del tipo de contenido (máx. 20 caracteres).
 	 */
 	abstract public function name(): string;

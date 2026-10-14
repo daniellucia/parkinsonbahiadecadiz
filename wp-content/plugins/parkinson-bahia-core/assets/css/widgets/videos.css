@@ -1,0 +1,175 @@
+/* Widget «Vídeos de ejercicios». */
+.pbc-videos {
+	background: var(--pbc-sea-dark);
+	color: var(--pbc-on-dark);
+}
+
+.pbc-videos__inner {
+	max-width: var(--pbc-width);
+	margin-inline: auto;
+	padding: clamp(56px, 8vw, 96px) var(--pbc-gutter);
+}
+
+.pbc-videos__header {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: end;
+	justify-content: space-between;
+	gap: 12px 40px;
+	margin-bottom: 32px;
+}
+
+.pbc-videos__title {
+	margin: 0;
+	font-family: var(--pbc-font-display);
+	font-size: clamp(1.9rem, 3.6vw, 2.6rem);
+	font-weight: 400;
+	line-height: 1.12;
+}
+
+.pbc-videos__channel {
+	display: flex;
+	align-items: center;
+	min-height: 44px;
+	color: var(--pbc-on-dark);
+	font-weight: 700;
+	text-decoration-thickness: 2px;
+	text-underline-offset: 4px;
+}
+
+.pbc-videos__channel:hover {
+	color: var(--pbc-on-dark);
+	text-decoration-thickness: 3px;
+}
+
+.pbc-videos__list {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+	gap: 28px 20px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.pbc-videos__item {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.pbc-videos__frame {
+	position: relative;
+	overflow: hidden;
+	aspect-ratio: 16 / 9;
+	border-radius: 20px;
+	background: #1A4478;
+}
+
+.pbc-videos__facade {
+	display: block;
+	position: absolute;
+	inset: 0;
+	color: var(--pbc-on-dark);
+	text-decoration: none;
+}
+
+/* Doble clase: Elementor aplica «.elementor img { border-radius: 0 }». */
+.pbc-videos .pbc-videos__image {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	transition: opacity var(--pbc-speed) var(--pbc-ease);
+}
+
+.pbc-videos__play {
+	display: inline-flex;
+	position: absolute;
+	bottom: 16px;
+	left: 16px;
+	align-items: center;
+	gap: 10px;
+	min-height: 48px;
+	padding: 4px 20px 4px 16px;
+	border-radius: var(--pbc-radius-pill);
+	background: var(--pbc-card);
+	color: var(--pbc-sea-dark);
+	font-weight: 700;
+	box-shadow: 0 4px 14px rgb(0 0 0 / 0.25);
+	transition:
+		background-color var(--pbc-speed) var(--pbc-ease),
+		color var(--pbc-speed) var(--pbc-ease);
+}
+
+.pbc-videos__facade:hover .pbc-videos__play {
+	background: var(--pbc-sand);
+	color: var(--pbc-ink);
+}
+
+.pbc-videos__facade:hover .pbc-videos__image {
+	opacity: 0.85;
+}
+
+/* El anillo naranja del tema sobre el azul oscuro: se dibuja dentro del marco para que no lo recorte. */
+.pbc-videos__facade:focus-visible {
+	outline: 4px solid var(--pbc-focus);
+	outline-offset: -4px;
+	border-radius: 20px;
+}
+
+.pbc-videos__player {
+	display: block;
+	width: 100%;
+	height: 100%;
+	border: 0;
+}
+
+.pbc-videos__name {
+	margin: 0;
+	font-family: var(--pbc-font-body);
+	font-size: 1.15rem;
+	font-weight: 700;
+	line-height: 1.35;
+}
+
+.pbc-videos__note {
+	margin: 28px 0 0;
+	color: var(--pbc-on-dark-muted);
+	font-size: 1.05rem;
+}
+
+.pbc-videos__privacy {
+	margin: 12px 0 0;
+	color: var(--pbc-on-dark-muted);
+	font-size: 0.95rem;
+}
+
+.pbc-videos :focus-visible {
+	outline-color: var(--pbc-focus);
+}
+
+/* ---------- Microinteracciones ---------- */
+@media (prefers-reduced-motion: no-preference) {
+	.pbc-videos__play {
+		transition:
+			background-color var(--pbc-speed) var(--pbc-ease),
+			color var(--pbc-speed) var(--pbc-ease),
+			transform var(--pbc-speed) var(--pbc-ease);
+	}
+
+	.pbc-videos__facade:hover .pbc-videos__play {
+		transform: translateY(-2px);
+	}
+
+	.pbc-videos__facade:active .pbc-videos__play {
+		transform: scale(0.97);
+	}
+
+	.pbc-videos__play-icon {
+		transition: transform var(--pbc-speed) var(--pbc-ease);
+	}
+
+	.pbc-videos__facade:hover .pbc-videos__play-icon {
+		transform: translateX(3px);
+	}
+}

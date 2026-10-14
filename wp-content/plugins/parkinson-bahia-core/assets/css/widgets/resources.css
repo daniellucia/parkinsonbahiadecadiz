@@ -1,0 +1,204 @@
+/* Widget «Guías para descargar». */
+.pbc-resources {
+	border-top: 1px solid var(--pbc-line);
+}
+
+.pbc-resources__inner {
+	max-width: var(--pbc-width);
+	margin-inline: auto;
+	padding: clamp(56px, 8vw, 96px) var(--pbc-gutter);
+}
+
+.pbc-resources__header {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: end;
+	justify-content: space-between;
+	gap: 12px 40px;
+	margin-bottom: 28px;
+}
+
+.pbc-resources__title {
+	margin: 0;
+	font-family: var(--pbc-font-display);
+	font-size: clamp(1.9rem, 3.6vw, 2.6rem);
+	font-weight: 400;
+	line-height: 1.12;
+}
+
+.pbc-resources__text {
+	max-width: 28em;
+	margin: 0;
+	color: var(--pbc-ink-2);
+}
+
+/* ---------- Filtro ---------- */
+.pbc-resources__filter {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin-bottom: 12px;
+}
+
+.pbc-resources__filter[hidden] {
+	display: none;
+}
+
+.pbc-resources__chip {
+	min-height: 48px;
+	padding: 8px 20px;
+	border: 2px solid var(--pbc-sea);
+	border-radius: var(--pbc-radius-pill);
+	background: var(--pbc-card);
+	color: var(--pbc-ink);
+	font-family: inherit;
+	font-size: 1rem;
+	font-weight: 700;
+	cursor: pointer;
+	transition:
+		background-color var(--pbc-speed) var(--pbc-ease),
+		color var(--pbc-speed) var(--pbc-ease);
+}
+
+.pbc-resources__chip:hover {
+	background: var(--pbc-mist);
+}
+
+/* El elegido se distingue por el relleno y además por una marca de verificación (no solo por el color). */
+.pbc-resources__chip[aria-pressed="true"] {
+	background: var(--pbc-sea);
+	color: var(--pbc-on-dark);
+}
+
+.pbc-resources__chip[aria-pressed="true"]::before {
+	content: "✓ ";
+}
+
+.pbc-resources__status {
+	min-height: 1.6em;
+	margin: 0 0 16px;
+	color: var(--pbc-ink-2);
+	font-size: 0.95rem;
+}
+
+/* ---------- Lista ---------- */
+.pbc-resources__list {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+	gap: 12px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.pbc-resources__item[hidden] {
+	display: none;
+}
+
+.pbc-resources__link {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	height: 100%;
+	min-height: 72px;
+	padding: 20px 22px;
+	border: 1px solid var(--pbc-line);
+	border-radius: var(--pbc-radius-small);
+	background: var(--pbc-card);
+	color: var(--pbc-ink);
+	text-decoration: none;
+	transition:
+		border-color var(--pbc-speed) var(--pbc-ease),
+		box-shadow var(--pbc-speed) var(--pbc-ease);
+}
+
+.pbc-resources__body {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 0;
+}
+
+.pbc-resources__name {
+	font-size: 1.08rem;
+	font-weight: 700;
+	overflow-wrap: break-word;
+}
+
+.pbc-resources__meta {
+	color: var(--pbc-ink-2);
+	font-size: 0.9rem;
+}
+
+.pbc-resources__icon {
+	display: flex;
+	flex: none;
+	align-items: center;
+	justify-content: center;
+	width: 44px;
+	height: 44px;
+	border-radius: 50%;
+	background: var(--pbc-mist);
+	color: var(--pbc-sea);
+	transition:
+		background-color var(--pbc-speed) var(--pbc-ease),
+		color var(--pbc-speed) var(--pbc-ease);
+}
+
+html[data-contrast="high"] .pbc-resources__icon {
+	border: 1px solid var(--pbc-line);
+}
+
+a.pbc-resources__link:hover {
+	border-color: var(--pbc-sea);
+	box-shadow: 0 4px 14px rgb(15 51 96 / 0.1);
+	color: var(--pbc-ink);
+}
+
+a.pbc-resources__link:hover .pbc-resources__name {
+	color: var(--pbc-sea);
+	text-decoration: underline;
+}
+
+a.pbc-resources__link:hover .pbc-resources__icon {
+	background: var(--pbc-sea);
+	color: var(--pbc-on-dark);
+}
+
+/* ---------- Microinteracciones ---------- */
+@media (prefers-reduced-motion: no-preference) {
+	.pbc-resources__chip {
+		transition:
+			background-color var(--pbc-speed) var(--pbc-ease),
+			color var(--pbc-speed) var(--pbc-ease),
+			transform var(--pbc-speed) var(--pbc-ease);
+	}
+
+	.pbc-resources__chip:active {
+		transform: scale(0.97);
+	}
+
+	.pbc-resources__link {
+		transition:
+			border-color var(--pbc-speed) var(--pbc-ease),
+			box-shadow var(--pbc-speed) var(--pbc-ease),
+			transform var(--pbc-speed) var(--pbc-ease);
+	}
+
+	a.pbc-resources__link:hover {
+		transform: translateY(-2px);
+	}
+
+	a.pbc-resources__link:active {
+		transform: scale(0.99);
+	}
+
+	.pbc-resources__icon svg {
+		transition: transform var(--pbc-speed) var(--pbc-ease);
+	}
+
+	a.pbc-resources__link:hover .pbc-resources__icon svg {
+		transform: translateY(2px);
+	}
+}

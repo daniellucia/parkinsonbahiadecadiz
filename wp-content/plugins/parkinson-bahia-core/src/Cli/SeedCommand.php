@@ -1161,6 +1161,256 @@ final class SeedCommand {
 	}
 
 	/**
+	 * Crea las guías para descargar, los vídeos de ejercicios y la página «Familias y cuidadores».
+	 *
+	 * Las guías son las que ya publica la web actual en /archivos/ y los vídeos,
+	 * los del canal de YouTube de la asociación.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--force]
+	 * : Reescribe el contenido de la página aunque ya tenga widgets.
+	 *
+	 * [--skip-images]
+	 * : No descarga los PDF de las guías ni las miniaturas de los vídeos.
+	 *
+	 * @param string[]             $args       Argumentos posicionales.
+	 * @param array<string, mixed> $assoc_args Opciones.
+	 */
+	public function familias( array $args, array $assoc_args ): void {
+		$this->start();
+
+		$with_files = empty( $assoc_args['skip-images'] );
+		$pages      = $this->seed_pages();
+		$page_id    = $pages['familias-y-cuidadores'];
+
+		// Tema => [ título, archivo en /archivos/ de la web actual ].
+		$guides = [
+			'Alimentación' => [
+				[ 'Consejos sobre alimentación', 'consejos-alimentacion-pacientes-parkinson.pdf' ],
+				[ 'Guía de nutrición para personas con disfagia', 'guia_nutricion_disfalgia.pdf' ],
+			],
+			'Voz y habla'  => [
+				[ 'Ejercicios de habla y voz', 'Ejercicios-fisicos-de-habla-y-voz.pdf' ],
+				[ 'Consejos para comunicarse mejor', 'consejos-sobre-correcta-comunicacion-pacientes-parkinson.pdf' ],
+			],
+			'Memoria'      => [
+				[ 'Cuaderno de ejercicios de memoria', 'mayores-ejercicio-memoria-parkison.pdf' ],
+				[ 'Cuaderno de estimulación cognitiva (nivel avanzado)', 'Cuaderno-de-Estimulacion-cognitiva-nivel-avanzado.pdf' ],
+			],
+			'Vida diaria'  => [
+				[ 'Cómo preparar la visita al neurólogo', 'Guia-Visita-A-Tu-Neurologo.pdf' ],
+				[ 'Registro de mis síntomas', 'Mis sintomas de parkinson.pdf' ],
+				[ 'Consejos para las actividades de la vida diaria', 'consejos-para-actividades-vida-diaria-pacientes-enfermedad-parkinson.pdf' ],
+				[ 'Antes de decir «no puedo», inténtalo', 'antes-de-decir-no-puedo-intentalo.pdf' ],
+				[ 'Cuidados de la piel', 'CUIDADOS_DE_LA_PIEL_FEP.pdf' ],
+				[ 'Mi vida con párkinson. Volumen I', 'mi-vida-con-parkinson-vol-1.pdf' ],
+				[ 'Mi vida con párkinson. Volumen II', 'mi-vida-con-parkinson-vol-2.pdf' ],
+			],
+		];
+
+		$order = 0;
+		foreach ( $guides as $topic => $items ) {
+			$term = term_exists( $topic, PostTypes\Recurso::TAXONOMY );
+			if ( ! $term ) {
+				$term = wp_insert_term( $topic, PostTypes\Recurso::TAXONOMY );
+			}
+			$term_id = is_array( $term ) ? (int) $term['term_id'] : 0;
+
+			foreach ( $items as [ $title, $file ] ) {
+				++$order;
+				$existing = get_posts(
+					[
+						'post_type'      => PostTypes\Recurso::POST_TYPE,
+						'post_status'    => 'any',
+						'title'          => $title,
+						'posts_per_page' => 1,
+						'fields'         => 'ids',
+					]
+				);
+				$guide_id = $existing ? (int) $existing[0] : (int) wp_insert_post(
+					[
+						'post_type'   => PostTypes\Recurso::POST_TYPE,
+						'post_status' => 'publish',
+						'post_title'  => $title,
+						'menu_order'  => $order,
+					]
+				);
+				if ( $term_id > 0 && ! $existing ) {
+					wp_set_object_terms( $guide_id, [ $term_id ], PostTypes\Recurso::TAXONOMY );
+				}
+				if ( $with_files && 0 === absint( get_post_meta( $guide_id, PostTypes\Recurso::META_FILE, true ) ) ) {
+					$file_id = $this->file( 'https://parkinsonbahiadecadiz.org/archivos/' . rawurlencode( $file ), $title );
+					if ( $file_id > 0 ) {
+						update_post_meta( $guide_id, PostTypes\Recurso::META_FILE, $file_id );
+					}
+				}
+			}
+		}
+		WP_CLI::log( 'Contenidos comprobados: ' . PostTypes\Recurso::POST_TYPE );
+
+		// Vídeos del canal de la asociación: título => identificador de YouTube.
+		$videos = [
+			'Equilibrio y reeducación del paso'  => 'QemMkf4iCWM',
+			'Ejercicios para mejorar la postura' => 'hiK66dmsUmc',
+			'Ejercicios de movilidad fina'       => 'AaTPyhEYOjc',
+		];
+		$this->seed_items(
+			PostTypes\Video::POST_TYPE,
+			array_map(
+				static fn ( string $title, string $id ): array => [ $title, '', [ PostTypes\Video::META_URL => 'https://www.youtube.com/watch?v=' . $id ] ],
+				array_keys( $videos ),
+				array_values( $videos )
+			)
+		);
+		if ( $with_files ) {
+			foreach ( $videos as $title => $id ) {
+				$found = get_posts(
+					[
+						'post_type'      => PostTypes\Video::POST_TYPE,
+						'title'          => $title,
+						'posts_per_page' => 1,
+						'fields'         => 'ids',
+					]
+				);
+				if ( $found && ! has_post_thumbnail( $found[0] ) ) {
+					// La miniatura se copia una vez a la biblioteca: la web no pide nada a YouTube hasta que se pulsa el vídeo.
+					$image_id = $this->file( 'https://i.ytimg.com/vi/' . $id . '/hqdefault.jpg', $title, 'video-' . $id . '.jpg' );
+					if ( $image_id > 0 ) {
+						update_post_meta( $image_id, '_wp_attachment_image_alt', '' );
+						set_post_thumbnail( $found[0], $image_id );
+					}
+				}
+			}
+		}
+
+		if ( ! $this->may_write( $page_id, $assoc_args ) ) {
+			WP_CLI::success( 'Familias y cuidadores lista: ' . get_permalink( $page_id ) );
+			return;
+		}
+
+		$this->save_page(
+			$page_id,
+			[
+				'pbc-page-header' => [
+					'title'     => 'Para quien vive el párkinson de cerca',
+					'title_tag' => 'h1',
+					'text'      => 'Guías, ejercicios para casa y apoyo para las familias. Todo gratuito y escrito para que se entienda a la primera.',
+					'variant'   => 'sand',
+				],
+				'pbc-steps'       => [
+					'title'     => 'Si te acaban de dar el diagnóstico',
+					'title_tag' => 'h2',
+					'intro'     => 'Cuatro cosas que nos dicen las familias que les ayudaron al principio.',
+					'items'     => $this->rows(
+						[
+							[
+								'title' => 'Date tiempo',
+								'text'  => 'Es normal sentir miedo o rabia. Muchas personas llevan años viviendo bien con párkinson. No tienes que entenderlo todo hoy.',
+							],
+							[
+								'title' => 'Pregunta todo lo que necesites',
+								'text'  => 'Apunta tus dudas antes de ir al neurólogo. Tenemos una guía para preparar la visita.',
+							],
+							[
+								'title' => 'Muévete cada día',
+								'text'  => 'Caminar, estirarse o bailar ayuda. El ejercicio es parte del tratamiento.',
+							],
+							[
+								'title' => 'Habla con nosotros',
+								'text'  => 'Te contamos qué recursos tienes cerca y te ponemos en contacto con otras familias.',
+							],
+						]
+					),
+				],
+				'pbc-resources'   => [
+					'title'       => 'Guías y fichas para descargar',
+					'title_tag'   => 'h2',
+					'text'        => 'Puedes imprimirlas o pedirnos una copia en papel en el centro.',
+					'show_filter' => 'yes',
+					'all_label'   => 'Todas',
+					'anchor'      => 'recursos',
+				],
+				'pbc-videos'      => [
+					'title'             => 'Ejercicios para hacer en casa',
+					'title_tag'         => 'h2',
+					'count'             => 3,
+					'channel_label'     => 'Ver todos en YouTube',
+					'channel_link_page' => 'custom',
+					'channel_link'      => $this->custom_link( 'https://www.youtube.com/channel/UC7-c1fm0in6KnCjeZzd5Mlg' ),
+					'note'              => 'Haz los ejercicios sentado si no te sientes seguro de pie, y para si notas dolor o mareo.',
+					'privacy_note'      => 'Al pulsar un vídeo se carga desde YouTube, que puede guardar cookies en tu navegador.',
+				],
+				'pbc-media-text'  => [
+					'title'            => 'Cuidar también cansa',
+					'title_tag'        => 'h2',
+					'text'             => "Si cuidas de alguien con párkinson, tú también puedes venir. Tenemos atención psicológica para familiares y grupos de autoayuda donde hablar con otras personas que están pasando por lo mismo.\n\nNo hace falta que tu familiar venga al centro de día.",
+					'button_label'     => 'Llamar al 956 59 19 28',
+					'button_link_page' => 'custom',
+					'button_link'      => $this->custom_link( 'tel:+34956591928' ),
+					'image_side'       => 'right',
+					'variant'          => '',
+				],
+			],
+			'familias'
+		);
+
+		WP_CLI::log( 'Página «Familias y cuidadores» montada con sus widgets.' );
+		WP_CLI::success( 'Familias y cuidadores lista: ' . get_permalink( $page_id ) );
+	}
+
+	/**
+	 * Descarga un archivo a la biblioteca de medios (una sola vez por dirección de origen).
+	 */
+	private function file( string $url, string $title, string $name = '' ): int {
+		$found = get_posts(
+			[
+				'post_type'      => 'attachment',
+				'post_status'    => 'inherit',
+				'posts_per_page' => 1,
+				'fields'         => 'ids',
+				'meta_key'       => self::SOURCE_META, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Comando puntual.
+				'meta_value'     => $url, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Comando puntual.
+			]
+		);
+
+		if ( $found ) {
+			return (int) $found[0];
+		}
+
+		require_once ABSPATH . 'wp-admin/includes/media.php';
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		require_once ABSPATH . 'wp-admin/includes/image.php';
+
+		$tmp = download_url( $url, 120 );
+
+		if ( is_wp_error( $tmp ) ) {
+			WP_CLI::warning( "No se pudo descargar {$url}: " . $tmp->get_error_message() );
+			return 0;
+		}
+
+		$id = media_handle_sideload(
+			[
+				'name'     => '' !== $name ? $name : sanitize_file_name( rawurldecode( wp_basename( (string) wp_parse_url( $url, PHP_URL_PATH ) ) ) ),
+				'tmp_name' => $tmp,
+			],
+			0,
+			$title
+		);
+
+		if ( is_wp_error( $id ) ) {
+			wp_delete_file( $tmp );
+			WP_CLI::warning( "No se pudo guardar {$url}: " . $id->get_error_message() );
+			return 0;
+		}
+
+		update_post_meta( (int) $id, self::SOURCE_META, $url );
+		WP_CLI::log( "Archivo descargado: {$title}" );
+
+		return (int) $id;
+	}
+
+	/**
 	 * Comprobaciones comunes de los comandos que montan páginas: Elementor
 	 * activo y un administrador como usuario actual.
 	 */
