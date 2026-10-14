@@ -17,9 +17,27 @@
 		}
 	}
 
-	/* ---------- Menú ---------- */
+	/* ---------- Menú ----------
+	   En móvil y tableta el menú es un panel que se despliega bajo la
+	   cabecera con el botón «Menú». Se cierra con Escape, con el mismo botón,
+	   al pulsar fuera o al salir del panel con el tabulador. */
+	var header = document.querySelector( '[data-pbc-header]' );
 	var toggle = document.querySelector( '[data-pbc-menu-toggle]' );
+	var toggleLabel = document.querySelector( '[data-pbc-menu-label]' );
 	var nav = document.getElementById( 'pbc-menu' );
+
+	function isOpen() {
+		return !! toggle && toggle.getAttribute( 'aria-expanded' ) === 'true';
+	}
+
+	/* El panel no puede pasar del borde de abajo de la pantalla: si no cabe, se desplaza por dentro. */
+	function fitPanel() {
+		if ( ! nav || ! header ) {
+			return;
+		}
+		var top = header.getBoundingClientRect().bottom;
+		nav.style.maxHeight = isOpen() ? Math.max( 160, window.innerHeight - top ) + 'px' : '';
+	}
 
 	function setMenu( open ) {
 		if ( ! toggle || ! nav ) {
@@ -27,18 +45,41 @@
 		}
 		nav.classList.toggle( 'pbc-nav--open', open );
 		toggle.setAttribute( 'aria-expanded', open ? 'true' : 'false' );
-		toggle.textContent = open ? ( labels.menuClose || 'Cerrar' ) : ( labels.menuOpen || 'Menú' );
+		if ( toggleLabel ) {
+			toggleLabel.textContent = open ? ( labels.menuClose || 'Cerrar' ) : ( labels.menuOpen || 'Menú' );
+		}
+		fitPanel();
 	}
 
 	if ( toggle && nav ) {
 		toggle.hidden = false;
 		toggle.addEventListener( 'click', function () {
-			setMenu( toggle.getAttribute( 'aria-expanded' ) !== 'true' );
+			setMenu( ! isOpen() );
 		} );
 		document.addEventListener( 'keydown', function ( event ) {
-			if ( event.key === 'Escape' && toggle.getAttribute( 'aria-expanded' ) === 'true' ) {
+			if ( event.key === 'Escape' && isOpen() ) {
 				setMenu( false );
 				toggle.focus();
+			}
+		} );
+		// Un clic fuera de la cabecera solo cierra el menú; no activa lo que había debajo.
+		document.addEventListener( 'click', function ( event ) {
+			if ( isOpen() && header && ! header.contains( event.target ) ) {
+				event.preventDefault();
+				setMenu( false );
+			}
+		}, true );
+		// Con el tabulador, al salir del panel se cierra para no tapar lo que viene después.
+		header.addEventListener( 'focusout', function ( event ) {
+			if ( isOpen() && event.relatedTarget && ! header.contains( event.relatedTarget ) ) {
+				setMenu( false );
+			}
+		} );
+		// Un enlace a otra parte de la misma página: se cierra el panel para ver adónde se va.
+		nav.addEventListener( 'click', function ( event ) {
+			var link = event.target.closest( 'a[href*="#"]' );
+			if ( link && isOpen() ) {
+				setMenu( false );
 			}
 		} );
 	}
@@ -51,6 +92,7 @@
 
 		if ( compact ) {
 			root.setAttribute( 'data-nav', 'compact' );
+			fitPanel();
 		} else {
 			root.removeAttribute( 'data-nav' );
 			setMenu( false );
@@ -64,21 +106,31 @@
 	} );
 	updateNavMode();
 
-	/* ---------- Opciones de lectura ---------- */
-	var tools = document.querySelector( '[data-pbc-reading]' );
+	var scrollFrame = 0;
+	window.addEventListener( 'scroll', function () {
+		if ( isOpen() ) {
+			cancelAnimationFrame( scrollFrame );
+			scrollFrame = requestAnimationFrame( fitPanel );
+		}
+	}, { passive: true } );
 
-	if ( tools ) {
-		var sizeButtons = tools.querySelectorAll( '[data-pbc-fs]' );
-		var contrastButton = tools.querySelector( '[data-pbc-contrast]' );
+	/* ---------- Opciones de lectura ----------
+	   Hay dos juegos de botones (barra superior y menú móvil); se mueven a la vez. */
+	var tools = document.querySelectorAll( '[data-pbc-reading]' );
+
+	if ( tools.length ) {
+		var sizeButtons = document.querySelectorAll( '[data-pbc-fs]' );
+		var contrastButtons = document.querySelectorAll( '[data-pbc-contrast]' );
 
 		var syncButtons = function () {
 			var current = root.getAttribute( 'data-fs' ) || '0';
+			var high = root.getAttribute( 'data-contrast' ) === 'high';
 			sizeButtons.forEach( function ( button ) {
 				button.setAttribute( 'aria-pressed', button.getAttribute( 'data-pbc-fs' ) === current ? 'true' : 'false' );
 			} );
-			if ( contrastButton ) {
-				contrastButton.setAttribute( 'aria-pressed', root.getAttribute( 'data-contrast' ) === 'high' ? 'true' : 'false' );
-			}
+			contrastButtons.forEach( function ( button ) {
+				button.setAttribute( 'aria-pressed', high ? 'true' : 'false' );
+			} );
 		};
 
 		sizeButtons.forEach( function ( button ) {
@@ -95,8 +147,8 @@
 			} );
 		} );
 
-		if ( contrastButton ) {
-			contrastButton.addEventListener( 'click', function () {
+		contrastButtons.forEach( function ( button ) {
+			button.addEventListener( 'click', function () {
 				var high = root.getAttribute( 'data-contrast' ) !== 'high';
 				if ( high ) {
 					root.setAttribute( 'data-contrast', 'high' );
@@ -106,10 +158,12 @@
 				store( 'pbc_contrast', high ? '1' : '0' );
 				syncButtons();
 			} );
-		}
+		} );
 
 		syncButtons();
-		tools.hidden = false;
+		tools.forEach( function ( group ) {
+			group.hidden = false;
+		} );
 	}
 
 	/* ---------- Copiar enlace ---------- */

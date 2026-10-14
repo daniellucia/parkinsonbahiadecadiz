@@ -39,7 +39,7 @@
 
 .pbc-feature__facts {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr));
 	align-self: stretch;
 	margin: 8px 0;
 	border-top: 1px solid var(--pbc-line);
@@ -58,7 +58,8 @@
 .pbc-feature__fact-value {
 	margin: 0;
 	font-family: var(--pbc-font-display);
-	font-size: 1.6rem;
+	font-size: clamp(1.35rem, 1rem + 1.5vw, 1.6rem);
+	line-height: 1.2;
 }
 
 .pbc-feature__gallery {

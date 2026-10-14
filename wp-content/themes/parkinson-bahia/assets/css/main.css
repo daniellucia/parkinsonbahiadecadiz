@@ -289,7 +289,17 @@ img {
 	margin: 32px 0 0;
 }
 
-/* ---------- Barra de utilidades ---------- */
+/* Móvil: los botones de una misma fila ocupan todo el ancho, más fáciles de acertar. */
+@media (max-width: 479px) {
+	.pbc-actions > .pbc-button {
+		flex: 1 1 100%;
+	}
+}
+
+/* ---------- Barra de utilidades ----------
+   Teléfono y horario a la izquierda; tamaño del texto y contraste a la
+   derecha. En móvil solo queda el teléfono: el horario y las opciones de
+   lectura pasan al panel del menú. */
 .pbc-utility {
 	background: var(--pbc-sea-dark);
 	color: var(--pbc-on-dark);
@@ -301,17 +311,17 @@ img {
 	flex-wrap: wrap;
 	align-items: center;
 	justify-content: space-between;
-	gap: 8px 24px;
+	gap: 4px 24px;
 	max-width: var(--pbc-width);
 	margin-inline: auto;
-	padding: 8px var(--pbc-gutter);
+	padding: 4px var(--pbc-gutter);
 }
 
 .pbc-utility__contact {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
-	gap: 6px 22px;
+	gap: 0 22px;
 }
 
 .pbc-utility__phone {
@@ -337,23 +347,44 @@ img {
 	text-decoration: underline;
 }
 
-.pbc-utility__hours,
-.pbc-utility__label {
+.pbc-utility__hours {
 	color: var(--pbc-on-dark-muted);
 }
 
-.pbc-utility__tools {
+@media (max-width: 639px) {
+	.pbc-utility__hours,
+	.pbc-utility .pbc-utility__tools {
+		display: none;
+	}
+}
+
+/* ---------- Opciones de lectura ----------
+   El mismo grupo de botones sirve sobre fondo oscuro (barra superior) y
+   claro (panel del menú); cada sitio fija sus colores con variables. */
+.pbc-reading {
+	--pbc-reading-fg: var(--pbc-on-dark);
+	--pbc-reading-border: rgb(255 255 255 / 0.65);
+	--pbc-reading-hover: var(--pbc-on-dark);
+	--pbc-reading-on-bg: var(--pbc-on-dark);
+	--pbc-reading-on-fg: var(--pbc-sea-dark);
+
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	gap: 6px;
 }
 
-.pbc-utility__label {
+.pbc-reading__label {
 	margin-right: 4px;
+	color: var(--pbc-on-dark-muted);
 }
 
-.pbc-utility__button {
+.pbc-reading__sizes {
+	display: inline-flex;
+	gap: 6px;
+}
+
+.pbc-reading__button {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -361,10 +392,10 @@ img {
 	min-width: 44px;
 	min-height: 44px;
 	padding: 0;
-	border: 2px solid rgb(255 255 255 / 0.65);
+	border: 2px solid var(--pbc-reading-border);
 	border-radius: 8px;
 	background: transparent;
-	color: var(--pbc-on-dark);
+	color: var(--pbc-reading-fg);
 	font-family: inherit;
 	font-size: 0.85rem;
 	font-weight: 700;
@@ -372,26 +403,30 @@ img {
 	cursor: pointer;
 }
 
-.pbc-utility__button[aria-pressed="true"] {
-	border-color: var(--pbc-on-dark);
-	background: var(--pbc-on-dark);
-	color: var(--pbc-sea-dark);
+.pbc-reading__button:hover {
+	border-color: var(--pbc-reading-hover);
 }
 
-.pbc-utility__button--size-1 {
+.pbc-reading__button[aria-pressed="true"] {
+	border-color: var(--pbc-reading-on-bg);
+	background: var(--pbc-reading-on-bg);
+	color: var(--pbc-reading-on-fg);
+}
+
+.pbc-reading__button--size-1 {
 	font-size: 1.05rem;
 }
 
-.pbc-utility__button--size-2 {
+.pbc-reading__button--size-2 {
 	font-size: 1.3rem;
 }
 
-.pbc-utility__button--contrast {
+.pbc-reading__button--contrast {
 	margin-left: 8px;
 	padding: 0 14px;
 }
 
-.pbc-utility__contrast-icon {
+.pbc-reading__contrast-icon {
 	width: 16px;
 	height: 16px;
 	border: 2px solid currentColor;
@@ -399,10 +434,26 @@ img {
 	background: linear-gradient(90deg, currentColor 50%, transparent 50%);
 }
 
-/* ---------- Cabecera ---------- */
+/* ---------- Cabecera ----------
+   Logotipo, botón de llamar y botón «Menú» en una sola fila. Se queda fija
+   arriba al bajar cuando la pantalla tiene altura suficiente (con zoom
+   grande o el móvil en horizontal no, para no tapar media pantalla). */
 .pbc-header {
+	position: relative;
+	z-index: 50;
 	border-bottom: 1px solid var(--pbc-line);
 	background: var(--pbc-paper);
+}
+
+@media (min-height: 560px) {
+	.pbc-header {
+		position: sticky;
+		top: 0;
+	}
+
+	:root {
+		--pbc-sticky-top: calc(4.3rem + 32px);
+	}
 }
 
 .pbc-header__inner {
@@ -410,10 +461,10 @@ img {
 	flex-wrap: wrap;
 	align-items: center;
 	justify-content: space-between;
-	gap: 0 24px;
+	gap: 8px 16px;
 	max-width: var(--pbc-width);
 	margin-inline: auto;
-	padding: 14px var(--pbc-gutter);
+	padding: 12px var(--pbc-gutter);
 }
 
 .pbc-header__brand a {
@@ -438,31 +489,179 @@ img {
 
 .pbc-header__actions {
 	display: flex;
+	align-items: center;
 	gap: 8px;
 }
 
 .pbc-header__call,
 .pbc-header__toggle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	min-width: 48px;
 	min-height: 48px;
-	padding: 0 16px;
+	border: 2px solid transparent;
+	border-radius: var(--pbc-radius-pill);
+	font-family: inherit;
+	font-size: 1rem;
+	font-weight: 700;
+	line-height: 1;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.pbc-header__call {
+	padding: 0 18px 0 14px;
+	background: var(--pbc-sea);
+	color: var(--pbc-on-dark);
+}
+
+.pbc-header__call:hover {
+	background: var(--pbc-ink);
+	color: var(--pbc-on-dark);
+}
+
+.pbc-header__call-icon {
+	flex: none;
+}
+
+.pbc-header__toggle {
+	padding: 0 18px 0 14px;
+	border-color: var(--pbc-ink);
+	background: transparent;
+	color: var(--pbc-ink);
+}
+
+.pbc-header__toggle:hover {
+	background: var(--pbc-sand);
+}
+
+.pbc-header__toggle[aria-expanded="true"] {
+	background: var(--pbc-ink);
+	color: var(--pbc-on-dark);
+}
+
+/* Icono de hamburguesa: tres rayas que pasan a ser un aspa al abrir. */
+.pbc-header__burger {
+	position: relative;
+	display: block;
+	flex: none;
+	width: 22px;
+	height: 16px;
+}
+
+.pbc-header__burger-line,
+.pbc-header__burger::before,
+.pbc-header__burger::after {
+	position: absolute;
+	left: 0;
+	width: 100%;
+	height: 2.5px;
+	border-radius: 2px;
+	background: currentColor;
+}
+
+.pbc-header__burger-line {
+	top: calc(50% - 1.25px);
+}
+
+.pbc-header__burger::before,
+.pbc-header__burger::after {
+	content: "";
+}
+
+.pbc-header__burger::before {
+	top: 0;
+}
+
+.pbc-header__burger::after {
+	bottom: 0;
+}
+
+.pbc-header__toggle[aria-expanded="true"] .pbc-header__burger-line {
+	opacity: 0;
+}
+
+.pbc-header__toggle[aria-expanded="true"] .pbc-header__burger::before {
+	transform: translateY(6.75px) rotate(45deg);
+}
+
+.pbc-header__toggle[aria-expanded="true"] .pbc-header__burger::after {
+	transform: translateY(-6.75px) rotate(-45deg);
+}
+
+/* Móvil estrecho: el botón de llamar queda solo con el icono (su nombre
+   accesible sigue siendo «Llamar al …») y el logotipo algo más pequeño. */
+@media (max-width: 419px) {
+	.pbc-header__call {
+		padding: 0;
+	}
+
+	.pbc-header__call-text {
+		display: none;
+	}
+
+	.pbc-header__brand img {
+		height: 40px;
+	}
+}
+
+@media (max-width: 359px) {
+	.pbc-header__brand img {
+		height: 32px;
+	}
+
+	.pbc-header__inner {
+		column-gap: 8px;
+	}
+
+	.pbc-header__actions {
+		gap: 6px;
+	}
+
+	.pbc-header__toggle {
+		padding: 0 14px 0 12px;
+	}
 }
 
 /* ---------- Menú principal ----------
-   Por defecto (móvil y tableta) es una lista vertical bajo la cabecera.
-   Con JavaScript queda plegado hasta pulsar «Menú». En pantallas anchas
-   se muestra en línea; main.js marca data-nav="compact" cuando el texto
-   ampliado ya no cabe. */
+   Sin JavaScript es una lista vertical bajo la cabecera. Con JavaScript, en
+   móvil y tableta (data-nav="compact", lo pone main.js según el ancho y el
+   tamaño del texto) es un panel que se despliega sobre la página con el
+   botón «Menú». En pantallas anchas se muestra en línea. */
 .pbc-nav {
+	flex-basis: 100%;
+	border-top: 1px solid var(--pbc-line);
+}
+
+.pbc-nav__panel {
 	display: flex;
 	flex-direction: column;
-	flex-basis: 100%;
-	margin-top: 14px;
-	padding-bottom: 6px;
-	border-top: 1px solid var(--pbc-line);
+	max-width: var(--pbc-width);
+	margin-inline: auto;
+	padding: 8px 0 28px;
 }
 
 .js .pbc-nav:not(.pbc-nav--open) {
 	display: none;
+}
+
+.js[data-nav="compact"] .pbc-nav {
+	position: absolute;
+	top: 100%;
+	right: 0;
+	left: 0;
+	overflow-y: auto;
+	overscroll-behavior: contain;
+	background: var(--pbc-paper);
+	/* Sombra que oscurece la página por debajo del panel, sin tapar la cabecera. */
+	box-shadow: 0 0 0 100vmax rgb(28 37 43 / 0.45);
+	clip-path: inset(0 -100vmax -100vmax -100vmax);
+}
+
+.js[data-nav="compact"] .pbc-nav__panel {
+	padding-inline: var(--pbc-gutter);
 }
 
 .pbc-nav__list {
@@ -476,8 +675,10 @@ img {
 .pbc-nav__link {
 	display: flex;
 	align-items: center;
-	min-height: 52px;
-	padding: 14px 4px;
+	justify-content: space-between;
+	gap: 16px;
+	min-height: 56px;
+	padding: 12px 12px 12px 14px;
 	border-bottom: 1px solid var(--pbc-line);
 	color: var(--pbc-ink);
 	font-size: 1.15rem;
@@ -485,33 +686,117 @@ img {
 	text-decoration: none;
 }
 
+/* Flecha «>» al final de cada enlace del panel. */
+.pbc-nav__link::after {
+	content: "";
+	flex: none;
+	width: 10px;
+	height: 10px;
+	border-top: 2.5px solid currentColor;
+	border-right: 2.5px solid currentColor;
+	transform: rotate(45deg);
+}
+
 .pbc-nav__link:hover {
+	background: var(--pbc-sand);
 	color: var(--pbc-sea);
 }
 
 .pbc-nav__link[aria-current="page"] {
+	background: var(--pbc-mist);
+	box-shadow: inset 4px 0 0 var(--pbc-sea);
+	color: var(--pbc-sea);
 	font-weight: 700;
-	text-decoration: underline;
-	text-decoration-thickness: 3px;
-	text-underline-offset: 6px;
 }
 
 .pbc-nav__cta {
-	margin-top: 16px;
+	margin-top: 20px;
 	font-size: 1.1rem;
 }
 
+.pbc-nav__contact {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 2px;
+	margin: 20px 0 0;
+	padding: 18px 20px;
+	border-radius: var(--pbc-radius-small);
+	background: var(--pbc-sand);
+}
+
+.pbc-nav__contact-label,
+.pbc-nav__hours {
+	color: var(--pbc-ink-2);
+	font-size: 0.95rem;
+}
+
+.pbc-nav__phone {
+	display: inline-flex;
+	align-items: center;
+	min-height: 48px;
+	color: var(--pbc-ink);
+	font-family: var(--pbc-font-display);
+	font-size: 1.7rem;
+	text-decoration: none;
+}
+
+.pbc-nav__phone:hover {
+	color: var(--pbc-sea);
+	text-decoration: underline;
+}
+
+/* Opciones de lectura dentro del panel: solo en móvil, donde la barra superior no las muestra. */
+.pbc-nav .pbc-nav__tools {
+	--pbc-reading-fg: var(--pbc-ink);
+	--pbc-reading-border: var(--pbc-ink-2);
+	--pbc-reading-hover: var(--pbc-ink);
+	--pbc-reading-on-bg: var(--pbc-sea);
+	--pbc-reading-on-fg: var(--pbc-on-dark);
+
+	display: none;
+	gap: 8px;
+	margin: 20px 0 0;
+	padding: 14px 16px 16px;
+	border-radius: var(--pbc-radius-small);
+	background: var(--pbc-mist);
+}
+
+.pbc-nav__tools .pbc-reading__label {
+	flex-basis: 100%;
+	color: var(--pbc-ink-2);
+	font-size: 0.95rem;
+}
+
+.pbc-nav__tools .pbc-reading__button {
+	min-width: 48px;
+	min-height: 48px;
+}
+
+.pbc-nav__tools .pbc-reading__button--contrast {
+	margin-left: 0;
+}
+
+@media (max-width: 639px) {
+	.pbc-nav .pbc-nav__tools:not([hidden]) {
+		display: flex;
+	}
+}
+
+/* Tableta: los enlaces del panel en dos columnas. */
+@media (min-width: 640px) {
+	.js[data-nav="compact"] .pbc-nav__list {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		column-gap: 32px;
+	}
+
+	.js[data-nav="compact"] .pbc-nav__cta {
+		align-self: flex-start;
+	}
+}
+
 @media (min-width: 1200px) {
-	html:not([data-nav="compact"]) .pbc-header {
-		position: sticky;
-		top: 0;
-		z-index: 50;
-	}
-
-	html:not([data-nav="compact"]) {
-		--pbc-sticky-top: calc(4.3rem + 32px);
-	}
-
 	html:not([data-nav="compact"]) .pbc-header__inner {
 		flex-wrap: nowrap;
 	}
@@ -520,20 +805,23 @@ img {
 		flex-shrink: 0;
 	}
 
-	html:not([data-nav="compact"]) .pbc-header__actions {
+	html:not([data-nav="compact"]) .pbc-header__actions,
+	html:not([data-nav="compact"]) .pbc-nav__contact {
 		display: none;
 	}
 
 	html:not([data-nav="compact"]) .pbc-nav,
 	html:not([data-nav="compact"]).js .pbc-nav:not(.pbc-nav--open) {
-		display: flex;
+		display: block;
 		flex-basis: auto;
+		border-top: 0;
+	}
+
+	html:not([data-nav="compact"]) .pbc-nav__panel {
 		flex-direction: row;
 		align-items: center;
 		gap: 2px;
-		margin-top: 0;
-		padding-bottom: 0;
-		border-top: 0;
+		padding: 0;
 	}
 
 	html:not([data-nav="compact"]) .pbc-nav__list {
@@ -553,9 +841,22 @@ img {
 		white-space: nowrap;
 	}
 
+	html:not([data-nav="compact"]) .pbc-nav__link::after {
+		content: none;
+	}
+
 	html:not([data-nav="compact"]) .pbc-nav__link:hover {
 		background: var(--pbc-sand);
 		color: var(--pbc-ink);
+	}
+
+	html:not([data-nav="compact"]) .pbc-nav__link[aria-current="page"] {
+		background: transparent;
+		box-shadow: none;
+		color: var(--pbc-ink);
+		text-decoration: underline;
+		text-decoration-thickness: 3px;
+		text-underline-offset: 6px;
 	}
 
 	html:not([data-nav="compact"]) .pbc-nav__cta {
@@ -569,40 +870,42 @@ img {
 }
 
 /* ---------- Migas de pan ----------
-   Todos los elementos (enlaces, separador y página actual) comparten la
-   misma altura y se centran en vertical para que el texto quede alineado. */
+   Texto corrido: los elementos van en línea para que un título largo siga
+   detrás de la barra y, si no cabe, continúe en la línea de abajo. Los
+   enlaces mantienen 44 px de alto para acertar con el dedo. */
 .pbc-breadcrumb {
 	margin-bottom: clamp(24px, 4vw, 48px);
 	font-size: 0.95rem;
 }
 
 .pbc-breadcrumb__list {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: 0 8px;
 	margin: 0;
 	padding: 0;
 	list-style: none;
 	color: var(--pbc-ink-2);
+	line-height: 1.5;
 }
 
 .pbc-breadcrumb__item {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	min-height: 44px;
-	line-height: 1.4;
+	display: inline;
 }
 
 .pbc-breadcrumb__item + .pbc-breadcrumb__item::before {
 	content: "/";
+	margin-inline: 8px;
 }
 
 .pbc-breadcrumb__link {
-	display: flex;
+	display: inline-flex;
 	align-items: center;
 	min-height: 44px;
+	vertical-align: middle;
+}
+
+/* Subrayado siempre: dentro de una línea de texto el enlace no puede distinguirse solo por el color
+   (doble clase para ganar a «.elementor a» de Elementor). */
+.pbc-breadcrumb .pbc-breadcrumb__link {
+	text-decoration: underline;
 }
 
 /* ---------- Cabecera de página ---------- */
@@ -839,6 +1142,17 @@ img {
 	background: var(--pbc-mist);
 }
 
+@media (max-width: 599px) {
+	.pbc-contact__map,
+	.pbc-contact__map-frame {
+		min-height: 260px;
+	}
+
+	.pbc-contact__map {
+		border-radius: 120px var(--pbc-radius-small) var(--pbc-radius-small) var(--pbc-radius-small);
+	}
+}
+
 /* Hueco del mapa con contenido del plugin: aviso y botón hasta que se pide el mapa. */
 .pbc-contact__map--facade {
 	display: flex;
@@ -948,6 +1262,22 @@ html[data-contrast="high"] .pbc-contact__map--facade {
 	outline-offset: 3px;
 }
 
+/* Móvil: los logotipos en dos columnas iguales, para que la banda quede ordenada. */
+@media (max-width: 599px) {
+	.pbc-footer__funders-list {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(min(100%, 130px), 1fr));
+	}
+
+	.pbc-footer__funder-link,
+	.pbc-footer__funder > .pbc-footer__funder-name,
+	.pbc-footer .pbc-footer__funder > .pbc-footer__funder-logo {
+		flex: 1;
+		min-width: 0;
+		max-width: none;
+	}
+}
+
 .pbc-footer__columns {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
@@ -971,6 +1301,15 @@ html[data-contrast="high"] .pbc-contact__map--facade {
 .pbc-footer__legal {
 	color: var(--pbc-footer-muted);
 	font-size: 0.95rem;
+}
+
+.pbc-footer__heading {
+	margin: 0 0 6px;
+	color: var(--pbc-footer-muted);
+	font-family: var(--pbc-font-body);
+	font-size: 0.95rem;
+	font-weight: 700;
+	line-height: 1.4;
 }
 
 .pbc-footer__list {
@@ -1027,7 +1366,9 @@ html[data-contrast="high"] .pbc-contact__map--facade {
    no ha pedido reducirlo (ver también la regla global de más arriba). */
 a,
 .pbc-button,
-.pbc-utility__button,
+.pbc-reading__button,
+.pbc-header__call,
+.pbc-header__toggle,
 .pbc-nav__link,
 .pbc-footer__link,
 .pbc-search__input {
@@ -1039,43 +1380,48 @@ a,
 		text-decoration-color var(--pbc-speed) var(--pbc-ease);
 }
 
-.pbc-utility__button:hover {
-	border-color: var(--pbc-on-dark);
-}
-
 .pbc-search__input:focus {
 	border-color: var(--pbc-sea);
 }
 
 @media (prefers-reduced-motion: no-preference) {
 	.pbc-button,
-	.pbc-utility__button {
+	.pbc-reading__button,
+	.pbc-header__call,
+	.pbc-header__toggle {
 		transition-property: color, background-color, border-color, box-shadow, transform;
 	}
 
-	.pbc-button:hover {
+	.pbc-button:hover,
+	.pbc-header__call:hover {
 		box-shadow: 0 6px 16px -8px rgb(28 37 43 / 0.45);
 		transform: translateY(-1px);
 	}
 
 	.pbc-button:active,
-	.pbc-utility__button:active {
+	.pbc-reading__button:active,
+	.pbc-header__call:active,
+	.pbc-header__toggle:active {
 		box-shadow: none;
 		transform: scale(0.97);
 	}
-}
 
-/* ---------- Buscador dentro del pie ---------- */
-.pbc-footer .pbc-search {
-	margin-block: 16px 0;
-}
+	/* Hamburguesa a aspa, y la flecha de cada enlace del panel que avanza un poco. */
+	.pbc-header__burger-line,
+	.pbc-header__burger::before,
+	.pbc-header__burger::after {
+		transition:
+			transform var(--pbc-speed) var(--pbc-ease),
+			opacity var(--pbc-speed) var(--pbc-ease);
+	}
 
-.pbc-footer .pbc-search__input {
-	border-color: var(--pbc-on-dark);
-}
+	.pbc-nav__link::after {
+		transition: transform var(--pbc-speed) var(--pbc-ease);
+	}
 
-.pbc-footer .pbc-button--primary {
-	border-color: var(--pbc-on-dark);
+	.pbc-nav__link:hover::after {
+		transform: translateX(4px) rotate(45deg);
+	}
 }
 
 /* ---------- Botón enviando ---------- */

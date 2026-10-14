@@ -57,6 +57,19 @@
 	font-weight: 500;
 }
 
+/* Móvil: dos fotos por fila para que la galería no se haga eterna; a 320 px o con zoom grande, una. */
+@media (min-width: 340px) and (max-width: 599px) {
+	.pbc-spaces__list {
+		grid-template-columns: 1fr 1fr;
+		gap: 20px 12px;
+	}
+
+	.pbc-spaces__caption {
+		font-size: 0.95rem;
+		line-height: 1.35;
+	}
+}
+
 .pbc-spaces__footnote {
 	margin: 24px 0 0;
 	color: var(--pbc-ink-2);

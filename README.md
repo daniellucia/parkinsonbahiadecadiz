@@ -59,18 +59,18 @@ Los comandos se pueden repetir sin duplicar nada. Con `--force` reescriben su p�
 
 ## Funcionalidades
 
-### Tema `parkinson-bahia` (versión 1.4.2)
+### Tema `parkinson-bahia` (versión 1.5.0)
 
 - Diseño tomado del proyecto de claude.ai/design «Rediseño Asociación Párkinson Cádiz»: colores, tipografías (Atkinson Hyperlegible Next y Young Serif, alojadas en el tema) y componentes.
-- Barra superior con teléfono, horario, tres tamaños de texto y alto contraste (se recuerdan en el navegador).
-- Cabecera con logotipo, menú principal y botón destacado; en móvil, botones «Llamar» y «Menú».
-- Bloque de contacto común antes del pie y pie como en el diseño: logotipos de los financiadores, datos de la asociación, menús «La asociación» (Quiénes somos, Equipo y junta directiva, Transparencia) e «Información legal» (Declaración de accesibilidad, Aviso legal, Privacidad y cookies) y redes sociales. El hueco del mapa lo rellena el plugin. Sobre el diseño se mantienen el buscador (segunda forma de encontrar páginas, que pide WCAG), X entre las redes y el crédito del autor.
+- Barra superior con teléfono, horario, tres tamaños de texto y alto contraste (se recuerdan en el navegador). En móvil solo muestra el teléfono; el horario y las opciones de lectura pasan al menú.
+- Cabecera con logotipo, menú principal y botón destacado, fija arriba al bajar (salvo en pantallas muy bajas). En móvil y tableta, una sola fila con logotipo, botón de llamar (solo icono por debajo de 420 px) y botón «Menú» con icono de hamburguesa que se convierte en aspa: abre un panel sobre la página con los enlaces (dos columnas en tableta), «Hazte socio», las opciones de lectura (en móvil) y el teléfono con el horario. Se cierra con Escape, con el mismo botón, al pulsar fuera o al salir con el tabulador. Sin JavaScript el menú se ve como una lista.
+- Ajustes para móvil en los widgets: horario del día más compacto, instalaciones en dos columnas, datos de la cabecera de página uno por fila, títulos principales algo más pequeños, botones de portada y llamadas a la acción a todo el ancho, logotipos de financiadores en rejilla y hueco del mapa más bajo.
+- Bloque de contacto común antes del pie y pie como en el diseño: logotipos de los financiadores, datos de la asociación, menús «La asociación» (Quiénes somos, Equipo y junta directiva, Transparencia) e «Información legal» (Declaración de accesibilidad, Aviso legal, Privacidad y cookies) y redes sociales. El hueco del mapa lo rellena el plugin. Cada columna del pie lleva su título. Sobre el diseño se mantienen X entre las redes y el crédito del autor.
 - Plantillas: Actualidad (noticia destacada, filtro por categoría, paginación y «En los medios»), noticia, página, página de Elementor a ancho completo, tipos de contenido propios, búsqueda y 404.
 - Datos de contacto, botón de cabecera, redes y textos del pie editables en Apariencia → Personalizar.
-- Buscador en el pie de todas las páginas.
 - Indicador de carga en el botón al enviar cualquier formulario.
 
-### Plugin `parkinson-bahia-core` (versión 1.12.0)
+### Plugin `parkinson-bahia-core` (versión 1.12.1)
 
 - **Tipo de contenido «Terapias»**: una página por terapia, con resumen, foto, orden, «Qué trabajamos» (un punto por línea) y «Quién la hace».
 - **Menú «La asociación» del escritorio**, con los datos que alimentan esa página: Historia (hitos por año), Equipo profesional (puestos y número de personas), Junta directiva (nombre y cargo), Documentos de transparencia (con su archivo) y Redes y federaciones (siglas y web).
@@ -149,6 +149,8 @@ Genera solo el fichero [`llms.txt`](https://llmstxt.org/), que resume la web par
 - **Contacto**: montada con el formulario de contacto (nombre, teléfono, correo opcional, tema y mensaje opcional) junto al título y el teléfono en grande; debajo, el bloque de contacto común con el mapa.
 
 ## Pendiente
+
+- Se ha quitado el buscador del pie a petición del cliente. WCAG 2.2 AA (criterio 2.4.5, «Múltiples vías») pide al menos dos formas de llegar a cada página: el menú principal es una; falta decidir la segunda (por ejemplo, un mapa del sitio enlazado desde el pie o el buscador dentro del panel del menú). Sigue habiendo buscador en la página 404 y en los resultados de búsqueda.
 
 - Logotipo de Hidralia y versiones oficiales de los demás logotipos a buena resolución (el de FANDEP mide 115 px y el de «la Caixa» es el antiguo de Obra Social). Fotos que faltan en Terapias, Familias y La asociación.
 - Revisar con la asociación los puntos «Pendiente de confirmar» de la declaración de accesibilidad y hacer la revisión manual completa.

@@ -45,21 +45,11 @@ $pbc_cta_url    = TemplateTags::mod( 'pbc_cta_url' );
 			<?php endif; ?>
 		</div>
 
-		<?php // Los botones solo funcionan con JavaScript; sin él no se muestran. ?>
-		<div class="pbc-utility__tools" role="group" aria-label="<?php esc_attr_e( 'Opciones de lectura', 'parkinson-bahia' ); ?>" data-pbc-reading hidden>
-			<span class="pbc-utility__label"><?php esc_html_e( 'Tamaño del texto', 'parkinson-bahia' ); ?></span>
-			<button class="pbc-utility__button pbc-utility__button--size-0" type="button" data-pbc-fs="0" aria-pressed="true" aria-label="<?php esc_attr_e( 'A: texto normal', 'parkinson-bahia' ); ?>">A</button>
-			<button class="pbc-utility__button pbc-utility__button--size-1" type="button" data-pbc-fs="1" aria-pressed="false" aria-label="<?php esc_attr_e( 'A: texto grande', 'parkinson-bahia' ); ?>">A</button>
-			<button class="pbc-utility__button pbc-utility__button--size-2" type="button" data-pbc-fs="2" aria-pressed="false" aria-label="<?php esc_attr_e( 'A: texto muy grande', 'parkinson-bahia' ); ?>">A</button>
-			<button class="pbc-utility__button pbc-utility__button--contrast" type="button" data-pbc-contrast aria-pressed="false">
-				<span class="pbc-utility__contrast-icon" aria-hidden="true"></span>
-				<?php esc_html_e( 'Alto contraste', 'parkinson-bahia' ); ?>
-			</button>
-		</div>
+		<?php get_template_part( 'template-parts/reading-tools', null, [ 'block' => 'pbc-utility' ] ); ?>
 	</div>
 </div>
 
-<header class="pbc-header">
+<header class="pbc-header" data-pbc-header>
 	<div class="pbc-header__inner">
 		<div class="pbc-header__brand">
 			<?php if ( has_custom_logo() ) : ?>
@@ -71,32 +61,46 @@ $pbc_cta_url    = TemplateTags::mod( 'pbc_cta_url' );
 
 		<div class="pbc-header__actions">
 			<?php if ( '' !== $pbc_phone_href ) : ?>
-				<a class="pbc-button pbc-button--primary pbc-header__call" href="<?php echo esc_url( $pbc_phone_href ); ?>" aria-label="<?php echo esc_attr( sprintf( /* translators: %s: número de teléfono. */ __( 'Llamar al %s', 'parkinson-bahia' ), $pbc_phone ) ); ?>">
-					<?php esc_html_e( 'Llamar', 'parkinson-bahia' ); ?>
+				<a class="pbc-header__call" href="<?php echo esc_url( $pbc_phone_href ); ?>" aria-label="<?php echo esc_attr( sprintf( /* translators: %s: número de teléfono. */ __( 'Llamar al %s', 'parkinson-bahia' ), $pbc_phone ) ); ?>">
+					<svg class="pbc-header__call-icon" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg>
+					<span class="pbc-header__call-text"><?php esc_html_e( 'Llamar', 'parkinson-bahia' ); ?></span>
 				</a>
 			<?php endif; ?>
-			<button class="pbc-button pbc-button--outline-ink pbc-header__toggle" type="button" aria-expanded="false" aria-controls="pbc-menu" data-pbc-menu-toggle hidden>
-				<?php esc_html_e( 'Menú', 'parkinson-bahia' ); ?>
+			<button class="pbc-header__toggle" type="button" aria-expanded="false" aria-controls="pbc-menu" data-pbc-menu-toggle hidden>
+				<span class="pbc-header__burger" aria-hidden="true"><span class="pbc-header__burger-line"></span></span>
+				<span class="pbc-header__toggle-text" data-pbc-menu-label><?php esc_html_e( 'Menú', 'parkinson-bahia' ); ?></span>
 			</button>
 		</div>
 
 		<nav class="pbc-nav" id="pbc-menu" aria-label="<?php esc_attr_e( 'Menú principal', 'parkinson-bahia' ); ?>">
-			<?php
-			wp_nav_menu(
-				[
-					'theme_location' => 'primary',
-					'container'      => false,
-					'menu_class'     => 'pbc-nav__list',
-					'depth'          => 1,
-					'fallback_cb'    => false,
-					'pbc_item_class' => 'pbc-nav__item',
-					'pbc_link_class' => 'pbc-nav__link',
-				]
-			);
-			?>
-			<?php if ( '' !== $pbc_cta_label && '' !== $pbc_cta_url ) : ?>
-				<a class="pbc-button pbc-button--accent pbc-nav__cta" href="<?php echo esc_url( $pbc_cta_url ); ?>"><?php echo esc_html( $pbc_cta_label ); ?></a>
-			<?php endif; ?>
+			<div class="pbc-nav__panel">
+				<?php
+				wp_nav_menu(
+					[
+						'theme_location' => 'primary',
+						'container'      => false,
+						'menu_class'     => 'pbc-nav__list',
+						'depth'          => 1,
+						'fallback_cb'    => false,
+						'pbc_item_class' => 'pbc-nav__item',
+						'pbc_link_class' => 'pbc-nav__link',
+					]
+				);
+				?>
+				<?php if ( '' !== $pbc_cta_label && '' !== $pbc_cta_url ) : ?>
+					<a class="pbc-button pbc-button--accent pbc-nav__cta" href="<?php echo esc_url( $pbc_cta_url ); ?>"><?php echo esc_html( $pbc_cta_label ); ?></a>
+				<?php endif; ?>
+				<?php get_template_part( 'template-parts/reading-tools', null, [ 'block' => 'pbc-nav' ] ); ?>
+				<?php if ( '' !== $pbc_phone_href ) : ?>
+					<p class="pbc-nav__contact">
+						<span class="pbc-nav__contact-label"><?php esc_html_e( '¿Prefieres hablar con nosotros?', 'parkinson-bahia' ); ?></span>
+						<a class="pbc-nav__phone" href="<?php echo esc_url( $pbc_phone_href ); ?>"><?php echo esc_html( $pbc_phone ); ?></a>
+						<?php if ( '' !== $pbc_hours ) : ?>
+							<span class="pbc-nav__hours"><?php echo esc_html( $pbc_hours ); ?></span>
+						<?php endif; ?>
+					</p>
+				<?php endif; ?>
+			</div>
 		</nav>
 	</div>
 </header>

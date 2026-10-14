@@ -52,11 +52,11 @@ if ( apply_filters( 'parkinson_bahia/show_contact_band', ! is_404() ) ) {
 			<?php if ( '' !== $pbc_legal_name ) : ?>
 				<span class="pbc-footer__legal"><?php echo esc_html( $pbc_legal_name ); ?></span>
 			<?php endif; ?>
-			<?php get_search_form(); ?>
 		</div>
 
 		<?php if ( has_nav_menu( 'footer-asociacion' ) ) : ?>
-			<nav class="pbc-footer__nav" aria-label="<?php esc_attr_e( 'La asociación', 'parkinson-bahia' ); ?>">
+			<nav class="pbc-footer__nav" aria-labelledby="pbc-footer-asociacion">
+				<h2 class="pbc-footer__heading" id="pbc-footer-asociacion"><?php esc_html_e( 'La asociación', 'parkinson-bahia' ); ?></h2>
 				<?php
 				wp_nav_menu(
 					[
@@ -74,7 +74,8 @@ if ( apply_filters( 'parkinson_bahia/show_contact_band', ! is_404() ) ) {
 		<?php endif; ?>
 
 		<?php if ( $pbc_social ) : ?>
-			<nav class="pbc-footer__nav" aria-label="<?php esc_attr_e( 'Redes sociales', 'parkinson-bahia' ); ?>">
+			<nav class="pbc-footer__nav" aria-labelledby="pbc-footer-redes">
+				<h2 class="pbc-footer__heading" id="pbc-footer-redes"><?php esc_html_e( 'Redes sociales', 'parkinson-bahia' ); ?></h2>
 				<ul class="pbc-footer__list">
 					<?php foreach ( $pbc_social as $pbc_network => $pbc_url ) : ?>
 						<li class="pbc-footer__item"><a class="pbc-footer__link" href="<?php echo esc_url( $pbc_url ); ?>"><?php echo esc_html( $pbc_network ); ?></a></li>
@@ -84,7 +85,8 @@ if ( apply_filters( 'parkinson_bahia/show_contact_band', ! is_404() ) ) {
 		<?php endif; ?>
 
 		<?php if ( has_nav_menu( 'footer-legal' ) ) : ?>
-			<nav class="pbc-footer__nav" aria-label="<?php esc_attr_e( 'Información legal', 'parkinson-bahia' ); ?>">
+			<nav class="pbc-footer__nav" aria-labelledby="pbc-footer-legal">
+				<h2 class="pbc-footer__heading" id="pbc-footer-legal"><?php esc_html_e( 'Información legal', 'parkinson-bahia' ); ?></h2>
 				<?php
 				wp_nav_menu(
 					[

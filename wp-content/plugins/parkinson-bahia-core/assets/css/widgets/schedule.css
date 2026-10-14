@@ -80,3 +80,20 @@
 .pbc-schedule__item-text {
 	color: var(--pbc-ink-2);
 }
+
+/* Móvil: la hora pasa a una columna estrecha para dejar sitio al texto. */
+@media (max-width: 479px) {
+	.pbc-schedule__item {
+		gap: 14px;
+		padding-bottom: 24px;
+	}
+
+	.pbc-schedule__time {
+		width: 3.3em;
+		font-size: 1.2rem;
+	}
+
+	.pbc-schedule__detail {
+		padding-left: 14px;
+	}
+}

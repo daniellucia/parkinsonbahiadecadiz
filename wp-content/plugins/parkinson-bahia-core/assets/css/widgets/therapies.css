@@ -78,17 +78,9 @@
 }
 
 /* ---------- Microinteracciones ---------- */
-.pbc-therapies__link {
-	transition: background-color var(--pbc-speed) var(--pbc-ease);
-}
-
 .pbc-therapies__name,
 .pbc-therapies__text {
 	transition: transform var(--pbc-speed) var(--pbc-ease);
-}
-
-.pbc-therapies__link:hover {
-	background: rgb(255 255 255 / 0.07);
 }
 
 @media (prefers-reduced-motion: no-preference) {

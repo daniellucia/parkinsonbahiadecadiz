@@ -27,7 +27,7 @@
 	margin: 0;
 	color: var(--pbc-ink);
 	font-family: var(--pbc-font-display);
-	font-size: clamp(2.3rem, 5.2vw, 3.9rem);
+	font-size: clamp(2rem, 1.1rem + 4.2vw, 3.9rem);
 	font-weight: 400;
 	line-height: 1.08;
 	letter-spacing: -0.01em;
@@ -47,6 +47,13 @@
 	flex-wrap: wrap;
 	gap: 12px;
 	margin-top: 4px;
+}
+
+/* Móvil: botones a todo el ancho, más fáciles de acertar. */
+@media (max-width: 479px) {
+	.pbc-hero__actions > * {
+		flex: 1 1 100%;
+	}
 }
 
 .pbc-hero__actions:empty {
