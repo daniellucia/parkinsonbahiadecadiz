@@ -54,6 +54,7 @@ final class Plugin {
 
 		if ( is_admin() ) {
 			( new Forms\Settings() )->register();
+			( new Forms\Crm() )->register();
 		}
 
 		if ( is_admin() ) {

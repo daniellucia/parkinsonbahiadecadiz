@@ -70,7 +70,7 @@ Los comandos se pueden repetir sin duplicar nada. Con `--force` reescriben su p�
 - Buscador en el pie de todas las páginas.
 - Indicador de carga en el botón al enviar cualquier formulario.
 
-### Plugin `parkinson-bahia-core` (versión 1.11.0)
+### Plugin `parkinson-bahia-core` (versión 1.12.0)
 
 - **Tipo de contenido «Terapias»**: una página por terapia, con resumen, foto, orden, «Qué trabajamos» (un punto por línea) y «Quién la hace».
 - **Menú «La asociación» del escritorio**, con los datos que alimentan esa página: Historia (hitos por año), Equipo profesional (puestos y número de personas), Junta directiva (nombre y cargo), Documentos de transparencia (con su archivo) y Redes y federaciones (siglas y web).
@@ -115,6 +115,7 @@ Los comandos se pueden repetir sin duplicar nada. Con `--force` reescriben su p�
   - Se envían sin recargar la página, con indicador de carga en el botón y errores explicados junto a cada campo; también funcionan sin JavaScript.
   - Protección contra robots sin acertijos: campo trampa, marca de tiempo firmada, comprobación de origen, límite de envíos y, opcionalmente, **Cloudflare Turnstile**.
   - Los envíos se guardan en **Formularios** del escritorio, solo para administradores. DNI e IBAN se validan (letra y dígitos de control) y se guardan **cifrados**; nunca viajan por correo.
+  - **Seguimiento tipo CRM** en la lista de Formularios: columnas con formulario, teléfono (se puede llamar con un clic), correo y qué pide cada persona; filtros por formulario y por estado; accesos «Nuevo / En seguimiento / Cerrado» con su número; búsqueda por nombre, teléfono, correo, mensaje o notas; cambio de estado en lote; y, al abrir un envío, un cuadro «Seguimiento» con el estado y notas internas. Junto al menú se ve cuántos envíos nuevos hay. Además de guardarse, cada envío manda un aviso (nombre y teléfono) al correo de Formularios → Ajustes.
   - Casilla de aceptación con enlace a la política de privacidad (se abre en otra pestaña) y, debajo, la información básica de protección de datos.
   - **Formularios → Ajustes**: correo que recibe los avisos y claves de Turnstile, escritas una sola vez para todos los formularios.
 - «Cabecera de página» admite fondo azul oscuro y accesos automáticos a cada terapia (enlazan con «Fichas de terapias»).

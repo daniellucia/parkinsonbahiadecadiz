@@ -19,15 +19,15 @@ defined( 'ABSPATH' ) || exit;
 final class Submissions {
 
 	public const POST_TYPE    = 'pbc_envio';
-	private const META_TYPE   = '_pbc_form';
-	private const META_DATA   = '_pbc_data';
+	public const META_TYPE    = '_pbc_form';
+	public const META_DATA    = '_pbc_data';
+	public const META_STATUS  = '_pbc_status';
+	public const META_NOTES   = '_pbc_notes';
 	private const META_SECRET = '_pbc_secret_';
 
 	public function register(): void {
 		add_action( 'init', [ $this, 'register_post_type' ] );
 		add_action( 'add_meta_boxes_' . self::POST_TYPE, [ $this, 'add_meta_box' ] );
-		add_filter( 'manage_' . self::POST_TYPE . '_posts_columns', [ $this, 'columns' ] );
-		add_action( 'manage_' . self::POST_TYPE . '_posts_custom_column', [ $this, 'column' ], 10, 2 );
 	}
 
 	public function register_post_type(): void {
@@ -103,6 +103,7 @@ final class Submissions {
 
 		update_post_meta( $post_id, self::META_TYPE, $type );
 		update_post_meta( $post_id, self::META_DATA, $data );
+		update_post_meta( $post_id, self::META_STATUS, Crm::DEFAULT_STATUS );
 
 		foreach ( $encrypted as $name => $cipher ) {
 			update_post_meta( $post_id, self::META_SECRET . $name, $cipher );
@@ -112,23 +113,33 @@ final class Submissions {
 	}
 
 	/**
-	 * @param array<string, string> $columns Columnas.
+	 * Nombre legible de cada campo guardado.
+	 *
 	 * @return array<string, string>
 	 */
-	public function columns( array $columns ): array {
+	public static function labels(): array {
 		return [
-			'cb'       => $columns['cb'] ?? '',
-			'title'    => __( 'Formulario y nombre', 'parkinson-bahia-core' ),
-			'pbc_tel'  => __( 'Teléfono', 'parkinson-bahia-core' ),
-			'date'     => __( 'Recibido', 'parkinson-bahia-core' ),
+			'cuota'  => __( 'Aportación (euros al mes)', 'parkinson-bahia-core' ),
+			'nombre' => __( 'Nombre', 'parkinson-bahia-core' ),
+			'dni'    => __( 'DNI o NIE', 'parkinson-bahia-core' ),
+			'tel'    => __( 'Teléfono', 'parkinson-bahia-core' ),
+			'email'  => __( 'Correo electrónico', 'parkinson-bahia-core' ),
+			'iban'   => __( 'Número de cuenta (IBAN)', 'parkinson-bahia-core' ),
+			'areas'  => __( 'En qué quiere ayudar', 'parkinson-bahia-core' ),
+			'motivo' => __( 'Sobre qué quiere hablar', 'parkinson-bahia-core' ),
+			'mensaje' => __( 'Mensaje', 'parkinson-bahia-core' ),
 		];
 	}
 
-	public function column( string $column, int $post_id ): void {
-		if ( 'pbc_tel' === $column ) {
-			$data = get_post_meta( $post_id, self::META_DATA, true );
-			echo esc_html( is_array( $data ) ? (string) ( $data['tel'] ?? '' ) : '' );
-		}
+	/**
+	 * Datos no sensibles de un envío.
+	 *
+	 * @return array<string, mixed>
+	 */
+	public static function data( int $post_id ): array {
+		$data = get_post_meta( $post_id, self::META_DATA, true );
+
+		return is_array( $data ) ? $data : [];
 	}
 
 	public function add_meta_box(): void {
@@ -141,21 +152,10 @@ final class Submissions {
 		}
 
 		$type = (string) get_post_meta( $post->ID, self::META_TYPE, true );
-		$data = get_post_meta( $post->ID, self::META_DATA, true );
-		$data = is_array( $data ) ? $data : [];
+		$data = self::data( $post->ID );
 
 		// Se muestran todos los campos del formulario, también los sensibles aunque ahora no haya clave.
-		$labels = [
-			'cuota'  => __( 'Aportación (euros al mes)', 'parkinson-bahia-core' ),
-			'nombre' => __( 'Nombre', 'parkinson-bahia-core' ),
-			'dni'    => __( 'DNI o NIE', 'parkinson-bahia-core' ),
-			'tel'    => __( 'Teléfono', 'parkinson-bahia-core' ),
-			'email'  => __( 'Correo electrónico', 'parkinson-bahia-core' ),
-			'iban'   => __( 'Número de cuenta (IBAN)', 'parkinson-bahia-core' ),
-			'areas'  => __( 'En qué quiere ayudar', 'parkinson-bahia-core' ),
-			'motivo' => __( 'Sobre qué quiere hablar', 'parkinson-bahia-core' ),
-			'mensaje' => __( 'Mensaje', 'parkinson-bahia-core' ),
-		];
+		$labels = self::labels();
 		?>
 		<p><strong><?php esc_html_e( 'Formulario:', 'parkinson-bahia-core' ); ?></strong> <?php echo esc_html( Definitions::types()[ $type ] ?? $type ); ?></p>
 		<table class="widefat striped">
